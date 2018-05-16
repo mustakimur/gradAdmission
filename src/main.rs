@@ -1,24 +1,29 @@
-#![feature(plugin)]
+#![feature(plugin,custom_derive)]
 #![plugin(rocket_codegen)]
 
 extern crate rocket;
-#[macro_use] extern crate rocket_contrib;
-#[macro_use] extern crate serde_derive;
 
-#[cfg(test)] mod tests;
+// #[macro_use] extern crate rocket_contrib;
+// #[macro_use] extern crate serde_derive;
 
-use rocket_contrib::{Json, Value};
-use rocket::State;
-use std::collections::HashMap;
-use std::sync::Mutex;
+// #[cfg(test)] mod tests;
+
+// use rocket_contrib::{Json, Value};
+// use rocket::State;
+// use std::collections::HashMap;
+// use std::sync::Mutex;
+
+use std::io;
+use rocket::response::NamedFile;
+use rocket::response::Redirect;
 
 // The type to represent the ID of a message.
-type ID = usize;
+//type ID = usize;
 
 // We're going to store all of the messages here. No need for a DB.
-type MessageMap = Mutex<HashMap<ID, String>>;
+//type MessageMap = Mutex<HashMap<ID, String>>;
 
-#[derive(Serialize, Deserialize)]
+/* #[derive(Serialize, Deserialize)]
 struct Message {
     id: Option<ID>,
     contents: String
@@ -67,13 +72,36 @@ fn not_found() -> Json<Value> {
         "status": "error",
         "reason": "Resource was not found."
     }))
+} */
+
+#[get("/")]
+fn index() -> io::Result<NamedFile> {
+    NamedFile::open("html/login.html")
+}
+
+#[get("/main")]
+fn mainpg() -> io::Result<NamedFile> {
+    NamedFile::open("html/applicants.html")
+}
+
+#[derive(FromForm,Debug)]
+struct User{
+    user: String,
+    password: String,
+    remember: Option<String>
+}
+
+#[get("/login?<user>")]
+fn login(user: User) -> Redirect {
+    println!("{:?}", user);
+    Redirect::to("/main")
 }
 
 fn rocket() -> rocket::Rocket {
     rocket::ignite()
-        .mount("/message", routes![new, update, get])
-        .catch(errors![not_found])
-        .manage(Mutex::new(HashMap::<ID, String>::new()))
+        .mount("/", routes![index, login, mainpg])
+       // .catch(errors![not_found])
+       // .manage(Mutex::new(HashMap::<ID, String>::new()))
 }
 
 fn main() {
