@@ -1,0 +1,42 @@
+CREATE TABLE `ApplicationsTbl` (
+	`EmpID`	INTEGER NOT NULL,
+	`ApplicantID`	INTEGER NOT NULL,
+	`Name`	TEXT NOT NULL,
+	`DOB`	TEXT NOT NULL,
+	`Gender`	TEXT NOT NULL,
+	`Country`	TEXT NOT NULL,
+	`Program`	TEXT NOT NULL,
+	`Degree`	TEXT NOT NULL,
+	`Interests`	TEXT NOT NULL,
+	`UG_University`	INTEGER NOT NULL,
+	`UG_Major`	TEXT NOT NULL,
+	`UG_Degree`	TEXT NOT NULL,
+	`UG_GPA`	REAL NOT NULL,
+	`Grad_University`	TEXT NOT NULL,
+	`Grad_Major`	TEXT NOT NULL,
+	`Grad_Degree`	TEXT NOT NULL,
+	`Grad_GPA`	REAL NOT NULL,
+	`TOEFL_IELTS`	INTEGER NOT NULL,
+	`GRE_Verb`	INTEGER NOT NULL,
+	`GRE_Quanti`	INTEGER NOT NULL,
+	`GRE_Combined`	INTEGER NOT NULL,
+	`Decision`	TEXT NOT NULL,
+	`Advisor`	TEXT NOT NULL,
+	`Assistantship`	INTEGER NOT NULL,
+	`FTE`	INTEGER NOT NULL,
+	`YearlyAmount`	INTEGER NOT NULL,
+	PRIMARY KEY(`EmpID`)
+);
+
+CREATE TABLE `CommentsTbl` (
+	`EmpID`	INTEGER NOT NULL,
+	`Commenter`	TEXT NOT NULL,
+	`Opinion`	TEXT NOT NULL
+);
+
+CREATE TABLE `UsersTbl` (
+	`Username`	TEXT NOT NULL,
+	`Role`	TEXT NOT NULL,
+	`Password`	TEXT NOT NULL,
+	PRIMARY KEY(`Username`)
+);
