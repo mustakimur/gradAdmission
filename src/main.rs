@@ -1,6 +1,7 @@
 #![feature(plugin,custom_derive)]
 #![plugin(rocket_codegen)]
 #![feature(extern_prelude)]
+#![recursion_limit="128"]
 
 extern crate rocket;
 pub mod db;

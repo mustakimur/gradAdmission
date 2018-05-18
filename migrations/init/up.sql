@@ -8,7 +8,7 @@ CREATE TABLE `ApplicationsTbl` (
 	`Program`	TEXT NOT NULL,
 	`Degree`	TEXT NOT NULL,
 	`Interests`	TEXT NOT NULL,
-	`UG_University`	INTEGER NOT NULL,
+	`UG_University`	TEXT NOT NULL,
 	`UG_Major`	TEXT NOT NULL,
 	`UG_Degree`	TEXT NOT NULL,
 	`UG_GPA`	REAL NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE `ApplicationsTbl` (
 	`GRE_Combined`	INTEGER NOT NULL,
 	`Decision`	TEXT NOT NULL,
 	`Advisor`	TEXT NOT NULL,
-	`Assistantship`	INTEGER NOT NULL,
+	`Assistantship`	TEXT NOT NULL,
 	`FTE`	REAL NOT NULL,
 	`YearlyAmount`	INTEGER NOT NULL,
 	PRIMARY KEY(`EmpID`)

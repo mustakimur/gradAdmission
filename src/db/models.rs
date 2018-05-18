@@ -48,7 +48,7 @@ pub struct User {
 }
 
 #[derive(Insertable)]
-#[table_name = "basicinfo"]
+#[table_name = "ApplicationsTbl"]
 pub struct NewApplication {
     pub EmpID: i32,
     pub ApplicantID: i32,
@@ -62,19 +62,19 @@ pub struct NewApplication {
     pub UG_University: String,
     pub UG_Major: String,
     pub UG_Degree: String,
-    pub UG_GPA: String,
+    pub UG_GPA: f32,
     pub Grad_University: String,
     pub Grad_Major: String,
     pub Grad_Degree: String,
-    pub Grad_GPA: String,
-    pub TOEFL_IELTS: String,
-    pub GRE_Verb: String,
-    pub GRE_Quanti: String,
-    pub GRE_Combined: String,
+    pub Grad_GPA: f32,
+    pub TOEFL_IELTS: i32,
+    pub GRE_Verb: i32,
+    pub GRE_Quanti: i32,
+    pub GRE_Combined: i32,
     pub Decision: String,
     pub Advisor: String,
     pub Assistantship: String,
-    pub FTE: String,
-    pub YearlyAmount: String,
+    pub FTE: f32,
+    pub YearlyAmount: i32,
 }
 

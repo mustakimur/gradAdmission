@@ -36,49 +36,37 @@ pub fn show_all() {
 pub fn create_app() -> usize {
     use self::schema::ApplicationsTbl;
 
-    let new_app = NewApp {
-        id: 90202,
-        first_name: "Zhi".to_string(),
-        last_name: "Wang",
-        program: "MS",
-        nationality: "CHN",
-        sex: "F",
-        under_college: "Xi'an Jiaotong University",
-        under_gpa: 3.4f32,
-        ms_college: None,
-        ms_gpa: None,
-        interests: "Security",
-        decision: "pending",
-    };
-
     let new_app = NewApplication {
-        EmpId: 90202,
-        ApplicationId: 90090,
+        EmpID: 90202,
+        ApplicantID: 90090,
         Name: "Wang, Zhi".to_string(),
-        DOC: "05/12/1990".to_string(),
+        DOB: "05/12/1990".to_string(),
         Gender: "M".to_string(),
-        Country: "CHN",
-        Program: "CS",
-        Degree: "CS",
-        Interests: "CS",
-        UG_University: "CS",
-        UG_Major: "CS",
-        UG_GPA: "CS",
-        Grad_University: "CS",
-        Grad_Major: "CS",
-        Grad_Degree: "CS",
-        TOEFL_IELTS: "CS",
-        GRE_Verb: "CS",
-        GRE_Quanti: "CS",
-        GRE_Combined: "CS",
-        Decision: "CS",
-        Advisor: "CS",
-        FTE: "CS",
-        YearlyAmount: "CS",
+        Country: "CHN".to_string(),
+        Program: "CS".to_string(),
+        Degree: "PhD".to_string(),
+        Interests: "Security".to_string(),
+        UG_University: "Xi'an Jiaotong University".to_string(),
+        UG_Major: "CS".to_string(),
+        UG_Degree: "BS".to_string(),
+        UG_GPA: 3.8f32,
+        Grad_University: "Xi'an Jiaotong University".to_string(),
+        Grad_Major: "CS".to_string(),
+        Grad_Degree: "MS".to_string(),
+        Grad_GPA:3.8f32,
+        TOEFL_IELTS: 140,
+        GRE_Verb: 500,
+        GRE_Quanti: 500,
+        GRE_Combined: 1400,
+        Decision: "Pending".to_string(),
+        Advisor: "Xuxian Jiang".to_string(),
+        Assistantship: "RA".to_string(),
+        FTE: 0.5,
+        YearlyAmount: 22000,
     };
 
     let db_conn = connect_db();
-    diesel::insert_into(basicinfo::table)
+    diesel::insert_into(ApplicationsTbl::table)
         .values(&new_app)
         .execute(&db_conn)
         .expect("error")

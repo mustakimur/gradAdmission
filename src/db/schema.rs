@@ -9,7 +9,7 @@ table! {
         Program -> Text,
         Degree -> Text,
         Interests -> Text,
-        UG_University -> Integer,
+        UG_University -> Text,
         UG_Major -> Text,
         UG_Degree -> Text,
         UG_GPA -> Float,
@@ -23,7 +23,7 @@ table! {
         GRE_Combined -> Integer,
         Decision -> Text,
         Advisor -> Text,
-        Assistantship -> Integer,
+        Assistantship -> Text,
         FTE -> Float,
         YearlyAmount -> Integer,
     }
