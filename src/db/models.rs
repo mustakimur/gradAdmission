@@ -1,34 +1,80 @@
-use super::schema::basicinfo;
+use super::schema::ApplicationsTbl;
+use super::schema::CommentsTbl;
+use super::schema::UsersTbl;
 
-#[derive(Queryable,Debug)]
-pub struct Basicinfo {
-    pub id: i32,
-    pub first_name: String,
-    pub last_name: String,
-    pub nationality: String,
-    pub sex: String,
-    pub program: String,
-    pub under_college: String,
-    pub under_gpa: f32,
-    pub ms_college: Option<String>,
-    pub ms_gpa: Option<f32>,
-    pub interests: Option<String>,
-    pub decision: String,
+#[derive(Queryable, Debug)]
+pub struct Application {
+    pub EmpID: i32,
+    pub ApplicantID: i32,
+    pub Name: String,
+    pub DOB: String,
+    pub Gender: String,
+    pub Country: String,
+    pub Program: String,
+    pub Degree: String,
+    pub Interests: String,
+    pub UG_University: String,
+    pub UG_Major: String,
+    pub UG_Degree: String,
+    pub UG_GPA: f32,
+    pub Grad_University: String,
+    pub Grad_Major: String,
+    pub Grad_Degree: String,
+    pub Grad_GPA: f32,
+    pub TOEFL_IELTS: i32,
+    pub GRE_Verb: i32,
+    pub GRE_Quanti: i32,
+    pub GRE_Combined: i32,
+    pub Decision: String,
+    pub Advisor: String,
+    pub Assistantship: String,
+    pub FTE: f32,
+    pub YearlyAmount: i32,
+}
+
+#[derive(Queryable, Debug)]
+pub struct Comment {
+    pub CommentId: i32,
+    pub EmpID: i32,
+    pub Commenter: i32,
+    pub Opinion: i32,
+}
+
+#[derive(Queryable, Debug)]
+pub struct User {
+    pub Username: String,
+    pub Role: String,
+    pub Password: String,
 }
 
 #[derive(Insertable)]
 #[table_name = "basicinfo"]
-pub struct NewApp<'a> {
-    pub id: i32,
-    pub first_name: String,
-    pub last_name:  &'a str,
-    pub nationality:  &'a str,
-    pub sex:  &'a str,
-    pub program:  &'a str,
-    pub under_college:  &'a str,
-    pub under_gpa: f32,
-    pub ms_college: Option< &'a str>,
-    pub ms_gpa: Option<f32>,
-    pub interests:  &'a str,
-    pub decision:  &'a str,
+pub struct NewApplication {
+    pub EmpID: i32,
+    pub ApplicantID: i32,
+    pub Name: String,
+    pub DOB: String,
+    pub Gender: String,
+    pub Country: String,
+    pub Program: String,
+    pub Degree: String,
+    pub Interests: String,
+    pub UG_University: String,
+    pub UG_Major: String,
+    pub UG_Degree: String,
+    pub UG_GPA: String,
+    pub Grad_University: String,
+    pub Grad_Major: String,
+    pub Grad_Degree: String,
+    pub Grad_GPA: String,
+    pub TOEFL_IELTS: String,
+    pub GRE_Verb: String,
+    pub GRE_Quanti: String,
+    pub GRE_Combined: String,
+    pub Decision: String,
+    pub Advisor: String,
+    pub Assistantship: String,
+    pub FTE: String,
+    pub YearlyAmount: String,
 }
+
