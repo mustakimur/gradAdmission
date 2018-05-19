@@ -8,7 +8,7 @@ pub mod db;
 
 #[macro_use] extern crate diesel;
 extern crate dotenv;
-
+extern crate csv;
 
 // #[macro_use] extern crate rocket_contrib;
 // #[macro_use] extern crate serde_derive;
@@ -113,6 +113,7 @@ fn rocket() -> rocket::Rocket {
 
 fn main() {
     //rocket().launch();
-    db::create_app();
+    //db::create_app();
     db::show_all();
+    db::import_csv();
 }

@@ -1,43 +1,43 @@
 CREATE TABLE `ApplicationsTbl` (
-	`EmpID`	INTEGER NOT NULL,
-	`ApplicantID`	INTEGER NOT NULL,
-	`Name`	TEXT NOT NULL,
-	`DOB`	TEXT NOT NULL,
-	`Gender`	TEXT NOT NULL,
-	`Country`	TEXT NOT NULL,
-	`Program`	TEXT NOT NULL,
-	`Degree`	TEXT NOT NULL,
-	`Interests`	TEXT NOT NULL,
-	`UG_University`	TEXT NOT NULL,
-	`UG_Major`	TEXT NOT NULL,
-	`UG_Degree`	TEXT NOT NULL,
-	`UG_GPA`	REAL NOT NULL,
-	`Grad_University`	TEXT NOT NULL,
-	`Grad_Major`	TEXT NOT NULL,
-	`Grad_Degree`	TEXT NOT NULL,
-	`Grad_GPA`	REAL NOT NULL,
-	`TOEFL_IELTS`	INTEGER NOT NULL,
-	`GRE_Verb`	INTEGER NOT NULL,
-	`GRE_Quanti`	INTEGER NOT NULL,
-	`GRE_Combined`	INTEGER NOT NULL,
-	`Decision`	TEXT NOT NULL,
-	`Advisor`	TEXT NOT NULL,
-	`Assistantship`	TEXT NOT NULL,
-	`FTE`	REAL NOT NULL,
-	`YearlyAmount`	INTEGER NOT NULL,
-	PRIMARY KEY(`EmpID`)
+	`emp_id`	INTEGER NOT NULL,
+	`applicant_id`	INTEGER NOT NULL,
+	`name`	TEXT NOT NULL,
+	`dob`	TEXT NOT NULL,
+	`gender`	TEXT NOT NULL,
+	`country`	TEXT NOT NULL,
+	`program`	TEXT NOT NULL,
+	`degree`	TEXT NOT NULL,
+	`interests`	TEXT NOT NULL,
+	`ug_university`	TEXT NOT NULL,
+	`ug_major`	TEXT NOT NULL,
+	`ug_degree`	TEXT NOT NULL,
+	`ug_gpa`	REAL NOT NULL,
+	`grad_university`	TEXT NOT NULL,
+	`grad_major`	TEXT NOT NULL,
+	`grad_degree`	TEXT NOT NULL,
+	`grad_gpa`	REAL NOT NULL,
+	`toefl_ielts`	INTEGER NOT NULL,
+	`gre_verb`	INTEGER NOT NULL,
+	`gre_quanti`	INTEGER NOT NULL,
+	`gre_combined`	INTEGER NOT NULL,
+	`decision`	TEXT NOT NULL,
+	`advisor`	TEXT NOT NULL,
+	`assistantship`	TEXT NOT NULL,
+	`fte`	REAL NOT NULL,
+	`yearly_amount`	INTEGER NOT NULL,
+	PRIMARY KEY(`emp_id`)
 );
 
 CREATE TABLE `CommentsTbl` (
-	`CommentId`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`EmpID`	INTEGER NOT NULL,
-	`Commenter`	TEXT NOT NULL,
-	`Opinion`	TEXT NOT NULL
+	`comment_id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	`emp_id`	INTEGER NOT NULL,
+	`commenter`	TEXT NOT NULL,
+	`opinion`	TEXT NOT NULL
 );
 
 CREATE TABLE `UsersTbl` (
-	`Username`	TEXT NOT NULL,
-	`Role`	TEXT NOT NULL,
-	`Password`	TEXT NOT NULL,
-	PRIMARY KEY(`Username`)
+	`user_name`	TEXT NOT NULL,
+	`role`	TEXT NOT NULL,
+	`password`	TEXT NOT NULL,
+	PRIMARY KEY(`user_name`)
 );
