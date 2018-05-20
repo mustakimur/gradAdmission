@@ -25,7 +25,7 @@ CREATE TABLE `ApplicationsTbl` (
 	`assistantship`	TEXT NOT NULL,
 	`fte`	REAL NOT NULL,
 	`yearly_amount`	INTEGER NOT NULL,
-	PRIMARY KEY(`emp_id`)
+	PRIMARY KEY(`applicant_id`)
 );
 
 CREATE TABLE `CommentsTbl` (

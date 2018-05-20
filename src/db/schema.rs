@@ -1,5 +1,5 @@
 table! {
-    ApplicationsTbl (emp_id) {
+    ApplicationsTbl (applicant_id) {
         emp_id -> Integer,
         applicant_id -> Integer,
         name -> Text,
