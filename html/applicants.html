@@ -6,20 +6,17 @@
 	<link rel="shortcut icon" type="image/ico" href="http://www.datatables.net/favicon.ico">
 	<meta name="viewport" content="initial-scale=1.0, maximum-scale=2.0">
 	<title>Applications to FSU CS Graduate Programs</title>
+
 	<link rel="stylesheet" type="text/css" href="resources/jquery.dataTables.css">
-	<link rel="stylesheet" type="text/css" href="resources/demo.css">
-	<script type="text/javascript" language="javascript" src="http://code.jquery.com/jquery-1.12.4.js">
-	</script>
-	<script type="text/javascript" language="javascript" src="resources/jquery.dataTables.js">
-	</script>
-	<!-- 	<script type="text/javascript" language="javascript" src="resources/demo.js">
-	</script> -->
+	<link rel="stylesheet" type="text/css" href="resources/simple.css">
+	<script type="text/javascript" language="javascript" src="http://code.jquery.com/jquery-1.12.4.js"></script>
+	<script type="text/javascript" language="javascript" src="resources/jquery.dataTables.js"></script>
+
 	<script type="text/javascript" language="javascript" class="init">
 		$(document).ready(function () {
 			// Setup - add a text input to each footer cell
 			$('#applicants tfoot th').each(function () {
-				var title = $(this).text();
-				$(this).html('<input type="text" placeholder="Search" />');
+				$(this).html('<input type="text" placeholder="  Search" size="8em"/>');
 			});
 
 			// DataTable
@@ -28,8 +25,9 @@
 					"url": "/apps",
 					"dataSrc": ""
 				},
+
 				"columns": [
-					{ "data": "name" },
+					{ "data": "name"},
 					{ "data": "country" },
 					{ "data": "program" },
 					{ "data": "degree" },
@@ -46,23 +44,20 @@
 					{ "data": "toefl_ielts" },
 					{ "data": "gre_combined" },
 				]
-    		});
+			});
 
-		// Apply the search
-		table.columns().every(function () {
-			var that = this;
-			$('input', this.footer()).on('keyup change', function () {
-				if (that.search() !== this.value) {
-					that
-						.search(this.value)
-						.draw();
-				}
+			// Apply the search
+			table.columns().every(function () {
+				var that = this;
+				$('input', this.footer()).on('keyup change', function () {
+					if (that.search() !== this.value) {
+						that
+							.search(this.value)
+							.draw();
+					}
+				});
 			});
 		});
-		});
-
-
-
 	</script>
 </head>
 
