@@ -12,30 +12,53 @@
 	</script>
 	<script type="text/javascript" language="javascript" src="resources/jquery.dataTables.js">
 	</script>
-<!-- 	<script type="text/javascript" language="javascript" src="resources/demo.js">
+	<!-- 	<script type="text/javascript" language="javascript" src="resources/demo.js">
 	</script> -->
 	<script type="text/javascript" language="javascript" class="init">
 		$(document).ready(function () {
 			// Setup - add a text input to each footer cell
 			$('#applicants tfoot th').each(function () {
 				var title = $(this).text();
-				$(this).html('<input type="text" placeholder="Search ' + title + '" />');
+				$(this).html('<input type="text" placeholder="Search" />');
 			});
 
 			// DataTable
-			var table = $('#applicants').DataTable();
-			
-			// Apply the search
-			table.columns().every(function () {
-				var that = this;
-				$('input', this.footer()).on('keyup change', function () {
-					if (that.search() !== this.value) {
-						that
-							.search(this.value)
-							.draw();
-					}
-				});
+			var table = $('#applicants').DataTable({
+				"ajax": {
+					"url": "/apps",
+					"dataSrc": ""
+				},
+				"columns": [
+					{ "data": "name" },
+					{ "data": "country" },
+					{ "data": "program" },
+					{ "data": "degree" },
+					{ "data": "decision" },
+					{ "data": "advisor" },
+					{ "data": "assistantship" },
+					{ "data": "interests" },
+					{ "data": "ug_university" },
+					{ "data": "ug_major" },
+					{ "data": "ug_gpa" },
+					{ "data": "grad_university" },
+					{ "data": "grad_major" },
+					{ "data": "grad_gpa" },
+					{ "data": "toefl_ielts" },
+					{ "data": "gre_combined" },
+				]
+    		});
+
+		// Apply the search
+		table.columns().every(function () {
+			var that = this;
+			$('input', this.footer()).on('keyup change', function () {
+				if (that.search() !== this.value) {
+					that
+						.search(this.value)
+						.draw();
+				}
 			});
+		});
 		});
 
 
@@ -92,24 +115,24 @@
 					</tr>
 				</tfoot>
 				<tbody>
-						<tr>
-								<td>Zhi Wang</td>
-								<td>China</td>
-								<td>CS</td>
-								<td>Ph.D</td>
-								<td>Reject</td>
-								<td>None</td>
-								<td>None</td>
-								<td>Security</td>
-								<td>Xi'an Jiaotong</td>
-								<td>CS</td>
-								<td>3.5</td>
-								<td>Xi'an Jiaotong</td>
-								<td>CS</td>
-								<td>3.5</td>
-								<td>102</td>
-								<td>1400</td>
-							</tr>
+					<tr>
+						<td>Zhi Wang</td>
+						<td>China</td>
+						<td>CS</td>
+						<td>Ph.D</td>
+						<td>Reject</td>
+						<td>None</td>
+						<td>None</td>
+						<td>Security</td>
+						<td>Xi'an Jiaotong</td>
+						<td>CS</td>
+						<td>3.5</td>
+						<td>Xi'an Jiaotong</td>
+						<td>CS</td>
+						<td>3.5</td>
+						<td>102</td>
+						<td>1400</td>
+					</tr>
 				</tbody>
 			</table>
 		</section>
