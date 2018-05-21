@@ -2,8 +2,8 @@ use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 use dotenv::dotenv;
 use std::env;
-use std::fs::File;
 use std::error::Error;
+use std::fs::File;
 
 pub mod models;
 pub mod schema;
@@ -44,7 +44,7 @@ fn get_index(header: &csv::StringRecord, title: &str) -> Option<usize> {
     None
 }
 
-fn import_app(import: &FromImport)->Result<(), Box<Error>> {
+fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
     use self::schema::ApplicationsTbl;
 
     let mut new_app = NewApplication {
@@ -97,7 +97,6 @@ fn import_app(import: &FromImport)->Result<(), Box<Error>> {
         new_app.program = "UNK";
     }
 
-
     if import.degree.ends_with("PD") {
         new_app.degree = "Ph.D";
     } else if import.degree.ends_with("MS") {
@@ -116,7 +115,7 @@ fn import_app(import: &FromImport)->Result<(), Box<Error>> {
     Ok(())
 }
 
-fn import_csv_error (path: &str) -> Result<(), Box<Error>> {
+fn import_csv_error(path: &str) -> Result<(), Box<Error>> {
     // Build the CSV reader and iterate over each record.
     let mut file = File::open(path)?;
     let mut rdr = csv::Reader::from_reader(file);
@@ -162,7 +161,7 @@ fn import_csv_error (path: &str) -> Result<(), Box<Error>> {
     Ok(())
 }
 
-pub fn import_csv () {
+pub fn import_csv() {
     let result = import_csv_error("data/2018_fall/Export.csv");
 
     if result.is_err() {
