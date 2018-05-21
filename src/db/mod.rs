@@ -1,23 +1,65 @@
-use diesel::prelude::*;
-use diesel::sqlite::SqliteConnection;
-use dotenv::dotenv;
 use std::env;
 use std::error::Error;
 use std::fs::File;
+use std::ops::Deref;
+
+use r2d2;
+use r2d2_diesel::ConnectionManager;
+use diesel::prelude::*;
+use diesel::sqlite::SqliteConnection;
+use dotenv::dotenv;
+
+use rocket::http::Status;
+use rocket::request::{self, FromRequest};
+use rocket::{Request, State, Outcome};
 
 pub mod models;
 pub mod schema;
+pub use self::models::{Application, FromImport, NewApplication};
+pub use self::schema::{ApplicationsTbl};
 
-use self::models::{Application, FromImport, NewApplication};
+pub type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+static DB_URL: &'static str = env!("DATABASE_URL");
 
-pub fn connect_db() -> SqliteConnection {
-    dotenv().ok();
-
-    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-
-    SqliteConnection::establish(&db_url).expect(&format!("Error connecting to {}", db_url))
+pub fn connect() -> DbPool {
+   let manager = ConnectionManager::<SqliteConnection>::new(DB_URL);
+   r2d2::Pool::builder().build(manager).expect("Faile to create pool")
+    //SqliteConnection::establish(&db_url).expect(&format!("Error connecting to {}", db_url))
 }
 
+// Connection request guard type: a wrapper around an r2d2 pooled connection.
+pub struct Connection(pub r2d2::PooledConnection<ConnectionManager<SqliteConnection>>);
+
+impl Deref for Connection {
+    type Target = SqliteConnection;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+/// Attempts to retrieve a single connection from the managed database pool. If
+/// no pool is currently managed, fails with an `InternalServerError` status. If
+/// no connections are available, fails with a `ServiceUnavailable` status.
+impl<'a, 'r> FromRequest<'a, 'r> for Connection {
+    type Error = ();
+
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<Connection, ()> {
+        let pool = request.guard::<State<DbPool>>()?;
+        match pool.get() {
+            Ok(conn) => Outcome::Success(Connection(conn)),
+            Err(_) => Outcome::Failure((Status::ServiceUnavailable, ()))
+        }
+    }
+}
+
+impl Application {
+    pub fn read(connection: &SqliteConnection) -> Vec<Application> {
+        ApplicationsTbl::table.order(ApplicationsTbl::applicant_id.asc()).load::<Application>(connection).unwrap()
+    }
+}
+
+/*
 pub fn show_all() {
     use self::schema::ApplicationsTbl::dsl::*;
 
@@ -168,3 +210,4 @@ pub fn import_csv() {
         println!("{}", result.unwrap_err());
     }
 }
+*/

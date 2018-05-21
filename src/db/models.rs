@@ -2,7 +2,7 @@ use super::schema::ApplicationsTbl;
 use super::schema::CommentsTbl;
 use super::schema::UsersTbl;
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Debug, Serialize, Deserialize)]
 pub struct Application {
     pub emp_id: i32,
     pub applicant_id: i32,

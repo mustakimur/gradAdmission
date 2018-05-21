@@ -4,83 +4,26 @@
 #![recursion_limit="128"]
 
 extern crate rocket;
-pub mod db;
-
-#[macro_use] extern crate diesel;
 extern crate dotenv;
 extern crate csv;
 
-// #[macro_use] extern crate rocket_contrib;
-// #[macro_use] extern crate serde_derive;
+#[macro_use] extern crate diesel;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate rocket_contrib;
 
-// #[cfg(test)] mod tests;
-
-// use rocket_contrib::{Json, Value};
-// use rocket::State;
-// use std::collections::HashMap;
-// use std::sync::Mutex;
+extern crate r2d2;
+extern crate r2d2_diesel;
 
 use std::io;
+use std::path::{Path, PathBuf};
 use rocket::response::NamedFile;
 use rocket::response::Redirect;
+use rocket_contrib::{Json, Value};
 
-// The type to represent the ID of a message.
-//type ID = usize;
+pub mod db;
+use db::{Application};
 
-// We're going to store all of the messages here. No need for a DB.
-//type MessageMap = Mutex<HashMap<ID, String>>;
-
-/* #[derive(Serialize, Deserialize)]
-struct Message {
-    id: Option<ID>,
-    contents: String
-}
-
-// TODO: This example can be improved by using `route` with multiple HTTP verbs.
-#[post("/<id>", format = "application/json", data = "<message>")]
-fn new(id: ID, message: Json<Message>, map: State<MessageMap>) -> Json<Value> {
-    let mut hashmap = map.lock().expect("map lock.");
-    if hashmap.contains_key(&id) {
-        Json(json!({
-            "status": "error",
-            "reason": "ID exists. Try put."
-        }))
-    } else {
-        hashmap.insert(id, message.0.contents);
-        Json(json!({ "status": "ok" }))
-    }
-}
-
-#[put("/<id>", format = "application/json", data = "<message>")]
-fn update(id: ID, message: Json<Message>, map: State<MessageMap>) -> Option<Json<Value>> {
-    let mut hashmap = map.lock().unwrap();
-    if hashmap.contains_key(&id) {
-        hashmap.insert(id, message.0.contents);
-        Some(Json(json!({ "status": "ok" })))
-    } else {
-        None
-    }
-}
-
-#[get("/<id>", format = "application/json")]
-fn get(id: ID, map: State<MessageMap>) -> Option<Json<Message>> {
-    let hashmap = map.lock().unwrap();
-    hashmap.get(&id).map(|contents| {
-        Json(Message {
-            id: Some(id),
-            contents: contents.clone()
-        })
-    })
-}
-
-#[error(404)]
-fn not_found() -> Json<Value> {
-    Json(json!({
-        "status": "error",
-        "reason": "Resource was not found."
-    }))
-} */
-
+// Serving basic files
 #[get("/")]
 fn index() -> io::Result<NamedFile> {
     NamedFile::open("html/login.html")
@@ -91,6 +34,20 @@ fn mainpg() -> io::Result<NamedFile> {
     NamedFile::open("html/applicants.html")
 }
 
+#[get("/resources/<file..>")]
+fn resources(file: PathBuf) -> Option<NamedFile> {
+    let path = Path::new("html/resources/").join(&file);
+    NamedFile::open(path).ok()
+}
+
+#[get("/images/<file..>")]
+fn images(file: PathBuf) -> Option<NamedFile> {    
+    let path = Path::new("html/images/").join(&file);
+    NamedFile::open(path).ok()
+}
+
+
+// handle login
 #[derive(FromForm,Debug)]
 struct User{
     user: String,
@@ -104,16 +61,16 @@ fn login(user: User) -> Redirect {
     Redirect::to("/main")
 }
 
-fn rocket() -> rocket::Rocket {
-    rocket::ignite()
-        .mount("/", routes![index, login, mainpg])
-       // .catch(errors![not_found])
-       // .manage(Mutex::new(HashMap::<ID, String>::new()))
+// CRUD applications
+#[get("/")]
+fn read_all(connection: db::Connection)->Json<Value> {
+   Json(json!(Application::read(&connection)))
 }
 
 fn main() {
-    //rocket().launch();
-    //db::create_app();
-    db::show_all();
-    db::import_csv();
+    rocket::ignite()
+        .mount("/", routes![index, login, mainpg, resources,images])
+        .mount("/apps", routes![read_all])
+        .manage(db::connect())
+        .launch();
 }
