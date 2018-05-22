@@ -27,7 +27,7 @@
 				},
 
 				"columns": [
-					{ "data": "name"},
+					{ "data": "name" },
 					{ "data": "country" },
 					{ "data": "program" },
 					{ "data": "degree" },
@@ -44,6 +44,14 @@
 					{ "data": "toefl_ielts" },
 					{ "data": "gre_combined" },
 				]
+			});
+
+			$('#applicants tbody').on('click', 'tr', function () {
+				var data = table.row(this).data();
+				$.get("/apps/" + data["applicant_id"], function (one_app) {
+					$("#result").html(one_app["applicant_id"]);
+					alert("Load was performed.");
+				});
 			});
 
 			// Apply the search
@@ -131,6 +139,10 @@
 				</tbody>
 			</table>
 		</section>
+	</div>
+
+	<div id="result">
+
 	</div>
 </body>
 

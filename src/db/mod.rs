@@ -57,6 +57,23 @@ impl Application {
     pub fn read(connection: &SqliteConnection) -> Vec<Application> {
         ApplicationsTbl::table.order(ApplicationsTbl::applicant_id.asc()).load::<Application>(connection).unwrap()
     }
+
+    pub fn get (connection: &SqliteConnection, id: i32) -> Option<Application> {
+        let results = ApplicationsTbl::table.filter(ApplicationsTbl::applicant_id.eq(id))
+        .limit(1)
+        .load::<Application>(connection);
+
+        if !results.is_err() {
+            let results = results.unwrap();
+
+            for app in results {
+                return Some(app);
+            }
+        }
+        
+        None
+    }
+
 }
 
 /*

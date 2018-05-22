@@ -67,10 +67,20 @@ fn read_all(connection: db::Connection)->Json<Value> {
    Json(json!(Application::read(&connection)))
 }
 
+#[get("/<id>")]
+fn read_one(connection: db::Connection, id: i32)->Json<Value> {
+    let one = Application::get(&connection, id);
+    if let Some(app) = one {
+        Json(json!(app))
+    } else {
+        Json(json!({"status": "error - not found"}))
+    }
+}
+
 fn main() {
     rocket::ignite()
         .mount("/", routes![index, login, mainpg, resources,images])
-        .mount("/apps", routes![read_all])
+        .mount("/apps", routes![read_all, read_one])
         .manage(db::connect())
         .launch();
 }
