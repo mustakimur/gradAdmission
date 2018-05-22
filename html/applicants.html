@@ -48,10 +48,12 @@
 
 			$('#applicants tbody').on('click', 'tr', function () {
 				var data = table.row(this).data();
-				$.get("/apps/" + data["applicant_id"], function (one_app) {
+				window.open('/apps/'+ data["applicant_id"],'_self', false);
+
+/* 				$.get("/apps/" + data["applicant_id"], function (one_app) {
 					$("#result").html(one_app["applicant_id"]);
 					alert("Load was performed.");
-				});
+				}); */
 			});
 
 			// Apply the search

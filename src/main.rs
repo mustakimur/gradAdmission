@@ -46,7 +46,6 @@ fn images(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(path).ok()
 }
 
-
 // handle login
 #[derive(FromForm,Debug)]
 struct User{
@@ -77,9 +76,14 @@ fn read_one(connection: db::Connection, id: i32)->Json<Value> {
     }
 }
 
+#[get("/detail/<id>")]
+fn detail(id: i32) -> Option<NamedFile> {    
+    NamedFile::open("html/detail.html").ok()
+}
+
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, login, mainpg, resources,images])
+        .mount("/", routes![index, login, mainpg, resources,images,detail])
         .mount("/apps", routes![read_all, read_one])
         .manage(db::connect())
         .launch();

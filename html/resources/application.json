@@ -1,0 +1,196 @@
+{
+  "title": "Application",
+  "type": "object",
+
+  "properties": {
+    "emp_id": {
+      "type": "integer",
+      "title": "Employee ID:",
+      "propertyOrder": 1
+    },
+
+    "applicant_id": {
+      "type": "integer",
+      "title": "Application ID:",
+      "propertyOrder": 2
+    },
+
+    "name": {
+      "type": "string",
+      "title": "Name:",
+      "propertyOrder": 3
+    },
+
+    "dob": {
+      "type": "string",
+      "title": "Date of Birth:",
+      "propertyOrder": 4
+    },
+
+    "gender": {
+      "type": "string",
+      "title": "Gender:",
+      "enum": [
+        "M",
+        "F"
+      ],
+      "propertyOrder": 5
+    },
+
+    "program": {
+      "type": "string",
+      "title": "Program:",
+      "enum": [
+        "CS",
+        "SEC",
+        "CNSA",
+        "CRIM"
+      ],
+      "propertyOrder": 6
+    },
+
+    "degree": {
+      "type": "string",
+      "title": "Degree:",
+      "enum": [
+        "Ph.D",
+        "M.S",
+        "M.T"
+      ],
+      "propertyOrder": 7
+    },
+
+    "interests": {
+      "type": "string",
+      "title": "Research Interests:",
+      "propertyOrder": 8
+    },
+
+    "ug_university": {
+      "type": "string",
+      "title": "UG University:",
+      "propertyOrder": 9
+    },
+
+    "ug_major": {
+      "type": "string",
+      "title": "UG Major:",
+      "propertyOrder": 10
+    },
+
+    "ug_degree": {
+      "type": "string",
+      "title": "UG Degree:",
+      "enum": [
+        "B.S",
+        "B.E"
+      ],
+      "propertyOrder": 11
+    },
+
+    "ug_gpa": {
+      "type": "number",
+      "title": "UG GPA:",
+      "propertyOrder": 12
+    },
+
+
+    "grad_university": {
+      "type": "string",
+      "title": "Grad University:",
+      "propertyOrder": 13
+    },
+
+    "grad_major": {
+      "type": "string",
+      "title": "Grad Major:",
+      "propertyOrder": 14
+    },
+
+    "grad_degree": {
+      "type": "string",
+      "title": "Grad Degree:",
+      "enum": [
+        "M.S",
+        "M.E"
+      ],
+      "propertyOrder": 15
+    },
+
+    "grad_gpa": {
+      "type": "number",
+      "title": "Grad GPA:",
+      "propertyOrder": 16
+    },
+
+    "toefl_ielts": {
+      "type": "integer",
+      "title": "TOEFL/IELTS:",
+      "propertyOrder": 17
+    },
+
+    "gre_verb": {
+      "type": "integer",
+      "title": "GRE Verb:",
+      "propertyOrder": 18
+    },
+
+    "gre_quanti": {
+      "type": "integer",
+      "title": "GRE Quan:",
+      "propertyOrder": 19
+    },
+
+
+    "gre_combined": {
+      "type": "integer",
+      "title": "GRE Combined:",
+      "propertyOrder": 20
+    },
+
+
+    "decision": {
+      "type": "string",
+      "title": "Decision:",
+      "enum": [
+        "Pending",
+        "Admit",
+        "RA",
+        "RA waiting list",
+        "TA",
+        "TA waiting list",
+        "Reject"
+      ],
+      "propertyOrder": 21
+    },
+
+    "advisor": {
+      "type": "string",
+      "title": "Advisor:",
+      "propertyOrder": 22
+    },
+
+    "assistantship": {
+      "type": "string",
+      "title": "Assistantship:",
+      "enum": [
+        "RA",
+        "TA",
+       "DRTA"
+      ],
+      "propertyOrder": 23
+    },
+
+    "fte": {
+      "type": "number",
+      "title": "FTE:",
+      "propertyOrder": 24
+    },
+
+    "Salary": {
+      "type": "integer",
+      "title": "Salary:",
+      "propertyOrder": 25
+    }
+  }
+}
