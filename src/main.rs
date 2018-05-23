@@ -78,9 +78,10 @@ fn read_one(connection: db::Connection, id: i32)->Json<Value> {
 
 
 #[post("/", data = "<app>")]
-fn update_one(app: Json<Application>, connection: db::Connection) -> String {
-    println!("{:?}", app);
-    "Success".to_string()
+fn update_one(app: Json<Application>, connection: db::Connection) -> Json<Value> {
+    let p = Application{..app.into_inner()};
+    Application::update(&connection, p);
+    Json(json!({"status": "error - not found"}))
 }
 
 #[get("/detail/<id>")]

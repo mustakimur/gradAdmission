@@ -2,7 +2,8 @@ use super::schema::ApplicationsTbl;
 use super::schema::CommentsTbl;
 use super::schema::UsersTbl;
 
-#[derive(Queryable, Debug, Serialize, Deserialize)]
+#[derive(Queryable, AsChangeset, Insertable, Debug, Serialize, Deserialize)]
+#[table_name = "ApplicationsTbl"]
 pub struct Application {
     pub emp_id: i32,
     pub applicant_id: i32,
@@ -45,34 +46,34 @@ pub struct User {
     pub password: String,
 }
 
-#[derive(Insertable)]
-#[table_name = "ApplicationsTbl"]
-pub struct NewApplication<'a> {
-    pub emp_id: i32,
-    pub applicant_id: i32,
-    pub name: &'a str,
-    pub dob: &'a str,
-    pub gender: &'a str,
-    pub country: &'a str,
-    pub program: &'a str,
-    pub degree: &'a str,
-    pub interests: &'a str,
-    pub ug_university: &'a str,
-    pub ug_major: &'a str,
-    pub ug_degree: &'a str,
-    pub ug_gpa: f32,
-    pub grad_university: &'a str,
-    pub grad_major: &'a str,
-    pub grad_degree: &'a str,
-    pub grad_gpa: f32,
-    pub toefl_ielts: i32,
-    pub gre: &'a str,
-    pub decision: &'a str,
-    pub advisor: &'a str,
-    pub assistantship: &'a str,
-    pub fte: f32,
-    pub yearly_amount: i32,
-}
+// #[derive(Insertable)]
+// #[table_name = "ApplicationsTbl"]
+// pub struct NewApplication<'a> {
+//     pub emp_id: i32,
+//     pub applicant_id: i32,
+//     pub name: &'a str,
+//     pub dob: &'a str,
+//     pub gender: &'a str,
+//     pub country: &'a str,
+//     pub program: &'a str,
+//     pub degree: &'a str,
+//     pub interests: &'a str,
+//     pub ug_university: &'a str,
+//     pub ug_major: &'a str,
+//     pub ug_degree: &'a str,
+//     pub ug_gpa: f32,
+//     pub grad_university: &'a str,
+//     pub grad_major: &'a str,
+//     pub grad_degree: &'a str,
+//     pub grad_gpa: f32,
+//     pub toefl_ielts: i32,
+//     pub gre: &'a str,
+//     pub decision: &'a str,
+//     pub advisor: &'a str,
+//     pub assistantship: &'a str,
+//     pub fte: f32,
+//     pub yearly_amount: i32,
+// }
 
 // this structure contains all the fields that we can import from Slate. 
 pub struct FromImport<'a> {
