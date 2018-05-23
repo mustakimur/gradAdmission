@@ -57,3 +57,8 @@ td.details-control {
 tr.shown td.details-control {
     background: url('/resources/details_close.png') no-repeat center center;
 }
+
+td.td_extra {
+	text-align: right;
+	width: 10em;
+}

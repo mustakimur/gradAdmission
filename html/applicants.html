@@ -7,19 +7,78 @@
 	<meta name="viewport" content="initial-scale=1.0, maximum-scale=2.0">
 	<title>Applications to FSU CS Graduate Programs</title>
 
-	<link rel="stylesheet" type="text/css" href="resources/jquery.dataTables.css">
+	<link rel="stylesheet" type="text/css" href="resources/jquery.dataTables.min.css">
+	<!-- <link rel="stylesheet" type="text/css" href="resources/buttons.dataTables.min.css">
+	<link rel="stylesheet" type="text/css" href="resources/select.dataTables.min.css"> -->
+	<!-- <link rel="stylesheet" type="text/css" href="resources/editor.dataTables.min.css"> -->
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+	 crossorigin="anonymous">
 	<link rel="stylesheet" type="text/css" href="resources/simple.css">
+
 	<script type="text/javascript" language="javascript" src="http://code.jquery.com/jquery-1.12.4.js"></script>
-	<script type="text/javascript" language="javascript" src="resources/jquery.dataTables.js"></script>
+	<script type="text/javascript" language="javascript" src="resources/jquery.dataTables.min.js"></script>
+	<!-- <script type="text/javascript" language="javascript" src="resources/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" language="javascript" src="resources/dataTables.select.min.js"></script> -->
+	<!-- <script type="text/javascript" language="javascript" src="resources/dataTables.editor.min.js"></script> -->
 
 	<script type="text/javascript" language="javascript" class="init">
-		function format(d) {
-			// `d` is the original data object for the row
-			return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+		var fields = {};
+		fields["emp_id"] = { tag: "Employee ID", can_change: false };
+		fields["applicant_id"] = { tag: "Applicant ID", can_change: false };
+		fields["name"] = { tag: "Name", can_change: false };
+		fields["dob"] = { tag: "Date of Birth", can_change: false };
+		fields["gender"] = { tag: "Gender", can_change: false };
+		fields["country"] = { tag: "Country", can_change: false };
+		fields["program"] = { tag: "Program", can_change: false };
+		fields["degree"] = { tag: "Degree", can_change: false };
+		fields["interests"] = { tag: "Interests", can_change: true };
+		fields["ug_university"] = { tag: "UG University", can_change: true };
+		fields["ug_major"] = { tag: "UG Major", can_change: true };
+		fields["ug_degree"] = { tag: "UG Degree", can_change: true };
+		fields["ug_gpa"] = { tag: "UG GPA", can_change: true };
+		fields["grad_university"] = { tag: "Grad University", can_change: true };
+		fields["grad_major"] = { tag: "Grad Major", can_change: true };
+		fields["grad_degree"] = { tag: "Grad Degree", can_change: true };
+		fields["grad_gpa"] = { tag: "Grad GPA", can_change: true };
+		fields["toefl_ielts"] = { tag: "TOEFL/IELTS", can_change: true };
+		fields["gre"] = { tag: "GRE", can_change: true };
+		fields["decision"] = { tag: "Decision", can_change: true };
+		fields["advisor"] = { tag: "Advisor", can_change: true };
+		fields["assistantship"] = { tag: "Assistantship", can_change: true };
+		fields["fte"] = { tag: "FTE", can_change: true };
+		fields["yearly_amount"] = { tag: "Salary", can_change: true };
+
+		function format(row_data) {
+			function gen_td(field) {
+				if (fields[field].can_change) {
+					return '<td class="td_extra">' + fields[field].tag + ':</td>' +
+						'<td> <input type="text" name=td_' + field + '_' + row_data.applicant_id + ' value="' + row_data[field] + '"></td>'
+				} else {
+					return '<td class="td_extra">' + fields[field].tag + ':</td>' +
+						'<td>' + row_data[field] + '</td>';
+				}
+			}
+
+			// `row_data` is the original data object for the row
+			return '<table class="child" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
 				'<tr>' +
-				'<td>Employee ID:</td>' +
-				'<td>' + d.emp_id + '</td>' +
+				gen_td("emp_id") + gen_td("applicant_id") + gen_td("name") + gen_td("gender") +
 				'</tr>' +
+				'<tr>' +
+				gen_td("country") + gen_td("program") + gen_td("degree") + gen_td("interests") +
+				'</tr>' +
+				gen_td("ug_university") + gen_td("ug_major") + gen_td("ug_degree") + gen_td("ug_gpa") +
+				'</tr>' +
+				'<tr>' +
+				gen_td("grad_university") + gen_td("grad_major") + gen_td("grad_degree") + gen_td("grad_gpa") +
+				'</tr>' +
+				'<tr>' +
+				gen_td("toefl_ielts") + gen_td("gre") + gen_td("decision") + gen_td("advisor") +
+				'</tr>' +
+				'<tr>' +
+				gen_td("assistantship") + gen_td("fte") + gen_td("yearly_amount") +
+				'<td></td><td> <button type="button" class="btn btn-primary" id="btn_' + row_data.applicant_id + '">Update</button>' +
 				'</table>';
 		}
 
@@ -31,8 +90,11 @@
 				}
 			});
 
+
 			// DataTable
 			var table = $('#applicants').DataTable({
+				select: true,
+
 				"ajax": {
 					"url": "/apps",
 					"dataSrc": ""
@@ -111,23 +173,29 @@
 						"searchable": false
 					},
 				],
-				"order": [[1, 'asc']]
+				"order": [[1, 'asc']],
 			});
 
 			// Add event listener for opening and closing details
 			$('#applicants tbody').on('click', 'td.details-control', function () {
 				var tr = $(this).closest('tr');
 				var row = table.row(tr);
+				var row_data = row.data();
 
 				if (row.child.isShown()) {
 					// This row is already open - close it
 					row.child.hide();
 					tr.removeClass('shown');
-				}
-				else {
+					$('#applicants').off('click', "#btn_" + row_data.applicant_id);
+				} else {
 					// Open this row
-					row.child(format(row.data())).show();
+					row.child(format(row_data)).show();
 					tr.addClass('shown');
+
+					$('#applicants').on('click', "#btn_" + row_data.applicant_id, function () {
+						alert("click!" + row_data.applicant_id);
+						row_data.interests = "Security";
+					});
 				}
 			});
 
