@@ -23,37 +23,39 @@
 	<!-- <script type="text/javascript" language="javascript" src="resources/dataTables.editor.min.js"></script> -->
 
 	<script type="text/javascript" language="javascript" class="init">
+
+		// a hashmap from property names to attributes
 		var fields = {};
-		fields["emp_id"] = { tag: "Employee ID", can_change: false };
-		fields["applicant_id"] = { tag: "Applicant ID", can_change: false };
-		fields["name"] = { tag: "Name", can_change: false };
-		fields["dob"] = { tag: "Date of Birth", can_change: false };
-		fields["gender"] = { tag: "Gender", can_change: false };
-		fields["country"] = { tag: "Country", can_change: false };
-		fields["program"] = { tag: "Program", can_change: false };
-		fields["degree"] = { tag: "Degree", can_change: false };
-		fields["interests"] = { tag: "Interests", can_change: true };
-		fields["ug_university"] = { tag: "UG University", can_change: true };
-		fields["ug_major"] = { tag: "UG Major", can_change: true };
-		fields["ug_degree"] = { tag: "UG Degree", can_change: true };
-		fields["ug_gpa"] = { tag: "UG GPA", can_change: true };
-		fields["grad_university"] = { tag: "Grad University", can_change: true };
-		fields["grad_major"] = { tag: "Grad Major", can_change: true };
-		fields["grad_degree"] = { tag: "Grad Degree", can_change: true };
-		fields["grad_gpa"] = { tag: "Grad GPA", can_change: true };
-		fields["toefl_ielts"] = { tag: "TOEFL/IELTS", can_change: true };
-		fields["gre"] = { tag: "GRE", can_change: true };
-		fields["decision"] = { tag: "Decision", can_change: true };
-		fields["advisor"] = { tag: "Advisor", can_change: true };
-		fields["assistantship"] = { tag: "Assistantship", can_change: true };
-		fields["fte"] = { tag: "FTE", can_change: true };
-		fields["yearly_amount"] = { tag: "Salary", can_change: true };
+		fields["emp_id"] = { tag: "Employee ID", can_change: false, convert: parseInt };
+		fields["applicant_id"] = { tag: "Applicant ID", can_change: false, convert: parseInt };
+		fields["name"] = { tag: "Name", can_change: false, convert: null };
+		fields["dob"] = { tag: "Date of Birth", can_change: false, convert: null };
+		fields["gender"] = { tag: "Gender", can_change: false, convert: null };
+		fields["country"] = { tag: "Country", can_change: false, convert: null };
+		fields["program"] = { tag: "Program", can_change: false, convert: null };
+		fields["degree"] = { tag: "Degree", can_change: false, convert: null };
+		fields["interests"] = { tag: "Interests", can_change: true, convert: null };
+		fields["ug_university"] = { tag: "UG University", can_change: true, convert: null };
+		fields["ug_major"] = { tag: "UG Major", can_change: true, convert: null };
+		fields["ug_degree"] = { tag: "UG Degree", can_change: true, convert: null };
+		fields["ug_gpa"] = { tag: "UG GPA", can_change: true, convert: parseFloat };
+		fields["grad_university"] = { tag: "Grad University", can_change: true, convert: null };
+		fields["grad_major"] = { tag: "Grad Major", can_change: true, convert: null };
+		fields["grad_degree"] = { tag: "Grad Degree", can_change: true, convert: null };
+		fields["grad_gpa"] = { tag: "Grad GPA", can_change: true, convert: parseFloat };
+		fields["toefl_ielts"] = { tag: "TOEFL/IELTS", can_change: true, convert: parseInt };
+		fields["gre"] = { tag: "GRE", can_change: true, convert: null };
+		fields["decision"] = { tag: "Decision", can_change: true, convert: null };
+		fields["advisor"] = { tag: "Advisor", can_change: true, convert: null };
+		fields["assistantship"] = { tag: "Assistantship", can_change: true, convert: null };
+		fields["fte"] = { tag: "FTE", can_change: true, convert: parseFloat };
+		fields["yearly_amount"] = { tag: "Salary", can_change: true, convert: parseInt };
 
 		function format(row_data) {
 			function gen_td(field) {
 				if (fields[field].can_change) {
 					return '<td class="td_extra">' + fields[field].tag + ':</td>' +
-						'<td> <input type="text" name=td_' + field + '_' + row_data.applicant_id + ' value="' + row_data[field] + '"></td>'
+						'<td> <input type="text" id=input_' + field + '_' + row_data.applicant_id + ' value="' + row_data[field] + '"></td>'
 				} else {
 					return '<td class="td_extra">' + fields[field].tag + ':</td>' +
 						'<td>' + row_data[field] + '</td>';
@@ -176,7 +178,7 @@
 				"order": [[1, 'asc']],
 			});
 
-			// Add event listener for opening and closing details
+			// Add event listener for opening and closing child attributes
 			$('#applicants tbody').on('click', 'td.details-control', function () {
 				var tr = $(this).closest('tr');
 				var row = table.row(tr);
@@ -186,15 +188,48 @@
 					// This row is already open - close it
 					row.child.hide();
 					tr.removeClass('shown');
+
+					// remove the event listener, other it will be fired multiple times
 					$('#applicants').off('click', "#btn_" + row_data.applicant_id);
+
 				} else {
 					// Open this row
 					row.child(format(row_data)).show();
 					tr.addClass('shown');
 
 					$('#applicants').on('click', "#btn_" + row_data.applicant_id, function () {
-						alert("click!" + row_data.applicant_id);
-						row_data.interests = "Security";
+						// retrieve data from the child form. Datatables uses strings, We need to 
+						// convert them to integer or float for some fields for json to be valid.
+						var json_obj = {};
+
+						$.each(fields, function (key, value) {
+							if (value.can_change) {
+								row_data[key] = $('#input_' + key + '_' + row_data.applicant_id).val();
+							}
+
+							if (value.convert !== null) {
+								json_obj[key] = value.convert(row_data[key]);
+							} else {
+								json_obj[key] = row_data[key];
+							}
+
+						});
+
+						// update the row
+						row.data(row_data);
+
+						var json = JSON.stringify(json_obj);
+
+						$.ajax({
+							type: "POST",
+							url: "/apps",
+							data: json,
+							contentType: "application/json; charset=utf-8",
+							dataType: "json",
+							success: function (msg) {
+								alert('Committed to server');
+							}
+						});
 					});
 				}
 			});

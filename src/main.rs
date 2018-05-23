@@ -76,6 +76,13 @@ fn read_one(connection: db::Connection, id: i32)->Json<Value> {
     }
 }
 
+
+#[post("/", data = "<app>")]
+fn update_one(app: Json<Application>, connection: db::Connection) -> String {
+    println!("{:?}", app);
+    "Success".to_string()
+}
+
 #[get("/detail/<id>")]
 fn detail(id: i32) -> Option<NamedFile> {    
     NamedFile::open("html/detail.html").ok()
@@ -85,7 +92,7 @@ fn main() {
     //db::import_csv();
     rocket::ignite()
         .mount("/", routes![index, login, mainpg, resources,images,detail])
-        .mount("/apps", routes![read_all, read_one])
+        .mount("/apps", routes![read_all, read_one, update_one])
         .manage(db::connect())
         .launch();
 }
