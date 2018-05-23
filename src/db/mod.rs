@@ -5,6 +5,7 @@ use std::ops::Deref;
 
 use r2d2;
 use r2d2_diesel::ConnectionManager;
+
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 use dotenv::dotenv;
@@ -76,7 +77,12 @@ impl Application {
 
 }
 
-/*
+fn connect_db()->SqliteConnection {
+    use diesel::Connection;
+     SqliteConnection::establish(DB_URL)
+        .expect(&format!("Error connecting to {}", DB_URL))
+}
+
 pub fn show_all() {
     use self::schema::ApplicationsTbl::dsl::*;
 
@@ -125,9 +131,7 @@ fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
         grad_degree: "",
         grad_gpa: 0.0f32,
         toefl_ielts: 0,
-        gre_verb: 0,
-        gre_quanti: 0,
-        gre_combined: 0,
+        gre: "0/0/0",
         decision: "Pending",
         advisor: "",
         assistantship: "",
@@ -227,4 +231,3 @@ pub fn import_csv() {
         println!("{}", result.unwrap_err());
     }
 }
-*/

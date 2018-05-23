@@ -13,10 +13,22 @@
 	<script type="text/javascript" language="javascript" src="resources/jquery.dataTables.js"></script>
 
 	<script type="text/javascript" language="javascript" class="init">
+		function format(d) {
+			// `d` is the original data object for the row
+			return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+				'<tr>' +
+				'<td>Employee ID:</td>' +
+				'<td>' + d.emp_id + '</td>' +
+				'</tr>' +
+				'</table>';
+		}
+
 		$(document).ready(function () {
 			// Setup - add a text input to each footer cell
 			$('#applicants tfoot th').each(function () {
-				$(this).html('<input type="text" placeholder="  Search" size="8em"/>');
+				if ($(this).text().length > 0) {
+					$(this).html('<input type="text" placeholder="  Search" size="8em"/>');
+				}
 			});
 
 			// DataTable
@@ -27,34 +39,107 @@
 				},
 
 				"columns": [
+					{
+						"className": 'details-control',
+						"orderable": false,
+						"data": null,
+						"defaultContent": ''
+					},
+					{
+						"data": "emp_id",
+						"visible": false,
+						"searchable": false
+					},
+					{
+						"data": "applicant_id",
+						"visible": false,
+						"searchable": false
+					},
 					{ "data": "name" },
+					{
+						"data": "dob",
+						"visible": false,
+						"searchable": false
+					},
+					{
+						"data": "gender",
+						"visible": false,
+						"searchable": false
+					},
 					{ "data": "country" },
 					{ "data": "program" },
 					{ "data": "degree" },
+					{ "data": "interests" },
+					{ "data": "ug_university" },
+					{
+						"data": "ug_major",
+						"visible": false,
+						"searchable": false
+					},
+					{
+						"data": "ug_degree",
+						"visible": false,
+						"searchable": false
+					},
+					{ "data": "ug_gpa" },
+					{ "data": "grad_university" },
+					{
+						"data": "grad_major",
+						"visible": false,
+						"searchable": false
+					},
+
+					{
+						"data": "grad_degree",
+						"visible": false,
+						"searchable": false
+					},
+					{ "data": "grad_gpa" },
+					{ "data": "toefl_ielts" },
+					{ "data": "gre" },
 					{ "data": "decision" },
 					{ "data": "advisor" },
 					{ "data": "assistantship" },
-					{ "data": "interests" },
-					{ "data": "ug_university" },
-					{ "data": "ug_major" },
-					{ "data": "ug_gpa" },
-					{ "data": "grad_university" },
-					{ "data": "grad_major" },
-					{ "data": "grad_gpa" },
-					{ "data": "toefl_ielts" },
-					{ "data": "gre_combined" },
-				]
+					{
+						"data": "fte",
+						"visible": false,
+						"searchable": false
+					},
+					{
+						"data": "yearly_amount",
+						"visible": false,
+						"searchable": false
+					},
+				],
+				"order": [[1, 'asc']]
 			});
 
-			$('#applicants tbody').on('click', 'tr', function () {
-				var data = table.row(this).data();
-				window.open('/apps/'+ data["applicant_id"],'_self', false);
+			// Add event listener for opening and closing details
+			$('#applicants tbody').on('click', 'td.details-control', function () {
+				var tr = $(this).closest('tr');
+				var row = table.row(tr);
 
-/* 				$.get("/apps/" + data["applicant_id"], function (one_app) {
-					$("#result").html(one_app["applicant_id"]);
-					alert("Load was performed.");
-				}); */
+				if (row.child.isShown()) {
+					// This row is already open - close it
+					row.child.hide();
+					tr.removeClass('shown');
+				}
+				else {
+					// Open this row
+					row.child(format(row.data())).show();
+					tr.addClass('shown');
+				}
 			});
+
+			// $('#applicants tbody').on('click', 'tr', function () {
+			// 	var data = table.row(this).data();
+			// 	window.open('/apps/' + data["applicant_id"], '_self', false);
+
+			// 	/* 				$.get("/apps/" + data["applicant_id"], function (one_app) {
+			// 						$("#result").html(one_app["applicant_id"]);
+			// 						alert("Load was performed.");
+			// 					}); */
+			// });
 
 			// Apply the search
 			table.columns().every(function () {
@@ -81,63 +166,63 @@
 			<table id="applicants" class="display" cellspacing="0" width="100%">
 				<thead>
 					<tr>
+						<th></th>
+						<th>Employee ID</th>
+						<th>Applicant ID</th>
 						<th>Name</th>
+						<th>DOB</th>
+						<th>Gender</th>
 						<th>Country</th>
 						<th>Program</th>
 						<th>Degree</th>
-						<th>Decision</th>
-						<th>Advisor</th>
-						<th>Assistantship</th>
 						<th>Interests</th>
 						<th>UG_University</th>
 						<th>UG_Major</th>
+						<th>UG_Degree</th>
 						<th>UG_GPA</th>
 						<th>Grad_University</th>
 						<th>Grad_Major</th>
+						<th>Grad_Degree</th>
 						<th>Grad_GPA</th>
 						<th>TOEFL</th>
 						<th>GRE</th>
+						<th>Decision</th>
+						<th>Advisor</th>
+						<th>Assistantship</th>
+						<th>FTE</th>
+						<th>Salary</th>
 					</tr>
 				</thead>
 				<tfoot>
 					<tr>
+						<th></th>
+						<th>Employee ID</th>
+						<th>Applicant ID</th>
 						<th>Name</th>
+						<th>DOB</th>
+						<th>Gender</th>
 						<th>Country</th>
 						<th>Program</th>
 						<th>Degree</th>
-						<th>Decision</th>
-						<th>Advisor</th>
-						<th>Assistantship</th>
 						<th>Interests</th>
 						<th>UG_University</th>
 						<th>UG_Major</th>
+						<th>UG_Degree</th>
 						<th>UG_GPA</th>
 						<th>Grad_University</th>
 						<th>Grad_Major</th>
+						<th>Grad_Degree</th>
 						<th>Grad_GPA</th>
 						<th>TOEFL</th>
 						<th>GRE</th>
+						<th>Decision</th>
+						<th>Advisor</th>
+						<th>Assistantship</th>
+						<th>FTE</th>
+						<th>Salary</th>
 					</tr>
 				</tfoot>
 				<tbody>
-					<tr>
-						<td>Zhi Wang</td>
-						<td>China</td>
-						<td>CS</td>
-						<td>Ph.D</td>
-						<td>Reject</td>
-						<td>None</td>
-						<td>None</td>
-						<td>Security</td>
-						<td>Xi'an Jiaotong</td>
-						<td>CS</td>
-						<td>3.5</td>
-						<td>Xi'an Jiaotong</td>
-						<td>CS</td>
-						<td>3.5</td>
-						<td>102</td>
-						<td>1400</td>
-					</tr>
 				</tbody>
 			</table>
 		</section>

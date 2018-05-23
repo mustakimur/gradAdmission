@@ -82,6 +82,7 @@ fn detail(id: i32) -> Option<NamedFile> {
 }
 
 fn main() {
+    //db::import_csv();
     rocket::ignite()
         .mount("/", routes![index, login, mainpg, resources,images,detail])
         .mount("/apps", routes![read_all, read_one])
