@@ -16,7 +16,7 @@ use rocket::{Request, State, Outcome};
 
 pub mod models;
 pub mod schema;
-pub use self::models::{Application, FromImport};
+pub use self::models::{Application, FromImport, NewApplication};
 pub use self::schema::{ApplicationsTbl};
 
 pub type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
@@ -112,7 +112,7 @@ fn get_index(header: &csv::StringRecord, title: &str) -> Option<usize> {
     None
 }
 
-/* fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
+ fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
     use self::schema::ApplicationsTbl;
 
     let mut new_app = NewApplication {
@@ -234,4 +234,4 @@ pub fn import_csv() {
         println!("{}", result.unwrap_err());
     }
 }
- */
+ 

@@ -30,9 +30,10 @@ table! {
 table! {
     CommentsTbl (comment_id) {
         comment_id -> Integer,
-        emp_id -> Integer,
+        applicant_id -> Integer,
         commenter -> Text,
         opinion -> Text,
+        when -> Text,
     }
 }
 

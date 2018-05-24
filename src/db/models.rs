@@ -31,49 +31,52 @@ pub struct Application {
     pub yearly_amount: i32,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, AsChangeset, Insertable, Debug, Serialize, Deserialize)]
+#[table_name = "CommentsTbl"]
 pub struct Comment {
     pub comment_id: i32,
-    pub emp_id: i32,
-    pub commenter: i32,
-    pub opinion: i32,
+    pub applicant_id: i32,
+    pub commenter: String,
+    pub opinion: String,
+    pub when: String,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, AsChangeset, Insertable, Debug, Serialize, Deserialize)]
+#[table_name = "UsersTbl"]
 pub struct User {
     pub user_name: String,
     pub role: String,
     pub password: String,
 }
 
-// #[derive(Insertable)]
-// #[table_name = "ApplicationsTbl"]
-// pub struct NewApplication<'a> {
-//     pub emp_id: i32,
-//     pub applicant_id: i32,
-//     pub name: &'a str,
-//     pub dob: &'a str,
-//     pub gender: &'a str,
-//     pub country: &'a str,
-//     pub program: &'a str,
-//     pub degree: &'a str,
-//     pub interests: &'a str,
-//     pub ug_university: &'a str,
-//     pub ug_major: &'a str,
-//     pub ug_degree: &'a str,
-//     pub ug_gpa: f32,
-//     pub grad_university: &'a str,
-//     pub grad_major: &'a str,
-//     pub grad_degree: &'a str,
-//     pub grad_gpa: f32,
-//     pub toefl_ielts: i32,
-//     pub gre: &'a str,
-//     pub decision: &'a str,
-//     pub advisor: &'a str,
-//     pub assistantship: &'a str,
-//     pub fte: f32,
-//     pub yearly_amount: i32,
-// }
+#[derive(Insertable)]
+#[table_name = "ApplicationsTbl"]
+pub struct NewApplication<'a> {
+    pub emp_id: i32,
+    pub applicant_id: i32,
+    pub name: &'a str,
+    pub dob: &'a str,
+    pub gender: &'a str,
+    pub country: &'a str,
+    pub program: &'a str,
+    pub degree: &'a str,
+    pub interests: &'a str,
+    pub ug_university: &'a str,
+    pub ug_major: &'a str,
+    pub ug_degree: &'a str,
+    pub ug_gpa: f32,
+    pub grad_university: &'a str,
+    pub grad_major: &'a str,
+    pub grad_degree: &'a str,
+    pub grad_gpa: f32,
+    pub toefl_ielts: i32,
+    pub gre: &'a str,
+    pub decision: &'a str,
+    pub advisor: &'a str,
+    pub assistantship: &'a str,
+    pub fte: f32,
+    pub yearly_amount: i32,
+}
 
 // this structure contains all the fields that we can import from Slate. 
 pub struct FromImport<'a> {

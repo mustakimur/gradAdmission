@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/ico" href="http://www.datatables.net/favicon.ico">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=2.0">
+    <title>Applications to FSU CS Graduate Programs</title>
+
+    <link rel="stylesheet" type="text/css" href="/resources/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/resources/simple.css">
+
+    <script type="text/javascript" language="javascript" src="http://code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" language="javascript" src="/resources/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="/resources/local.js"></script>
+
+    <script type="text/javascript" language="javascript" class="init">
+        $(document).ready(function () {
+            fields = facts_app();
+
+            function create_info() {
+                function gen_td(field) {
+                    if (fields[field].long) {
+                        return '<td class="td_info">' + fields[field].tag + ':</td>' +
+                            '<td class="td_info" colspan="3"> ' + '</td>';
+
+                    } else {
+                        return '<td class="td_info">' + fields[field].tag + ':</td>' +
+                            '<td class="td_info"> ' + '</td>';
+                    }
+                }
+
+                function gen_link(field) {
+                    return '<td class="td_info">' + field + ':</td>' +
+                        '<td class="td_info"> ' + '</td>';
+                }
+
+                // `row_data` is the original data object for the row
+                return '<table id="tbl_info">' +
+                    '<td colspan="4"><b>Basic Information:</b></td></tr><tr>' +
+                    gen_td("emp_id") + gen_td("applicant_id") +
+                    '</tr>' + '<tr>' +
+                    gen_td("name") + gen_td("gender") +
+                    '</tr>' + '<tr>' +
+                    gen_td("country") +
+                    '</tr>' + '<tr>' +
+                    gen_td("program") +
+                    gen_td("degree") +
+                    '</tr>' + '<tr>' +
+                    gen_td("interests") +
+                    '</tr>' + '<tr>' +
+                    gen_td("ug_university") +
+                    '</tr>' + '<tr>' +
+                    gen_td("ug_major") +
+                    '</tr>' + '<tr>' +
+                    gen_td("ug_degree") + gen_td("ug_gpa") +
+                    '</tr>' + '<tr>' +
+                    gen_td("grad_university") +
+                    '</tr>' + '<tr>' +
+                    gen_td("grad_major") +
+                    '</tr>' + '<tr>' +
+                    gen_td("grad_degree") + gen_td("grad_gpa") +
+                    '</tr>' + '<tr>' +
+                    gen_td("toefl_ielts") + gen_td("gre") +
+                    '</tr>' + '<tr>' +
+                    gen_td("decision") +
+                    '</tr>' + '<tr>' +
+                    gen_td("advisor") + gen_td("assistantship") +
+                    '</tr>' + '<tr>' +
+                    gen_td("fte") + gen_td("yearly_amount") +
+                    '</tr>' + '<tr>' +
+                    '<td colspan="4"><b>Supporting Materials:</b></td></tr><tr>' +
+                    gen_link("resume") + gen_link("Statement") +
+                    '</tr>' + '<tr>' +
+                    gen_link("ug_transcript") + gen_link("grad_transcript") +
+                    '</tr>' + '<tr>' +
+                    gen_link("toefl") + gen_link("gre") +
+                    '</tr>' + '<tr>' +
+                    gen_link("letter1") + gen_link("letter2") +
+                    '</tr>' + '<tr>' +
+                    gen_link("letter3") + gen_link("letter4") +
+                    '</tr>' + '<tr>' +
+                    gen_link("other1") + gen_link("other2")
+                    ;
+                // +
+                //'<td></td><td> <button type="button" class="btn btn-primary" id="btn_' +'">Update</button>' +
+                //'</table>';
+            }
+
+            $("div.info").html(create_info());
+
+            // DataTable
+            var table = $('#comments').DataTable({
+                "searching": false,
+                "scrollY": "28em",
+                "scrollCollapse": false,
+                "paging": false,
+                "info": false,
+                /*                 "ajax": {
+                                    "url": "/comments/",
+                                    "dataSrc": ""
+                                }, */
+
+                "columns": [
+                    {
+                        "data": "comment_id",
+                        "visible": false,
+                    },
+                    {
+                        "data": "applicant_id",
+                        "visible": false,
+                    },
+                    {
+                        "data": "commenter",
+                        "width": "20%",
+                        "className": "dt-body-right",
+                        "render": function (data, type, row, meta) {
+                            return '<div><b>' + data +':</b></div> <div><small>@' + row["when"] + '</small></div>';
+                        }
+                    },
+                    { "data": "opinion" },
+                    {
+                        "data": "when",
+                        "visible": false
+                    }
+                ],
+                "order": [[1, 'dsc']],
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-3" style="border-right: 1px solid lightgray;">
+                <h3>Application:</h3>
+                <hr/>
+                <div class="info"></div>
+            </div>
+
+            <div class="col-xl-3" style="border-right: 1px solid lightgray;">
+                <div>
+                    <h3>Comments:</h3>
+                    <hr/>
+                    <table id="comments" class="display" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Comment ID</th>
+                                <th>Applicant ID</th>
+                                <th>Commenter</th>
+                                <th>Opinion</th>
+                                <th>When</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>100</td>
+                                <td>200</td>
+                                <td>Zhi Wang</td>
+                                <td>
+                                    "Unplug your Alexa devices right now," the user, Danielle (no last name given), was told by her husband's colleague in Seattle
+                                    after he received full audio recordings between her and her husband, according to the
+                                    KIRO-7 report. The disturbed owner, who is shown in the report juggling four unplugged
+                                    Echo Dot devices, said that the colleague then sent the offending audio to Danielle and
+                                    her husband to confirm the paranoid-sounding allegation. (Before sending the audio, the
+                                    colleague confirmed that the couple had been talking about hardwood floors.)
+                                </td>
+                                <td>today</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <p style="white-space: pre"/>
+                <div>
+                    <h3>New Comment:</h3>
+                    <hr/>
+                    <div>
+                        <form>
+                            <div class="form-group">
+                                <label for="input_commenter">Commenter:</label>
+                                <input type="text" class="form-control" id="input_commenter" placeholder="Your name here!">
+                            </div>
+                            <div class="form-group">
+                                <label for="input_comments">Opinion:</label>
+                                <textarea class="form-control" id="input_comments" rows="6" placeholder="Always assume your comments will become public!"></textarea>
+                            </div>
+
+                            <div>
+                                <button type="button" class="btn btn-primary" id="btn_submit">Submit</button>'
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6">
+                <embed src="http://www.cs.fsu.edu/~zwang/files/usenixsec17.pdf" width="800px" height="1000px">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

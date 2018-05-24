@@ -28,9 +28,10 @@ CREATE TABLE `ApplicationsTbl` (
 
 CREATE TABLE `CommentsTbl` (
 	`comment_id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`emp_id`	INTEGER NOT NULL,
+	`applicant_id`	INTEGER NOT NULL,
 	`commenter`	TEXT NOT NULL,
-	`opinion`	TEXT NOT NULL
+	`opinion`	TEXT NOT NULL,
+	`when`	TEXT NOT NULL
 );
 
 CREATE TABLE `UsersTbl` (

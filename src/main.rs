@@ -84,9 +84,9 @@ fn update_one(app: Json<Application>, connection: db::Connection) -> Json<Value>
     Json(json!({"status": "error - not found"}))
 }
 
-#[get("/detail/<id>")]
+#[get("/review/<id>")]
 fn detail(id: i32) -> Option<NamedFile> {    
-    NamedFile::open("html/detail.html").ok()
+    NamedFile::open("html/review.html").ok()
 }
 
 fn main() {

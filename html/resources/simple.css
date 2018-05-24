@@ -1,7 +1,7 @@
-@import url(https://fonts.googleapis.com/css?family=Raleway:100);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
 
 body {
-	font: 90%/1.35em sans-serif;
+	font: 85%/1.25em 'Open Sans', sans-serif;
 	margin: 0;
 	padding: 0;
 	color: #333;
@@ -9,20 +9,13 @@ body {
 }
 
 div.container {
-	max-width: 100%;
-	max-height: 90%;
-	margin: 0 auto;
+	max-width: 95%;
+	max-height: 95%;
 	padding: 10px;
-	background-color: white;
 }
 
-div.editor_holder {
-	margin: 0 auto;
-	background: color #ee88ee;;
-}
-
-h1,h3 {
-	font-family:Helvetica, sans-serif;
+h1 {
+	font-family:Helvetica, 'Open Sans', sans-serif;
     font-weight: 600;
     letter-spacing: 1px;
 	font-size: 3em;
@@ -34,14 +27,21 @@ h1 span {
 	line-height: 1em;
 }
 
-div.row{
-	background-color: #F0F0F0;
+h3 {
+	font-family:Helvetica, 'Open Sans', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+	font-size: 2em;
+	line-height: 1em;
 }
 
-div.form-control {
-	background-color: #F0F0F0;
-	border-radius: 0px;
-	border: white;
+table.display tbody tr:hover td{
+    background-color: #f2f2f2;
+}
+ 
+.form-control {
+	font: 100%/1.25em 'Open Sans', sans-serif;
+	border-color: gray;
 	padding: 5px;
 }
 
@@ -51,7 +51,13 @@ input{
 
 td.details-control {
     background: url('/resources/details_open.png') no-repeat center center;
-    cursor: pointer;
+	cursor: pointer;
+}
+
+td.review {
+    background: url('/resources/review.png') no-repeat center center;
+	cursor: pointer;
+	background-size: 20px 20px;
 }
 
 tr.shown td.details-control {
@@ -60,5 +66,24 @@ tr.shown td.details-control {
 
 td.td_extra {
 	text-align: right;
+	width: 8em;
+}
+
+#tbl_info {
+	border-collapse: collapse;	
+	width: 95%;
+}
+
+#tbl_info td, #tbl_info th {
+	border-left: 0px none;
+	border-right: 0px none;
+	border-bottom: 1px solid lightgray;
+	padding: 8px;
+}
+
+#tbl_info tr:nth-child(even){background-color: #f2f2f2;}
+
+td.td_info {
 	width: 10em;
+	text-align: right;
 }
