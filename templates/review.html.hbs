@@ -20,77 +20,6 @@
         $(document).ready(function () {
             fields = facts_app();
 
-            /* function create_info() {
-                function gen_td(field) {
-                    if (fields[field].long) {
-                        return '<td class="td_info">' + fields[field].tag + ':</td>' +
-                            '<td class="td_info" colspan="3"> ' + field + '</td>';
-
-                    } else {
-                        return '<td class="td_info">' + fields[field].tag + ':</td>' +
-                            '<td class="td_info"> ' + field + '</td>';
-                    }
-                }
-
-                function gen_link(field) {
-                    return '<td class="td_info">' + field + ':</td>' +
-                        '<td class="td_info"> ' + '</td>';
-                }
-
-                // `row_data` is the original data object for the row
-                return '<table id="tbl_info">' +
-                    '<td colspan="4"><b>Basic Information:</b></td></tr><tr>' +
-                    gen_td("emp_id") + gen_td("applicant_id") +
-                    '</tr>' + '<tr>' +
-                    gen_td("name") + gen_td("gender") +
-                    '</tr>' + '<tr>' +
-                    gen_td("country") +
-                    '</tr>' + '<tr>' +
-                    gen_td("program") +
-                    gen_td("degree") +
-                    '</tr>' + '<tr>' +
-                    gen_td("interests") +
-                    '</tr>' + '<tr>' +
-                    gen_td("ug_university") +
-                    '</tr>' + '<tr>' +
-                    gen_td("ug_major") +
-                    '</tr>' + '<tr>' +
-                    gen_td("ug_degree") + gen_td("ug_gpa") +
-                    '</tr>' + '<tr>' +
-                    gen_td("grad_university") +
-                    '</tr>' + '<tr>' +
-                    gen_td("grad_major") +
-                    '</tr>' + '<tr>' +
-                    gen_td("grad_degree") + gen_td("grad_gpa") +
-                    '</tr>' + '<tr>' +
-                    gen_td("toefl_ielts") + gen_td("gre") +
-                    '</tr>' + '<tr>' +
-                    gen_td("decision") +
-                    '</tr>' + '<tr>' +
-                    gen_td("advisor") + gen_td("assistantship") +
-                    '</tr>' + '<tr>' +
-                    gen_td("fte") + gen_td("yearly_amount") +
-                    '</tr>' + '<tr>' +
-                    '<td colspan="4"><b>Supporting Materials:</b></td></tr><tr>' +
-                    gen_link("resume") + gen_link("Statement") +
-                    '</tr>' + '<tr>' +
-                    gen_link("ug_transcript") + gen_link("grad_transcript") +
-                    '</tr>' + '<tr>' +
-                    gen_link("toefl") + gen_link("gre") +
-                    '</tr>' + '<tr>' +
-                    gen_link("letter1") + gen_link("letter2") +
-                    '</tr>' + '<tr>' +
-                    gen_link("letter3") + gen_link("letter4") +
-                    '</tr>' + '<tr>' +
-                    gen_link("other1") + gen_link("other2")
-                    ;
-                // +
-                //'<td></td><td> <button type="button" class="btn btn-primary" id="btn_' +'">Update</button>' +
-                //'</table>';
-            }
-
-            $("div.info").html(create_info()); */
-
             // DataTable
             var table = $('#comments').DataTable({
                 "searching": false,
@@ -127,6 +56,12 @@
                     }
                 ],
                 "order": [[1, 'dsc']],
+            });
+
+            $("a.lnk").click(function (evt) {
+                evt.preventDefault();
+                toast(evt.target["href"]);
+                $("#pdf_content").attr('data', evt.target["href"]);
             });
         });
 
@@ -230,39 +165,63 @@
                             </tr>
                             <tr>
                                 <td class="td_tag">resume:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/resume">open</a>
+                                </td>
                                 <td class="td_tag">Statement:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/ps">open</a>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">ug_transcript:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/ug-transcript">open</a>
+                                </td>
                                 <td class="td_tag">grad_transcript:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/grad-transcript">open</a>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">toefl:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/toefl">open</a>
+                                </td>
                                 <td class="td_tag">gre:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/gre">open</a>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">letter1:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/letter1">open</a>
+                                </td>
                                 <td class="td_tag">letter2:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/letter2">open</a>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">letter3:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/letter3">open</a>
+                                </td>
                                 <td class="td_tag">letter4:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/letter4">open</a>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">other1:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/other1">open</a>
+                                </td>
                                 <td class="td_tag">other2:</td>
-                                <td class="td_info"> </td>
+                                <td class="td_info">
+                                    <a class="lnk" href="/files/{{applicant_id}}/other2">open</a>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -270,6 +229,7 @@
             </div>
 
             <div class="col-xl-3" style="border-right: 1px solid lightgray;">
+                <div id="snackbar">Error message here..</div>
                 <div>
                     <h3>Comments:</h3>
                     <hr/>
@@ -289,12 +249,9 @@
                                 <td>200</td>
                                 <td>Zhi Wang</td>
                                 <td>
-                                    "Unplug your Alexa devices right now," the user, Danielle (no last name given), was told by her husband's colleague in Seattle
-                                    after he received full audio recordings between her and her husband, according to the
-                                    KIRO-7 report. The disturbed owner, who is shown in the report juggling four unplugged
-                                    Echo Dot devices, said that the colleague then sent the offending audio to Danielle and
-                                    her husband to confirm the paranoid-sounding allegation. (Before sending the audio, the
-                                    colleague confirmed that the couple had been talking about hardwood floors.)
+                                    Florida State University preserves, expands, and disseminates knowledge in the sciences, technology, arts, humanities, and
+                                    professions, while embracing a philosophy of learning strongly rooted in the traditions
+                                    of the liberal arts.
                                 </td>
                                 <td>today</td>
                             </tr>
@@ -315,7 +272,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="input_comments">Opinion:</label>
-                                <textarea class="form-control" id="input_comments" rows="6" placeholder="Always assume your comments will become public!"></textarea>
+                                <textarea class="form-control" id="input_comments" rows="8" placeholder="Always assume your comments will become public!"></textarea>
                             </div>
 
                             <div>
@@ -326,10 +283,13 @@
                 </div>
             </div>
             <div class="col-xl-6">
-                <embed src="http://www.cs.fsu.edu/~zwang/files/usenixsec17.pdf" width="800px" height="1000px">
+                <div id="pdf">
+                    <object width="800px" height="1000px" type="application/pdf" data="http://www.cs.fsu.edu/~zwang/files/usenixsec17.pdf" id="pdf_content">
+                        <p>The file is missing!</p>
+                    </object>
+                </div>
             </div>
         </div>
     </div>
 </body>
-
 </html>

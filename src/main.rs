@@ -92,11 +92,21 @@ fn detail(id: i32, connection: db::Connection) -> Template {
     Template::render("review", &one)
 }
 
+
+#[get("/<id>/<file..>")]
+fn read_file(id: i32, file: PathBuf) -> Option<NamedFile> {    
+    let mut path = Path::new("data/2018_fall/").join(&file);
+    path.set_extension("pdf");
+    println!("{}", path.to_str().unwrap());
+    NamedFile::open(path).ok()
+}
+
 fn main() {
     //db::import_csv();
     rocket::ignite()
         .mount("/", routes![index, login, mainpg, resources,images,detail])
         .mount("/apps", routes![read_all, read_one, update_one])
+        .mount("/files", routes![read_file])
         .manage(db::connect())
         .attach(Template::fairing())
         .launch();
