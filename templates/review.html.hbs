@@ -20,15 +20,15 @@
         $(document).ready(function () {
             fields = facts_app();
 
-            function create_info() {
+            /* function create_info() {
                 function gen_td(field) {
                     if (fields[field].long) {
                         return '<td class="td_info">' + fields[field].tag + ':</td>' +
-                            '<td class="td_info" colspan="3"> ' + '</td>';
+                            '<td class="td_info" colspan="3"> ' + field + '</td>';
 
                     } else {
                         return '<td class="td_info">' + fields[field].tag + ':</td>' +
-                            '<td class="td_info"> ' + '</td>';
+                            '<td class="td_info"> ' + field + '</td>';
                     }
                 }
 
@@ -89,7 +89,7 @@
                 //'</table>';
             }
 
-            $("div.info").html(create_info());
+            $("div.info").html(create_info()); */
 
             // DataTable
             var table = $('#comments').DataTable({
@@ -117,7 +117,7 @@
                         "width": "20%",
                         "className": "dt-body-right",
                         "render": function (data, type, row, meta) {
-                            return '<div><b>' + data +':</b></div> <div><small>@' + row["when"] + '</small></div>';
+                            return '<div><b>' + data + ':</b></div> <div><small>@' + row["when"] + '</small></div>';
                         }
                     },
                     { "data": "opinion" },
@@ -137,9 +137,136 @@
     <div class="container">
         <div class="row">
             <div class="col-xl-3" style="border-right: 1px solid lightgray;">
-                <h3>Application:</h3>
+                <h3>Application {{applicant_id}}:</h3>
                 <hr/>
-                <div class="info"></div>
+                <div class="info">
+                    <table id="tbl_info">
+                        <tbody>
+                            <tr>
+                                <td colspan="4">
+                                    <b>Basic Information:</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Employee ID:</td>
+                                <td class="td_info">{{emp_id}}</td>
+                                <td class="td_tag">Applicant ID:</td>
+                                <td class="td_info">{{applicant_id}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Name:</td>
+                                <td class="td_info">{{name}}</td>
+                                <td class="td_tag">Gender:</td>
+                                <td class="td_info">{{gender}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Country:</td>
+                                <td class="td_info" colspan="3">{{country}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Program:</td>
+                                <td class="td_info">{{program}}</td>
+                                <td class="td_tag">Degree:</td>
+                                <td class="td_info">{{degree}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Interests:</td>
+                                <td class="td_info" colspan="3">{{interests}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">UG University:</td>
+                                <td class="td_info" colspan="3">{{ug_university}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">UG Major:</td>
+                                <td class="td_info" colspan="3">{{ug_major}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">UG Degree:</td>
+                                <td class="td_info">{{ug_degree}}</td>
+                                <td class="td_tag">UG GPA:</td>
+                                <td class="td_info">{{ug_gpa}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Grad University:</td>
+                                <td class="td_info" colspan="3">{{grad_university}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Grad Major:</td>
+                                <td class="td_info" colspan="3">{{grad_major}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Grad Degree:</td>
+                                <td class="td_info">{{grad_degree}}</td>
+                                <td class="td_tag">Grad GPA:</td>
+                                <td class="td_info">{{grad_gpa}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">TOEFL/IELTS:</td>
+                                <td class="td_info">{{toefl_ielts}}</td>
+                                <td class="td_tag">GRE:</td>
+                                <td class="td_info">{{gre}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Decision:</td>
+                                <td class="td_info" colspan="3">{{decision}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">Advisor:</td>
+                                <td class="td_info">{{advisor}}</td>
+                                <td class="td_tag">Assistantship:</td>
+                                <td class="td_info">{{assistantship}}</td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">FTE:</td>
+                                <td class="td_info">{{fte}}</td>
+                                <td class="td_tag">Salary:</td>
+                                <td class="td_info">{{yearly_amount}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    <b>Supporting Materials:</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">resume:</td>
+                                <td class="td_info"> </td>
+                                <td class="td_tag">Statement:</td>
+                                <td class="td_info"> </td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">ug_transcript:</td>
+                                <td class="td_info"> </td>
+                                <td class="td_tag">grad_transcript:</td>
+                                <td class="td_info"> </td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">toefl:</td>
+                                <td class="td_info"> </td>
+                                <td class="td_tag">gre:</td>
+                                <td class="td_info"> </td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">letter1:</td>
+                                <td class="td_info"> </td>
+                                <td class="td_tag">letter2:</td>
+                                <td class="td_info"> </td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">letter3:</td>
+                                <td class="td_info"> </td>
+                                <td class="td_tag">letter4:</td>
+                                <td class="td_info"> </td>
+                            </tr>
+                            <tr>
+                                <td class="td_tag">other1:</td>
+                                <td class="td_info"> </td>
+                                <td class="td_tag">other2:</td>
+                                <td class="td_info"> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="col-xl-3" style="border-right: 1px solid lightgray;">
@@ -176,7 +303,7 @@
                     </table>
                 </div>
 
-                <p style="white-space: pre"/>
+                <p style="white-space: pre" />
                 <div>
                     <h3>New Comment:</h3>
                     <hr/>

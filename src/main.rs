@@ -6,6 +6,7 @@
 extern crate rocket;
 extern crate dotenv;
 extern crate csv;
+extern crate handlebars;
 
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate serde_derive;
@@ -18,7 +19,8 @@ use std::io;
 use std::path::{Path, PathBuf};
 use rocket::response::NamedFile;
 use rocket::response::Redirect;
-use rocket_contrib::{Json, Value};
+use rocket_contrib::{Json, Value, Template};
+use handlebars::Context;
 
 pub mod db;
 use db::{Application};
@@ -85,8 +87,9 @@ fn update_one(app: Json<Application>, connection: db::Connection) -> Json<Value>
 }
 
 #[get("/review/<id>")]
-fn detail(id: i32) -> Option<NamedFile> {    
-    NamedFile::open("html/review.html").ok()
+fn detail(id: i32, connection: db::Connection) -> Template { 
+    let one = Application::get(&connection, id).unwrap();
+    Template::render("review", &one)
 }
 
 fn main() {
@@ -95,5 +98,6 @@ fn main() {
         .mount("/", routes![index, login, mainpg, resources,images,detail])
         .mount("/apps", routes![read_all, read_one, update_one])
         .manage(db::connect())
+        .attach(Template::fairing())
         .launch();
 }

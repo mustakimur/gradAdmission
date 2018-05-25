@@ -13,8 +13,9 @@ r2d2 = "*"
 r2d2-diesel = "*"
 dotenv = "0.10"
 csv = "1"
+handlebars = "0.28"
 
 [dependencies.rocket_contrib]
 version = "0.3"
 default-features = false
-features = ["json"]
+features = ["json", "handlebars_templates"]

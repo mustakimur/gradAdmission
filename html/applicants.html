@@ -23,10 +23,10 @@
 		function format(row_data) {
 			function gen_td(field) {
 				if (fields[field].can_change) {
-					return '<td class="td_extra">' + fields[field].tag + ':</td>' +
+					return '<td class="td_tag">' + fields[field].tag + ':</td>' +
 						'<td> <input type="text" id=input_' + field + '_' + row_data.applicant_id + ' value="' + row_data[field] + '"></td>'
 				} else {
-					return '<td class="td_extra">' + fields[field].tag + ':</td>' +
+					return '<td class="td_tag">' + fields[field].tag + ':</td>' +
 						'<td>' + row_data[field] + '</td>';
 				}
 			}
