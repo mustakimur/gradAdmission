@@ -4,7 +4,6 @@
 #![recursion_limit="128"]
 
 extern crate rocket;
-extern crate dotenv;
 extern crate csv;
 extern crate handlebars;
 extern crate chrono;
@@ -21,7 +20,6 @@ use std::path::{Path, PathBuf};
 use rocket::response::NamedFile;
 use rocket::response::Redirect;
 use rocket_contrib::{Json, Value, Template};
-use handlebars::Context;
 use chrono::Local;
 
 pub mod db;
@@ -95,8 +93,8 @@ fn detail(id: i32, connection: db::Connection) -> Template {
 }
 
 
-#[get("/<id>/<file..>")]
-fn read_file(id: i32, file: PathBuf) -> Option<NamedFile> {    
+#[get("/<_id>/<file..>")]
+fn read_file(_id: i32, file: PathBuf) -> Option<NamedFile> {    
     let mut path = Path::new("data/2018_fall/").join(&file);
     path.set_extension("pdf");
     println!("{}", path.to_str().unwrap());
@@ -108,8 +106,8 @@ fn all_comment(connection: db::Connection, id: i32)->Json<Value> {
    Json(json!(Comment::read(&connection, id)))
 }
 
-#[post("/<id>", data = "<cmt>")]
-fn add_comment(connection: db::Connection, id: i32, cmt: Json<Comment>)->Json<Value> {
+#[post("/<_id>", data = "<cmt>")]
+fn add_comment(connection: db::Connection, _id: i32, cmt: Json<Comment>)->Json<Value> {
     let date = Local::now ();
     let now = date.format("%m/%d/%Y %H:%M:").to_string();
     let c = Comment{comment_id: None, when: now, ..cmt.into_inner()};
@@ -119,7 +117,7 @@ fn add_comment(connection: db::Connection, id: i32, cmt: Json<Comment>)->Json<Va
 
 
 fn main() {
-    //db::import_csv();
+    db::import_csv();
     rocket::ignite()
         .mount("/", routes![index, login, mainpg, resources,images,detail])
         .mount("/apps", routes![read_all, read_one, update_one])

@@ -1,4 +1,3 @@
-use std::env;
 use std::error::Error;
 use std::fs::File;
 use std::ops::Deref;
@@ -8,7 +7,6 @@ use r2d2_diesel::ConnectionManager;
 
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
-use dotenv::dotenv;
 
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
@@ -58,19 +56,19 @@ impl<'a, 'r> FromRequest<'a, 'r> for Connection {
 // Access the applications table
 //
 pub use self::models::{Application, FromImport, NewApplication};
-pub use self::schema::ApplicationsTbl;
+pub use self::schema::applications_tbl;
 
 impl Application {
     pub fn read(connection: &SqliteConnection) -> Vec<Application> {
-        ApplicationsTbl::table
-            .order(ApplicationsTbl::applicant_id.asc())
+        applications_tbl::table
+            .order(applications_tbl::applicant_id.asc())
             .load::<Application>(connection)
             .unwrap()
     }
 
     pub fn get(connection: &SqliteConnection, id: i32) -> Option<Application> {
-        let results = ApplicationsTbl::table
-            .filter(ApplicationsTbl::applicant_id.eq(id))
+        let results = applications_tbl::table
+            .filter(applications_tbl::applicant_id.eq(id))
             .limit(1)
             .load::<Application>(connection);
 
@@ -86,7 +84,7 @@ impl Application {
     }
 
     pub fn update(conn: &SqliteConnection, app: Application) -> bool {
-        diesel::update(ApplicationsTbl::table.find(app.applicant_id))
+        diesel::update(applications_tbl::table.find(app.applicant_id))
             .set(&app)
             .execute(conn)
             .is_ok()
@@ -97,26 +95,26 @@ impl Application {
 // Access the comments table
 //
 pub use self::models::Comment;
-pub use self::schema::CommentsTbl;
+pub use self::schema::comments_tbl;
 
 impl Comment {
     pub fn read(connection: &SqliteConnection, id: i32) -> Vec<Comment> {
-        CommentsTbl::table
-            .filter(CommentsTbl::applicant_id.eq(id))
-            .order(CommentsTbl::comment_id.asc())
+        comments_tbl::table
+            .filter(comments_tbl::applicant_id.eq(id))
+            .order(comments_tbl::comment_id.asc())
             .load::<Comment>(connection)
             .unwrap()
     }
 
     pub fn update(conn: &SqliteConnection, com: Comment) -> bool {
-        diesel::update(CommentsTbl::table.find(com.applicant_id))
+        diesel::update(comments_tbl::table.find(com.applicant_id))
             .set(&com)
             .execute(conn)
             .is_ok()
     }
 
     pub fn add_one(conn: &SqliteConnection, com: Comment) -> bool {
-        diesel::insert_into(CommentsTbl::table)
+        diesel::insert_into(comments_tbl::table)
             .values(&com)
             .execute(conn)
             .is_ok()
@@ -130,11 +128,11 @@ fn connect_db() -> SqliteConnection {
 }
 
 pub fn show_all() {
-    use self::schema::ApplicationsTbl::dsl::*;
+    use self::schema::applications_tbl::dsl::*;
 
     let db_conn = connect_db();
 
-    let results = ApplicationsTbl
+    let results = applications_tbl
         .load::<Application>(&db_conn)
         .expect("Error");
 
@@ -156,7 +154,7 @@ fn get_index(header: &csv::StringRecord, title: &str) -> Option<usize> {
 }
 
 fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
-    use self::schema::ApplicationsTbl;
+    use self::schema::applications_tbl;
 
     let mut new_app = NewApplication {
         emp_id: 0,
@@ -217,7 +215,7 @@ fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
     }
 
     let db_conn = connect_db();
-    diesel::insert_into(ApplicationsTbl::table)
+    diesel::insert_into(applications_tbl::table)
         .values(&new_app)
         .execute(&db_conn)?;
 
@@ -226,15 +224,16 @@ fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
 
 fn import_csv_error(path: &str) -> Result<(), Box<Error>> {
     // Build the CSV reader and iterate over each record.
-    let mut file = File::open(path)?;
+    let file = File::open(path)?;
     let mut rdr = csv::Reader::from_reader(file);
-    let mut emp_id_idx = 0;
-    let mut applicant_id_idx = 0;
-    let mut name_idx = 0;
-    let mut dob_idx = 0;
-    let mut gender_idx = 0;
-    let mut country_idx = 0;
-    let mut degree_idx = 0;
+
+    let emp_id_idx;
+    let applicant_id_idx;
+    let name_idx;
+    let dob_idx;
+    let gender_idx;
+    let country_idx;
+    let degree_idx;
 
     {
         let header = rdr.headers()?;
@@ -247,7 +246,7 @@ fn import_csv_error(path: &str) -> Result<(), Box<Error>> {
         degree_idx = get_index(header, "Plan Desc").expect("No Plan Desc");
     }
 
-    for result in rdr.records() {
+    for result in rdr.records() { 
         let record = result?;
 
         let import = FromImport {

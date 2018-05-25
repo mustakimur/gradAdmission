@@ -49,7 +49,12 @@
                             return '<div><b>' + data + ':</b></div> <div><small>' + row["when"] + '</small></div>';
                         }
                     },
-                    { "data": "opinion" },
+                    {   
+                        "data": "opinion",
+                        "render": function (data, type, row, meta) {
+                            return '<p>' + data.replace(/\n/g, '<br>\n') + '</p>';
+                        } 
+                    },
                     {
                         "data": "when",
                         "visible": false

@@ -1,5 +1,5 @@
 table! {
-    ApplicationsTbl (applicant_id) {
+    applications_tbl (applicant_id) {
         emp_id -> Integer,
         applicant_id -> Integer,
         name -> Text,
@@ -28,7 +28,7 @@ table! {
 }
 
 table! {
-    CommentsTbl (comment_id) {
+    comments_tbl (comment_id) {
         comment_id -> Nullable<Integer>,
         applicant_id -> Integer,
         commenter -> Text,
@@ -38,7 +38,7 @@ table! {
 }
 
 table! {
-    UsersTbl (user_name) {
+    users_tbl (user_name) {
         user_name -> Text,
         role -> Text,
         password -> Text,
@@ -46,7 +46,7 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
-    ApplicationsTbl,
-    CommentsTbl,
-    UsersTbl,
+    applications_tbl,
+    comments_tbl,
+    users_tbl,
 );

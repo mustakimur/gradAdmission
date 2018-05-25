@@ -1,4 +1,4 @@
-CREATE TABLE `ApplicationsTbl` (
+CREATE TABLE `applications_tbl` (
 	`emp_id`	INTEGER NOT NULL,
 	`applicant_id`	INTEGER NOT NULL,
 	`name`	TEXT NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE `ApplicationsTbl` (
 	PRIMARY KEY(`applicant_id`)
 );
 
-CREATE TABLE `CommentsTbl` (
+CREATE TABLE `comments_tbl` (
 	`comment_id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`applicant_id`	INTEGER NOT NULL,
 	`commenter`	TEXT NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE `CommentsTbl` (
 	`when`	TEXT NOT NULL
 );
 
-CREATE TABLE `UsersTbl` (
+CREATE TABLE `users_tbl` (
 	`user_name`	TEXT NOT NULL,
 	`role`	TEXT NOT NULL,
 	`password`	TEXT NOT NULL,

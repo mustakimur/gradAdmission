@@ -1,9 +1,9 @@
-use super::schema::ApplicationsTbl;
-use super::schema::CommentsTbl;
-use super::schema::UsersTbl;
+use super::schema::applications_tbl;
+use super::schema::comments_tbl;
+use super::schema::users_tbl;
 
 #[derive(Queryable, AsChangeset, Insertable, Debug, Serialize, Deserialize)]
-#[table_name = "ApplicationsTbl"]
+#[table_name = "applications_tbl"]
 pub struct Application {
     pub emp_id: i32,
     pub applicant_id: i32,
@@ -32,7 +32,7 @@ pub struct Application {
 }
 
 #[derive(Queryable, AsChangeset, Insertable, Debug, Serialize, Deserialize)]
-#[table_name = "CommentsTbl"]
+#[table_name = "comments_tbl"]
 pub struct Comment {
     pub comment_id: Option<i32>,
     pub applicant_id: i32,
@@ -42,7 +42,7 @@ pub struct Comment {
 }
 
 #[derive(Queryable, AsChangeset, Insertable, Debug, Serialize, Deserialize)]
-#[table_name = "UsersTbl"]
+#[table_name = "users_tbl"]
 pub struct User {
     pub user_name: String,
     pub role: String,
@@ -50,7 +50,7 @@ pub struct User {
 }
 
 #[derive(Insertable)]
-#[table_name = "ApplicationsTbl"]
+#[table_name = "applications_tbl"]
 pub struct NewApplication<'a> {
     pub emp_id: i32,
     pub applicant_id: i32,
