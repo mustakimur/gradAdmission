@@ -29,7 +29,7 @@ table! {
 
 table! {
     CommentsTbl (comment_id) {
-        comment_id -> Integer,
+        comment_id -> Nullable<Integer>,
         applicant_id -> Integer,
         commenter -> Text,
         opinion -> Text,

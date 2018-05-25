@@ -7,6 +7,7 @@ extern crate rocket;
 extern crate dotenv;
 extern crate csv;
 extern crate handlebars;
+extern crate chrono;
 
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate serde_derive;
@@ -21,9 +22,10 @@ use rocket::response::NamedFile;
 use rocket::response::Redirect;
 use rocket_contrib::{Json, Value, Template};
 use handlebars::Context;
+use chrono::Local;
 
 pub mod db;
-use db::{Application};
+use db::{Application, Comment};
 
 // Serving basic files
 #[get("/")]
@@ -101,12 +103,28 @@ fn read_file(id: i32, file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(path).ok()
 }
 
+#[get("/<id>")]
+fn all_comment(connection: db::Connection, id: i32)->Json<Value> {
+   Json(json!(Comment::read(&connection, id)))
+}
+
+#[post("/<id>", data = "<cmt>")]
+fn add_comment(connection: db::Connection, id: i32, cmt: Json<Comment>)->Json<Value> {
+    let date = Local::now ();
+    let now = date.format("%m/%d/%Y %H:%M:").to_string();
+    let c = Comment{comment_id: None, when: now, ..cmt.into_inner()};
+    Comment::add_one(&connection, c);
+   Json(json!({"status": "success"}))
+}
+
+
 fn main() {
     //db::import_csv();
     rocket::ignite()
         .mount("/", routes![index, login, mainpg, resources,images,detail])
         .mount("/apps", routes![read_all, read_one, update_one])
         .mount("/files", routes![read_file])
+        .mount("/comments", routes![all_comment, add_comment])
         .manage(db::connect())
         .attach(Template::fairing())
         .launch();

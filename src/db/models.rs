@@ -34,7 +34,7 @@ pub struct Application {
 #[derive(Queryable, AsChangeset, Insertable, Debug, Serialize, Deserialize)]
 #[table_name = "CommentsTbl"]
 pub struct Comment {
-    pub comment_id: i32,
+    pub comment_id: Option<i32>,
     pub applicant_id: i32,
     pub commenter: String,
     pub opinion: String,

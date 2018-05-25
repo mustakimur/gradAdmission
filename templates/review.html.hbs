@@ -27,10 +27,10 @@
                 "scrollCollapse": false,
                 "paging": false,
                 "info": false,
-                /*                 "ajax": {
-                                    "url": "/comments/",
-                                    "dataSrc": ""
-                                }, */
+                "ajax": {
+                    "url": "/comments/{{applicant_id}}",
+                    "dataSrc": ""
+                },
 
                 "columns": [
                     {
@@ -43,10 +43,10 @@
                     },
                     {
                         "data": "commenter",
-                        "width": "20%",
+                        "width": "25%",
                         "className": "dt-body-right",
                         "render": function (data, type, row, meta) {
-                            return '<div><b>' + data + ':</b></div> <div><small>@' + row["when"] + '</small></div>';
+                            return '<div><b>' + data + ':</b></div> <div><small>' + row["when"] + '</small></div>';
                         }
                     },
                     { "data": "opinion" },
@@ -55,7 +55,7 @@
                         "visible": false
                     }
                 ],
-                "order": [[1, 'dsc']],
+                "order": [[0, 'desc']],
             });
 
             $("a.lnk").click(function (evt) {
@@ -63,8 +63,28 @@
                 toast(evt.target["href"]);
                 $("#pdf_content").attr('data', evt.target["href"]);
             });
-        });
 
+            $("#btn_new").click(function () {
+                var json_obj = {};
+
+                json_obj.comment_id = 0;
+                json_obj.applicant_id = {{ applicant_id }};
+
+                json_obj.commenter = $("#input_commenter").val();
+                json_obj.opinion = $("#input_opinion").val();
+                json_obj.when = "now";
+
+                var json = JSON.stringify(json_obj);
+                $.ajax({
+                    type: "POST",
+                    url: "/comments/{{applicant_id}}",
+                    data: json,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    complete: function (jq, status) { toast(status); table.ajax.reload(); }
+                });
+            });
+        });
     </script>
 </head>
 
@@ -272,11 +292,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="input_comments">Opinion:</label>
-                                <textarea class="form-control" id="input_comments" rows="8" placeholder="Always assume your comments will become public!"></textarea>
+                                <textarea class="form-control" id="input_opinion" rows="8" placeholder="Always assume your comments will become public!"></textarea>
                             </div>
 
                             <div>
-                                <button type="button" class="btn btn-primary" id="btn_submit">Submit</button>'
+                                <button type="button" class="btn btn-primary" id="btn_new">Submit</button>'
                             </div>
                         </form>
                     </div>
@@ -292,4 +312,5 @@
         </div>
     </div>
 </body>
+
 </html>

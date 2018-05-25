@@ -12,20 +12,20 @@ use dotenv::dotenv;
 
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
-use rocket::{Request, State, Outcome};
+use rocket::{Outcome, Request, State};
 
 pub mod models;
 pub mod schema;
-pub use self::models::{Application, FromImport, NewApplication};
-pub use self::schema::{ApplicationsTbl};
 
-pub type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 static DB_URL: &'static str = env!("DATABASE_URL");
 
+pub type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+
 pub fn connect() -> DbPool {
-   let manager = ConnectionManager::<SqliteConnection>::new(DB_URL);
-   r2d2::Pool::builder().build(manager).expect("Faile to create pool")
-    //SqliteConnection::establish(&db_url).expect(&format!("Error connecting to {}", db_url))
+    let manager = ConnectionManager::<SqliteConnection>::new(DB_URL);
+    r2d2::Pool::builder()
+        .build(manager)
+        .expect("Faile to create pool")
 }
 
 // Connection request guard type: a wrapper around an r2d2 pooled connection.
@@ -49,20 +49,30 @@ impl<'a, 'r> FromRequest<'a, 'r> for Connection {
         let pool = request.guard::<State<DbPool>>()?;
         match pool.get() {
             Ok(conn) => Outcome::Success(Connection(conn)),
-            Err(_) => Outcome::Failure((Status::ServiceUnavailable, ()))
+            Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
         }
     }
 }
 
+//
+// Access the applications table
+//
+pub use self::models::{Application, FromImport, NewApplication};
+pub use self::schema::ApplicationsTbl;
+
 impl Application {
     pub fn read(connection: &SqliteConnection) -> Vec<Application> {
-        ApplicationsTbl::table.order(ApplicationsTbl::applicant_id.asc()).load::<Application>(connection).unwrap()
+        ApplicationsTbl::table
+            .order(ApplicationsTbl::applicant_id.asc())
+            .load::<Application>(connection)
+            .unwrap()
     }
 
-    pub fn get (connection: &SqliteConnection, id: i32) -> Option<Application> {
-        let results = ApplicationsTbl::table.filter(ApplicationsTbl::applicant_id.eq(id))
-        .limit(1)
-        .load::<Application>(connection);
+    pub fn get(connection: &SqliteConnection, id: i32) -> Option<Application> {
+        let results = ApplicationsTbl::table
+            .filter(ApplicationsTbl::applicant_id.eq(id))
+            .limit(1)
+            .load::<Application>(connection);
 
         if !results.is_err() {
             let results = results.unwrap();
@@ -71,19 +81,52 @@ impl Application {
                 return Some(app);
             }
         }
-        
+
         None
     }
 
-    pub fn update(conn: &SqliteConnection, app: Application) -> bool{
-        diesel::update(ApplicationsTbl::table.find(app.applicant_id)).set(&app).execute(conn).is_ok()
+    pub fn update(conn: &SqliteConnection, app: Application) -> bool {
+        diesel::update(ApplicationsTbl::table.find(app.applicant_id))
+            .set(&app)
+            .execute(conn)
+            .is_ok()
     }
 }
 
-fn connect_db()->SqliteConnection {
+//
+// Access the comments table
+//
+pub use self::models::Comment;
+pub use self::schema::CommentsTbl;
+
+impl Comment {
+    pub fn read(connection: &SqliteConnection, id: i32) -> Vec<Comment> {
+        CommentsTbl::table
+            .filter(CommentsTbl::applicant_id.eq(id))
+            .order(CommentsTbl::comment_id.asc())
+            .load::<Comment>(connection)
+            .unwrap()
+    }
+
+    pub fn update(conn: &SqliteConnection, com: Comment) -> bool {
+        diesel::update(CommentsTbl::table.find(com.applicant_id))
+            .set(&com)
+            .execute(conn)
+            .is_ok()
+    }
+
+    pub fn add_one(conn: &SqliteConnection, com: Comment) -> bool {
+        diesel::insert_into(CommentsTbl::table)
+            .values(&com)
+            .execute(conn)
+            .is_ok()
+    }
+}
+
+// Import applications from the official FSU DB
+fn connect_db() -> SqliteConnection {
     use diesel::Connection;
-     SqliteConnection::establish(DB_URL)
-        .expect(&format!("Error connecting to {}", DB_URL))
+    SqliteConnection::establish(DB_URL).expect(&format!("Error connecting to {}", DB_URL))
 }
 
 pub fn show_all() {
@@ -112,7 +155,7 @@ fn get_index(header: &csv::StringRecord, title: &str) -> Option<usize> {
     None
 }
 
- fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
+fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
     use self::schema::ApplicationsTbl;
 
     let mut new_app = NewApplication {
@@ -234,4 +277,3 @@ pub fn import_csv() {
         println!("{}", result.unwrap_err());
     }
 }
- 
