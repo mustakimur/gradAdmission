@@ -15,7 +15,7 @@
 	<script type="text/javascript" language="javascript" src="http://code.jquery.com/jquery-1.12.4.js"></script>
 	<script type="text/javascript" language="javascript" src="resources/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" language="javascript" src="/resources/local.js"></script>
-
+	<script type="text/javascript" language="javascript" src="/resources/js.cookie.js"></script>
 
 	<script type="text/javascript" language="javascript" class="init">
 		var fields = facts_app();
@@ -63,7 +63,7 @@
 				select: true,
 
 				"ajax": {
-					"url": "/apps",
+					"url": "/application",
 					"dataSrc": ""
 				},
 
@@ -146,6 +146,7 @@
 						"searchable": false
 					},
 				],
+
 				"order": [[4, 'asc']],
 			});
 
@@ -183,7 +184,6 @@
 							} else {
 								json_obj[key] = row_data[key];
 							}
-
 						});
 
 						// update the row
@@ -193,10 +193,11 @@
 
 						$.ajax({
 							type: "POST",
-							url: "/apps",
+							url: "/application",
 							data: json,
 							contentType: "application/json; charset=utf-8",
-							dataType: "json"
+							dataType: "json",
+							complete: function (jq, status) { toast(status);}
 						});
 					});
 				}
@@ -221,6 +222,22 @@
 					}
 				});
 			});
+
+			$('#btn_logout').on('click', function () {
+				$.ajax({
+					type: "POST",
+					url: "/logout",
+					complete: function () {
+						location.reload();
+					}
+				});
+			});
+
+			// Show the flash message
+			if (Cookies.get("_flash").length > 0) {
+				toast(Cookies.get("_flash"));
+				Cookies.remove("_flash");
+			}
 		});
 	</script>
 </head>
@@ -229,7 +246,11 @@
 	<div class="container">
 		<section>
 			<h1>Applications to CS Graduate Programs
-				<span>Spring 2019</span>
+				<span>Spring 2019
+					<p style="text-align:right">{{user_name}}/{{role}}
+						<button class="btn btn-outline-primary" id="btn_logout">Logout</button>
+					</p>
+				</span>
 			</h1>
 			<hr/>
 			<table id="applicants" class="display" cellspacing="0" width="100%">
@@ -299,9 +320,9 @@
 		</section>
 	</div>
 
-	<div id="result">
+	<div id="result"></div>
 
-	</div>
+	<div id="snackbar"> </div>
 </body>
 
 </html>

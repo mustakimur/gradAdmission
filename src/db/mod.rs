@@ -113,9 +113,71 @@ impl Comment {
             .is_ok()
     }
 
-    pub fn add_one(conn: &SqliteConnection, com: Comment) -> bool {
+    pub fn insert(conn: &SqliteConnection, com: Comment) -> bool {
         diesel::insert_into(comments_tbl::table)
             .values(&com)
+            .execute(conn)
+            .is_ok()
+    }
+}
+
+//
+// Access the comments table
+//
+pub use self::models::User;
+pub use self::schema::users_tbl;
+use UserAuth;
+
+impl User {
+    pub fn read(connection: &SqliteConnection) -> Vec<User> {
+        users_tbl::table.load::<User>(connection).unwrap()
+    }
+
+    pub fn get(connection: &SqliteConnection, name: &str) -> Option<User> {
+        let results = users_tbl::table
+            .filter(users_tbl::user_name.eq(name))
+            .limit(1)
+            .load::<User>(connection);
+
+        if !results.is_err() {
+            let results = results.unwrap();
+
+            for user in results {
+                return Some(user);
+            }
+        }
+
+        None
+    }
+
+    // This function is used to retrieve the user from the cookie. We do not have a connection. 
+    pub fn get_auth<'a, 'r>(request: &'a Request<'r>, name: &str) -> Option<UserAuth> {
+        let pool_orig = request.guard::<State<DbPool>>();
+
+        if pool_orig.is_success() {
+            if let Ok(conn) = pool_orig.unwrap().get() {
+                println!("user_name in cookie:{}", name);
+
+                return User::get(&conn, name).map (|user| UserAuth {
+                    user_name: user.user_name,
+                    role: user.role,
+                });
+            }
+        }
+
+        None
+    }
+
+    pub fn update(conn: &SqliteConnection, user: User) -> bool {
+        diesel::update(users_tbl::table.find(&user.user_name))
+            .set(&user)
+            .execute(conn)
+            .is_ok()
+    }
+
+    pub fn insert(conn: &SqliteConnection, user: User) -> bool {
+        diesel::insert_into(users_tbl::table)
+            .values(&user)
             .execute(conn)
             .is_ok()
     }
@@ -246,7 +308,7 @@ fn import_csv_error(path: &str) -> Result<(), Box<Error>> {
         degree_idx = get_index(header, "Plan Desc").expect("No Plan Desc");
     }
 
-    for result in rdr.records() { 
+    for result in rdr.records() {
         let record = result?;
 
         let import = FromImport {

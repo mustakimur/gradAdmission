@@ -115,6 +115,10 @@ td.td_extra {
     top: 30px; /* 30px from the top */
 }
 
+#flash {
+	visibility: hidden; /* Hidden by default. Visible on click */
+}
+
 /* Show the snackbar when clicking on a button (class added with JavaScript) */
 #snackbar.show {
     visibility: visible; /* Show the snackbar */

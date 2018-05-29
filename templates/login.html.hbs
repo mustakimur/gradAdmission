@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+    crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="resources/simple.css">
+  <script type="text/javascript" language="javascript" src="/resources/local.js"></script>
+  <script type="text/javascript" language="javascript" src="http://code.jquery.com/jquery-1.12.4.js"></script>
+
+  <title>FSU CS Admission System</title>
+
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+  </style>
+
+  <script type="text/javascript" language="javascript" class="init">
+    $(document).ready(function () {
+      if ($("#flash").length > 0) {
+        msg = $("#flash").html();
+        toast(msg);
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3>Login to CS Admission</h3>
+        </div>
+        <hr/>
+
+        <div class="panel-body">
+          <form accept-charset="UTF-8" role="form" action="/login" method="post">
+            <div class="form-group">
+              <label for="user_name">User name:</label>
+              <input class="form-control" id="user_name" name="user_name" type="text">
+            </div>
+            <div class="form-group">
+              <label for="password">password:</label>
+              <input class="form-control" id="password" name="password" type="password" value="">
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">Login</button>
+          </form>
+        </div>
+
+        {{#if flash}}
+        <div id="flash"> Error: {{flash}} </div>
+        {{/if}}
+
+        <div id="snackbar">Snackbar</div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
