@@ -11,6 +11,7 @@ use diesel::sqlite::SqliteConnection;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
 use rocket::{Outcome, Request, State};
+use std::io;
 
 pub mod models;
 pub mod schema;
@@ -134,7 +135,7 @@ impl User {
         let salt = "Cw5s2mwia9jBe0P8";
         let ba = argon2rs::argon2d_simple(pass, salt);
         let strs: Vec<String> = ba.iter().map(|b| format!("{:02X}", b)).collect();
-        strs.connect("")
+        strs.join("")
     }
 
     pub fn read(connection: &SqliteConnection) -> Vec<User> {
@@ -198,29 +199,7 @@ impl User {
     }
 }
 
-// Import applications from the official FSU DB
-fn connect_db() -> SqliteConnection {
-    use diesel::Connection;
-    SqliteConnection::establish(DB_URL).expect(&format!("Error connecting to {}", DB_URL))
-}
-
-pub fn show_all() {
-    use self::schema::applications_tbl::dsl::*;
-
-    let db_conn = connect_db();
-
-    let results = applications_tbl
-        .load::<Application>(&db_conn)
-        .expect("Error");
-
-    println!("Display {} applicants", results.len());
-
-    for app in results {
-        println!("{:?}", app);
-    }
-}
-
-fn get_index(header: &csv::StringRecord, title: &str) -> Option<usize> {
+fn get_index (header: &csv::StringRecord, title: &str) -> Option<usize> {
     for (i, item) in header.iter().enumerate() {
         if item == title {
             return Some(i);
@@ -230,7 +209,7 @@ fn get_index(header: &csv::StringRecord, title: &str) -> Option<usize> {
     None
 }
 
-fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
+fn import_app(db_conn: &SqliteConnection, import: &FromImport) -> Result<String, Box<Error>> {
     use self::schema::applications_tbl;
 
     let mut new_app = NewApplication {
@@ -291,15 +270,14 @@ fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
         new_app.degree = "UNK";
     }
 
-    let db_conn = connect_db();
     diesel::insert_into(applications_tbl::table)
         .values(&new_app)
-        .execute(&db_conn)?;
+        .execute(db_conn)?;
 
-    Ok(())
+    Ok("Success".to_string())
 }
 
-fn import_csv_error(path: &str) -> Result<(), Box<Error>> {
+pub fn import_csv (db_conn: &SqliteConnection, path: &str) -> io::Result<String> {
     // Build the CSV reader and iterate over each record.
     let file = File::open(path)?;
     let mut rdr = csv::Reader::from_reader(file);
@@ -336,20 +314,12 @@ fn import_csv_error(path: &str) -> Result<(), Box<Error>> {
             degree: &record[degree_idx],
         };
 
-        let result = import_app(&import);
+        let result = import_app(db_conn, &import);
 
         if result.is_err() {
             //println!("{}", result.unwrap_err());
         }
     }
 
-    Ok(())
-}
-
-pub fn import_csv() {
-    let result = import_csv_error("data/2018_fall/Export.csv");
-
-    if result.is_err() {
-        println!("{}", result.unwrap_err());
-    }
+    Ok("Success".to_string())
 }

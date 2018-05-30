@@ -21,12 +21,14 @@ extern crate r2d2_diesel;
 use chrono::Local;
 use rocket::http::{Cookie, Cookies};
 use rocket::outcome::IntoOutcome;
+use rocket::Data;
 use rocket::request::{self, FlashMessage, Form, FromRequest, Request};
 use rocket::response::NamedFile;
 use rocket::response::{Flash, Redirect};
 use rocket_contrib::{Json, Template, Value};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::io;
 
 pub mod db;
 use db::{Application, Comment, User};
@@ -188,7 +190,7 @@ fn review_app(_id: i32, _connection: db::Connection) -> Redirect {
 }
 
 //
-// Routers to handle urls based on /review
+// Routers to handle urls based on /file
 //
 #[get("/<_id>/<file..>")]
 fn read_file_auth(_id: i32, file: PathBuf, _user: UserAuth) -> Option<NamedFile> {
@@ -203,6 +205,20 @@ fn read_file(_id: i32, _file: PathBuf) -> Redirect {
     Redirect::to("/login")
 }
 
+#[post("/import", data="<paste>")]
+fn import_auth(paste: Data, connection: db::Connection, user: UserAuth) -> io::Result<String> {
+    println!("in import, with user {}", user.user_name);
+    let filename = "data/2018_fall/import.csv";
+    // Write the paste out to the file and return the URL.
+    paste.stream_to_file(Path::new(&filename))?;
+    db::import_csv(&connection, filename)
+}
+
+#[post("/import", data="<_paste>", rank = 2)]
+fn import (_paste: Data)  -> Redirect {
+    println!("in import, without user");
+    Redirect::to("/login")
+}
 //
 // Routers to handle urls based on /comment
 //
@@ -287,8 +303,8 @@ fn del_user(user_name: String, _connection: db::Connection) -> Redirect {
     Redirect::to("/login")
 }
 
+
 fn main() {
-    db::import_csv();
     rocket::ignite()
         .mount(
             "/",
@@ -316,7 +332,7 @@ fn main() {
             ],
         )
         .mount("/review", routes![review_app, review_app_auth])
-        .mount("/file", routes![read_file, read_file_auth])
+        .mount("/file", routes![read_file, read_file_auth, import_auth, import])
         .mount(
             "/user",
             routes![read_users, read_users_auth, add_user, add_user_auth, del_user, del_user_auth],

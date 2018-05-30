@@ -31,6 +31,23 @@
 				}
 			}
 
+			function gen_btns() {
+				return '<td colspan="8"> <div class="btn-group btn-group-sm">' +
+					'<input type="file" class="btn_resume"  id="btn_resume" accept=".pdf" >' +
+					'<input type="file" class="btn_ps"  id="btn_ps" accept=".pdf" >' +
+					'<input type="file" class="btn_ug_trans" id="btn_ug_trans" accept=".pdf" >' +
+					'<input type="file" class="btn_grad_trans" id="btn_grad_trans" accept=".pdf" >' +
+					'<input type="file" class="btn_toefl"  id="btn_toefl" accept=".pdf" >' +
+					'<input type="file" class="btn_gre"  id="btn_gre" accept=".pdf" >' +
+					'<input type="file" class="btn_letter1" id="btn_letter1" accept=".pdf" >' +
+					'<input type="file" class="btn_letter2"  id="btn_letter2" accept=".pdf" >' +
+					'<input type="file" class="btn_letter3"  id="btn_letter3" accept=".pdf" >' +
+					'<input type="file" class="btn_letter4"  id="btn_letter4" accept=".pdf" >' +
+					'<input type="file" class="btn_other1" id="btn_other1" accept=".pdf" >' +
+					'<input type="file" class="btn_other2"  id="btn_other2" accept=".pdf" >' +
+					'</div> </td>'
+			}
+
 			// `row_data` is the original data object for the row
 			return '<table class="child" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
 				'<tr>' +
@@ -45,7 +62,11 @@
 				gen_td("toefl_ielts") + gen_td("gre") + gen_td("decision") + gen_td("advisor") +
 				'</tr>' + '<tr>' +
 				gen_td("assistantship") + gen_td("fte") + gen_td("yearly_amount") +
-				'<td></td><td> <button type="button" class="btn btn-primary" id="btn_' + row_data.applicant_id + '">Update</button>' +
+				'<td></td><td> <button type="button" class="btn btn-primary" id="btn_update' + row_data.applicant_id + '">Update</button>' +
+				'</tr>' + '<tr>' +
+				gen_btns() +
+				'</tr>' +
+
 				'</table>';
 		}
 
@@ -61,6 +82,7 @@
 			// DataTable
 			var table = $('#applicants').DataTable({
 				select: true,
+				"deferRender": false,
 
 				"ajax": {
 					"url": "/application",
@@ -159,17 +181,38 @@
 				if (row.child.isShown()) {
 					// This row is already open - close it
 					row.child.hide();
-					tr.removeClass('shown');
-
+					tr.removeClass( 'shown' );
 					// remove the event listener, other it will be fired multiple times
-					$('#applicants').off('click', "#btn_" + row_data.applicant_id);
-
+					$('#applicants').off('click', "#btn_update" + row_data.applicant_id);
 				} else {
+					// close the currently open row. We have to do this otherwise the style of the button is wrong
+					table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+						var open_row = table.row(rowIdx);
+						if (open_row.child.isShown()) {
+							open_row.child.hide();
+							$(open_row.node()).removeClass('shown');
+							$('#applicants').off('click', "#btn_update" + open_row.data().applicant_id);
+						}
+					});
+
 					// Open this row
 					row.child(format(row_data)).show();
-					tr.addClass('shown');
+					tr.addClass( 'shown' );
 
-					$('#applicants').on('click', "#btn_" + row_data.applicant_id, function () {
+					$("#btn_resume").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "resume" });
+					$("#btn_ps").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "statement" });
+					$("#btn_ug_trans").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "UG Trans" });
+					$("#btn_grad_trans").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Grad Trans" });
+					$("#btn_toefl").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "TOEFL" });
+					$("#btn_gre").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "GRE" });
+					$("#btn_letter1").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Letter 1" });
+					$("#btn_letter2").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Letter 2" });
+					$("#btn_letter3").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Letter 3" });
+					$("#btn_letter4").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Letter 4" });
+					$("#btn_other1").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Other 1" });
+					$("#btn_other2").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Other 2" });
+
+					$('#applicants').on('click', "#btn_update" + row_data.applicant_id, function () {
 						// retrieve data from the child form. Datatables uses strings, We need to 
 						// convert them to integer or float for some fields for json to be valid.
 						var json_obj = {};
@@ -233,8 +276,19 @@
 				});
 			});
 
+			$('#btn_account').on('click', function () {
+				window.open('/account', '_blank');
+			});
+
+			$('#btn_import').on('change', function () {
+				var files = $('#btn_import').prop('files');
+
+				toast("Import from " + files[0].name + ", size: " + files[0].size);
+				upload("/file/import", files[0], function () { table.ajax.reload(); });
+			});
+
 			// Show the flash message
-			if (Cookies.get("_flash").length > 0) {
+			if (Cookies.get("_flash") !== undefined) {
 				//toast(Cookies.get("_flash"));
 				Cookies.remove("_flash");
 			}
@@ -244,15 +298,26 @@
 
 <body>
 	<div class="container">
-		<section>
-			<h1>Applications to CS Graduate Programs
-				<span>Spring 2019
-					<p style="text-align:right">{{user_name}}/{{role}}
-						<button class="btn btn-outline-primary" id="btn_logout">Logout</button>
-					</p>
-				</span>
-			</h1>
-			<hr/>
+		<div class="row">
+			<div class="col-lg-9">
+				<h1>Applications to CS Graduate Programs
+					<span>Spring 2019
+					</span>
+				</h1>
+			</div>
+			<div class="col-lg-3">
+				<div class="btn-group float-right btn-group-sm">
+					<button class="btn btn-outline-primary" id="btn_logout">Logout {{user_name}}/{{role}}</button>
+					<button type="button" class="btn btn-outline-warning" id="btn_account">Accounts</button>
+					<input type="file" class="filestyle" data-input="false" data-text="Import" data-btnClass="btn-outline-warning" data-size="sm"
+					 id="btn_import" accept=".csv">
+				</div>
+			</div>
+		</div>
+
+		<hr/>
+
+		<div class="row">
 			<table id="applicants" class="display" cellspacing="0" width="100%">
 				<thead>
 					<tr>
@@ -317,14 +382,12 @@
 				<tbody>
 				</tbody>
 			</table>
-		</section>
-	</div>
-
-	<div id="result" style="text-align:right; padding:50px">
-		<a href="/account">Manage accounts (sysadmin only) </a>
+		</div>
 	</div>
 
 	<div id="snackbar"> </div>
+
+	<script type="text/javascript" src="/resources/bootstrap-filestyle.min.js"> </script>
 </body>
 
 </html>
