@@ -57,10 +57,16 @@ td.details-control {
 	cursor: pointer;
 }
 
-td.review {
+td.review-control {
     background: url('/resources/review.png') no-repeat center center;
 	cursor: pointer;
-	background-size: 20px 20px;
+	background-size: 32px 32px;
+}
+
+td.delete-control {
+    background: url('/resources/delete.png') no-repeat center center;
+	cursor: pointer;
+	background-size: 32px 32px;
 }
 
 tr.shown td.details-control {

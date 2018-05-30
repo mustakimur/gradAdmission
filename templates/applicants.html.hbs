@@ -75,7 +75,7 @@
 						"defaultContent": ''
 					},
 					{
-						"className": 'review',
+						"className": 'review-control',
 						"orderable": false,
 						"data": null,
 						"defaultContent": ''
@@ -197,14 +197,14 @@
 							data: json,
 							contentType: "application/json; charset=utf-8",
 							dataType: "json",
-							complete: function (jq, status) { toast(status);}
+							complete: function (jq, status) { toast(status); }
 						});
 					});
 				}
 			});
 
 			// open a review window
-			$('#applicants tbody').on('click', 'td.review', function () {
+			$('#applicants tbody').on('click', 'td.review-control', function () {
 				var tr = $(this).closest('tr');
 				var row = table.row(tr);
 				var row_data = row.data();
@@ -320,7 +320,9 @@
 		</section>
 	</div>
 
-	<div id="result"></div>
+	<div id="result" style="text-align:right; padding:50px">
+		<a href="/account">Manage accounts (sysadmin only) </a>
+	</div>
 
 	<div id="snackbar"> </div>
 </body>

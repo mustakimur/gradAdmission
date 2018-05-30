@@ -129,6 +129,14 @@ pub use self::schema::users_tbl;
 use UserAuth;
 
 impl User {
+    pub fn hash_passwd(pass: &String) -> String {
+        // should use per-user salt!
+        let salt = "Cw5s2mwia9jBe0P8";
+        let ba = argon2rs::argon2d_simple(pass, salt);
+        let strs: Vec<String> = ba.iter().map(|b| format!("{:02X}", b)).collect();
+        strs.connect("")
+    }
+
     pub fn read(connection: &SqliteConnection) -> Vec<User> {
         users_tbl::table.load::<User>(connection).unwrap()
     }
@@ -150,7 +158,7 @@ impl User {
         None
     }
 
-    // This function is used to retrieve the user from the cookie. We do not have a connection. 
+    // This function is used to retrieve the user from the cookie. We do not have a connection.
     pub fn get_auth<'a, 'r>(request: &'a Request<'r>, name: &str) -> Option<UserAuth> {
         let pool_orig = request.guard::<State<DbPool>>();
 
@@ -158,7 +166,7 @@ impl User {
             if let Ok(conn) = pool_orig.unwrap().get() {
                 println!("user_name in cookie:{}", name);
 
-                return User::get(&conn, name).map (|user| UserAuth {
+                return User::get(&conn, name).map(|user| UserAuth {
                     user_name: user.user_name,
                     role: user.role,
                 });
@@ -175,7 +183,14 @@ impl User {
             .is_ok()
     }
 
-    pub fn insert(conn: &SqliteConnection, user: User) -> bool {
+    pub fn delete(conn: &SqliteConnection, name: &str) -> bool {
+        diesel::delete(users_tbl::table.find(name))
+            .execute(conn)
+            .is_ok()
+    }
+
+    pub fn insert(conn: &SqliteConnection, mut user: User) -> bool {
+        user.password = User::hash_passwd(&user.password);
         diesel::insert_into(users_tbl::table)
             .values(&user)
             .execute(conn)
@@ -231,17 +246,17 @@ fn import_app(import: &FromImport) -> Result<(), Box<Error>> {
         ug_university: "",
         ug_major: "",
         ug_degree: "",
-        ug_gpa: 0.0f32,
+        ug_gpa: 0.0f64,
         grad_university: "",
         grad_major: "",
         grad_degree: "",
-        grad_gpa: 0.0f32,
+        grad_gpa: 0.0f64,
         toefl_ielts: 0,
         gre: "0/0/0",
         decision: "Pending",
         advisor: "",
         assistantship: "",
-        fte: 0.0f32,
+        fte: 0.0f64,
         yearly_amount: 0,
     };
 

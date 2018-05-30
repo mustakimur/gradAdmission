@@ -49,11 +49,11 @@
                             return '<div><b>' + data + ':</b></div> <div><small>' + row["when"] + '</small></div>';
                         }
                     },
-                    {   
+                    {
                         "data": "opinion",
                         "render": function (data, type, row, meta) {
                             return '<p>' + data.replace(/\n/g, '<br>\n') + '</p>';
-                        } 
+                        }
                     },
                     {
                         "data": "when",
@@ -75,28 +75,28 @@
                 json_obj.comment_id = 0;
                 json_obj.applicant_id = {{ applicant_id }};
 
-                json_obj.commenter = $("#input_commenter").val().trim();
-                json_obj.opinion = $("#input_opinion").val().trim();
-                json_obj.when = "now";
+            json_obj.commenter = $("#input_commenter").val().trim();
+            json_obj.opinion = $("#input_opinion").val().trim();
+            json_obj.when = "now";
 
-                if (json_obj.commenter.length <=0) {
-                    toast("Commenter cannot be empty!");
-                    return;
-                } else if (json_obj.opinion.length <=0) {
-                    toast("Opinion cannot be empty!");
-                    return;
-                }
+            if (json_obj.commenter.length <= 0) {
+                toast("Commenter cannot be empty!");
+                return;
+            } else if (json_obj.opinion.length <= 0) {
+                toast("Opinion cannot be empty!");
+                return;
+            }
 
-                var json = JSON.stringify(json_obj);
-                $.ajax({
-                    type: "POST",
-                    url: "/comment/{{applicant_id}}",
-                    data: json,
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    complete: function (jq, status) { toast(status); table.ajax.reload(); }
-                });
+            var json = JSON.stringify(json_obj);
+            $.ajax({
+                type: "POST",
+                url: "/comment/{{applicant_id}}",
+                data: json,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                complete: function (jq, status) { toast(status); table.ajax.reload(); }
             });
+        });
         });
     </script>
 </head>

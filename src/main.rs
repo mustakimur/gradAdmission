@@ -14,19 +14,19 @@ extern crate diesel;
 extern crate serde_derive;
 #[macro_use]
 extern crate rocket_contrib;
-
+extern crate argon2rs;
 extern crate r2d2;
 extern crate r2d2_diesel;
 
 use chrono::Local;
 use rocket::http::{Cookie, Cookies};
 use rocket::outcome::IntoOutcome;
-use rocket::request::{self, Form, FlashMessage, FromRequest, Request};
+use rocket::request::{self, FlashMessage, Form, FromRequest, Request};
 use rocket::response::NamedFile;
-use rocket::response::{Redirect, Flash};
+use rocket::response::{Flash, Redirect};
 use rocket_contrib::{Json, Template, Value};
-use std::path::{Path, PathBuf};
 use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 
 pub mod db;
 use db::{Application, Comment, User};
@@ -44,9 +44,11 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserAuth {
     type Error = ();
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<UserAuth, ()> {
-        request.cookies()
+        request
+            .cookies()
             .get_private("user_name")
-            .and_then(|cookie| User::get_auth(request, cookie.value())).or_forward(())
+            .and_then(|cookie| User::get_auth(request, cookie.value()))
+            .or_forward(())
     }
 }
 
@@ -78,9 +80,11 @@ fn login(mut cookies: Cookies, lg: Form<Login>, connection: db::Connection) -> F
     let name = (&lg.get().user_name).to_string();
     let user_opt = User::get(&connection, &name);
 
+    println!("User password after hash: {}", User::hash_passwd(&lg.get().password));
+    
     if let Some(user) = user_opt {
         // todo: protect the password in the database
-        if user.password == lg.get().password {
+        if user.password == User::hash_passwd(&lg.get().password) {
             cookies.add_private(Cookie::new("user_name", name));
             return Flash::success(Redirect::to("/"), "Successfully logged in.");
         }
@@ -149,8 +153,8 @@ fn update_app_auth(
     connection: db::Connection,
     _user: UserAuth,
 ) -> Json<Value> {
-    let p = Application { ..app.into_inner() };
-    Application::update(&connection, p);
+    let mut new_app = Application { ..app.into_inner() };
+    Application::update(&connection, new_app);
     Json(json!({"status": "error - not found"}))
 }
 
@@ -235,6 +239,54 @@ fn add_comment(_connection: db::Connection, _id: i32, _cmt: Json<Comment>) -> Re
     Redirect::to("/login")
 }
 
+//
+// Routers to handle urls based on /users
+//
+#[get("/")]
+fn manage_user_auth(connection: db::Connection, user: UserAuth) -> Template {
+    Template::render("user", &user)
+}
+
+#[get("/", rank = 2)]
+fn manage_user(_connection: db::Connection) -> Redirect {
+    Redirect::to("/login")
+}
+
+#[get("/")]
+fn read_users_auth(connection: db::Connection, _user: UserAuth) -> Json<Value> {
+    Json(json!(User::read(&connection)))
+}
+
+#[get("/", rank = 2)]
+fn read_users(_connection: db::Connection) -> Redirect {
+    Redirect::to("/login")
+}
+
+#[post("/", data = "<new_user>")]
+fn add_user_auth(new_user: Json<User>, connection: db::Connection, user: UserAuth) -> Json<Value> {
+    let new_user = User {
+        ..new_user.into_inner()
+    };
+    User::insert(&connection, new_user);
+    Json(json!({"status": "success"}))
+}
+
+#[post("/", data = "<new_user>", rank = 2)]
+fn add_user(new_user: Json<User>, _connection: db::Connection) -> Redirect {
+    Redirect::to("/login")
+}
+
+#[delete("/<user_name>")]
+fn del_user_auth(user_name: String, connection: db::Connection, user: UserAuth) -> Json<Value> {
+    User::delete (&connection, &user_name);
+    Json(json!({"status": "success"}))
+}
+
+#[delete("/<user_name>", rank = 2)]
+fn del_user(user_name: String, _connection: db::Connection) -> Redirect {
+    Redirect::to("/login")
+}
+
 fn main() {
     db::import_csv();
     rocket::ignite()
@@ -265,6 +317,11 @@ fn main() {
         )
         .mount("/review", routes![review_app, review_app_auth])
         .mount("/file", routes![read_file, read_file_auth])
+        .mount(
+            "/user",
+            routes![read_users, read_users_auth, add_user, add_user_auth, del_user, del_user_auth],
+        )
+        .mount("/account", routes![manage_user, manage_user_auth])
         .mount(
             "/comment",
             routes![
