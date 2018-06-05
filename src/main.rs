@@ -21,13 +21,15 @@ extern crate r2d2_diesel;
 use chrono::Local;
 use rocket::http::{Cookie, Cookies};
 use rocket::outcome::IntoOutcome;
-use rocket::Data;
 use rocket::request::{self, FlashMessage, Form, FromRequest, Request};
 use rocket::response::NamedFile;
 use rocket::response::{Flash, Redirect};
+use rocket::Data;
 use rocket_contrib::{Json, Template, Value};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+
+use std::fs::{self, DirEntry};
 use std::io;
 
 pub mod db;
@@ -82,8 +84,11 @@ fn login(mut cookies: Cookies, lg: Form<Login>, connection: db::Connection) -> F
     let name = (&lg.get().user_name).to_string();
     let user_opt = User::get(&connection, &name);
 
-    println!("User password after hash: {}", User::hash_passwd(&lg.get().password));
-    
+    println!(
+        "User password after hash: {}",
+        User::hash_passwd(&lg.get().password)
+    );
+
     if let Some(user) = user_opt {
         // todo: protect the password in the database
         if user.password == User::hash_passwd(&lg.get().password) {
@@ -192,9 +197,10 @@ fn review_app(_id: i32, _connection: db::Connection) -> Redirect {
 //
 // Routers to handle urls based on /file
 //
-#[get("/<_id>/<file..>")]
-fn read_file_auth(_id: i32, file: PathBuf, _user: UserAuth) -> Option<NamedFile> {
-    let mut path = Path::new("data/2018_fall/").join(&file);
+#[get("/<id>/<file..>")]
+fn read_file_auth(id: i32, file: PathBuf, _user: UserAuth) -> Option<NamedFile> {
+    let mut path = Path::new("data/2018_fall/").join(id.to_string());
+    path.push(file);
     path.set_extension("pdf");
     println!("{}", path.to_str().unwrap());
     NamedFile::open(path).ok()
@@ -205,7 +211,70 @@ fn read_file(_id: i32, _file: PathBuf) -> Redirect {
     Redirect::to("/login")
 }
 
-#[post("/import", data="<paste>")]
+#[get("/<id>")]
+fn read_index_auth(id: i32, _user: UserAuth) -> String {
+    let path = Path::new("data/2018_fall/").join(id.to_string());
+    let mut index = "".to_string();
+
+    if !path.is_dir() {
+        return index;
+    }
+
+    let dir_iter = fs::read_dir(path);
+
+    if dir_iter.is_err() {
+        return index;
+    }
+
+    let dir_iter = dir_iter.unwrap();
+
+    for entry in dir_iter {
+        if entry.is_err() {
+            continue;
+        }
+
+        let entry = entry.unwrap();
+
+        let path = entry.path();
+        if path.is_file() {
+            if let Some(Some(fname)) = path.file_name().map(|osstr| osstr.to_str()) {
+                if index.len() > 0 {
+                    index.push(',');
+                }
+                index.push_str(&fname);
+            }
+        }
+    }
+
+    println!("read_index: {}", index);
+    index
+}
+
+#[get("/<_id>", rank = 2)]
+fn read_index(_id: i32) -> Redirect {
+    Redirect::to("/login")
+}
+
+#[post("/<id>/<file..>", data = "<data>")]
+fn write_file_auth(data: Data, id: i32, file: PathBuf, _user: UserAuth) -> io::Result<String> {
+    let mut path = Path::new("data/2018_fall/").join(id.to_string());
+
+    fs::create_dir_all(&path)?;
+
+    let mut path = path.join(&file);
+    path.set_extension("pdf");
+    println!("Write file: {}", path.to_str().unwrap());
+
+    data.stream_to_file(path)
+        .map(|n| format!("Wrote {} bytes to /static/file", n))
+}
+
+#[post("/<_id>/<_file..>", rank = 2)]
+fn write_file(_id: i32, _file: PathBuf) -> Redirect {
+    Redirect::to("/login")
+}
+
+#[post("/import", data = "<paste>")]
 fn import_auth(paste: Data, connection: db::Connection, user: UserAuth) -> io::Result<String> {
     println!("in import, with user {}", user.user_name);
     let filename = "data/2018_fall/import.csv";
@@ -214,8 +283,8 @@ fn import_auth(paste: Data, connection: db::Connection, user: UserAuth) -> io::R
     db::import_csv(&connection, filename)
 }
 
-#[post("/import", data="<_paste>", rank = 2)]
-fn import (_paste: Data)  -> Redirect {
+#[post("/import", data = "<_paste>", rank = 2)]
+fn import(_paste: Data) -> Redirect {
     println!("in import, without user");
     Redirect::to("/login")
 }
@@ -294,7 +363,7 @@ fn add_user(new_user: Json<User>, _connection: db::Connection) -> Redirect {
 
 #[delete("/<user_name>")]
 fn del_user_auth(user_name: String, connection: db::Connection, user: UserAuth) -> Json<Value> {
-    User::delete (&connection, &user_name);
+    User::delete(&connection, &user_name);
     Json(json!({"status": "success"}))
 }
 
@@ -302,7 +371,6 @@ fn del_user_auth(user_name: String, connection: db::Connection, user: UserAuth) 
 fn del_user(user_name: String, _connection: db::Connection) -> Redirect {
     Redirect::to("/login")
 }
-
 
 fn main() {
     rocket::ignite()
@@ -332,10 +400,29 @@ fn main() {
             ],
         )
         .mount("/review", routes![review_app, review_app_auth])
-        .mount("/file", routes![read_file, read_file_auth, import_auth, import])
+        .mount(
+            "/file",
+            routes![
+                read_file,
+                read_file_auth,
+                import_auth,
+                import,
+                write_file,
+                write_file_auth,
+                read_index,
+                read_index_auth
+            ],
+        )
         .mount(
             "/user",
-            routes![read_users, read_users_auth, add_user, add_user_auth, del_user, del_user_auth],
+            routes![
+                read_users,
+                read_users_auth,
+                add_user,
+                add_user_auth,
+                del_user,
+                del_user_auth
+            ],
         )
         .mount("/account", routes![manage_user, manage_user_auth])
         .mount(

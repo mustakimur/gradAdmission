@@ -75,19 +75,34 @@
 				'</table>';
 		}
 
-		function style_files() {
-			$(".btn_resume").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "resume" });
-			$(".btn_ps").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "statement" });
-			$(".btn_ug_trans").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "UG Trans" });
-			$(".btn_grad_trans").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Grad Trans" });
-			$(".btn_toefl").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "TOEFL" });
-			$(".btn_gre").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "GRE" });
-			$(".btn_letter1").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Letter 1" });
-			$(".btn_letter2").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Letter 2" });
-			$(".btn_letter3").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Letter 3" });
-			$(".btn_letter4").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Letter 4" });
-			$(".btn_other1").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Other 1" });
-			$(".btn_other2").filestyle({ input: false, siz: "sm", btnClass: "btn-outline-primary", text: "Other 2" });
+		function style_files(row_data) {
+			$.ajax({
+				type: "GET",
+				url: "/file/" + row_data.applicant_id,
+				dataType: "text",
+				complete: function (data) {
+					function style_file(listing, name, desc) {
+						var btn_class = listing.includes(name) ? "btn-outline-secondary" : "btn-outline-primary";
+						var btn_name = ".btn_" + name;
+						$(btn_name).filestyle({ input: false, siz: "sm", btnClass: btn_class, text: desc });
+					}
+
+					var listing = data.responseText;
+					toast(listing);
+					style_file(listing, "resume", "resume");
+					style_file(listing, "ps", "statement");
+					style_file(listing, "ug_trans", "UG Trans");
+					style_file(listing, "grad_trans", "Grad Trans");
+					style_file(listing, "toefl", "TOEFL");
+					style_file(listing, "gre", "GRE");
+					style_file(listing, "letter1", "Letter 1");
+					style_file(listing, "letter2", "Letter 2");
+					style_file(listing, "letter3", "Letter 3");
+					style_file(listing, "letter4", "Letter 4");
+					style_file(listing, "other1", "Other 1");
+					style_file(listing, "other2", "Other 2");
+				}
+			});
 		}
 
 		$(document).ready(function () {
@@ -270,7 +285,7 @@
 					row.child(format(row_data)).show();
 					tr.addClass('shown');
 
-					style_files();
+					style_files(row_data);
 					listen_btns();
 
 					$('#applicants').on('click', "#btn_update" + applicant_id, function () {
