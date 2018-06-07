@@ -38,7 +38,7 @@ function toast(msg) {
     t.innerHTML = msg;
 
     // After 3 seconds, remove the show class from DIV
-    setTimeout(function () { t.className = t.className.replace("show", ""); }, 3500);
+    setTimeout(function () { t.className = t.className.replace("show", ""); }, 2500);
 }
 
 function upload(url, file, on_complete) {

@@ -11,17 +11,19 @@ use diesel::sqlite::SqliteConnection;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
 use rocket::{Outcome, Request, State};
-use std::io;
+use std::{env, io};
 
 pub mod models;
 pub mod schema;
 
-static DB_URL: &'static str = env!("DATABASE_URL");
-
 pub type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
 pub fn connect() -> DbPool {
-    let manager = ConnectionManager::<SqliteConnection>::new(DB_URL);
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    println!("Database is located at {}", &database_url);
+
+    let manager = ConnectionManager::<SqliteConnection>::new(database_url);
     r2d2::Pool::builder()
         .build(manager)
         .expect("Faile to create pool")
@@ -199,7 +201,7 @@ impl User {
     }
 }
 
-fn get_index (header: &csv::StringRecord, title: &str) -> Option<usize> {
+fn get_index(header: &csv::StringRecord, title: &str) -> Option<usize> {
     for (i, item) in header.iter().enumerate() {
         if item == title {
             return Some(i);
@@ -277,7 +279,7 @@ fn import_app(db_conn: &SqliteConnection, import: &FromImport) -> Result<String,
     Ok("Success".to_string())
 }
 
-pub fn import_csv (db_conn: &SqliteConnection, path: &str) -> io::Result<String> {
+pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> {
     // Build the CSV reader and iterate over each record.
     let file = File::open(path)?;
     let mut rdr = csv::Reader::from_reader(file);

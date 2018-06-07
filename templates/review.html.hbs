@@ -128,7 +128,15 @@
                     data: json,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    complete: function (jq, status) { toast(status); table.ajax.reload(); }
+                    complete: function (data) {
+                        if (data.responseJSON["status"] == "Error") {
+                            toast(data.responseJSON["message"]);
+                        } else {
+                            toast(data.responseJSON["status"]); 
+                        }
+
+                        table.ajax.reload(); 
+                    }
                 });
             });
         });

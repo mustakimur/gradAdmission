@@ -7,7 +7,8 @@ extern crate chrono;
 extern crate csv;
 extern crate handlebars;
 extern crate rocket;
-
+#[macro_use]
+extern crate lazy_static;
 #[macro_use]
 extern crate diesel;
 #[macro_use]
@@ -19,18 +20,16 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 
 use chrono::Local;
-use rocket::http::{Cookie, Cookies};
+use rocket::http::{Status, Cookie, Cookies};
 use rocket::outcome::IntoOutcome;
 use rocket::request::{self, FlashMessage, Form, FromRequest, Request};
-use rocket::response::NamedFile;
-use rocket::response::{Flash, Redirect};
+use rocket::response::{Failure, Flash, NamedFile, Redirect};
 use rocket::Data;
 use rocket_contrib::{Json, Template, Value};
+
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-
-use std::fs::{self, DirEntry};
-use std::io;
+use std::{env, fs, io};
 
 pub mod db;
 use db::{Application, Comment, User};
@@ -44,6 +43,12 @@ pub struct UserAuth {
     role: String,
 }
 
+impl UserAuth {
+    fn is_sys(&self) -> bool {
+        return self.role == "Sys";
+    }
+}
+
 impl<'a, 'r> FromRequest<'a, 'r> for UserAuth {
     type Error = ();
 
@@ -54,6 +59,22 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserAuth {
             .and_then(|cookie| User::get_auth(request, cookie.value()))
             .or_forward(())
     }
+}
+
+lazy_static! {
+    #[derive(Copy, Clone, Debug)]
+    pub static ref DATA_DIR: String = {
+        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+        let path = Path::new(&database_url)
+            .parent()
+            .expect("Invalid directory for DATABASE_URL");
+
+        if !path.is_dir() {
+            panic!("Invalid directory for data");
+        }
+
+        path.to_str().expect("Invalid directory for data").to_string()
+    };
 }
 
 #[get("/login")]
@@ -159,7 +180,7 @@ fn update_app_auth(
     connection: db::Connection,
     _user: UserAuth,
 ) -> Json<Value> {
-    let mut new_app = Application { ..app.into_inner() };
+    let new_app = Application { ..app.into_inner() };
     if Application::update(&connection, new_app) {
         Json(json!({"status": "Success"}))
     } else {
@@ -201,7 +222,9 @@ fn review_app(_id: i32, _connection: db::Connection) -> Redirect {
 //
 #[get("/<id>/<file..>")]
 fn read_file_auth(id: i32, file: PathBuf, _user: UserAuth) -> Option<NamedFile> {
-    let mut path = Path::new("data/2018_fall/").join(id.to_string());
+    //println!("Data_dir {:?}", *DATA_DIR);
+
+    let mut path = Path::new(&*DATA_DIR).join(id.to_string());
 
     path.push(file);
     path.set_extension("pdf");
@@ -217,7 +240,7 @@ fn read_file(_id: i32, _file: PathBuf) -> Redirect {
 
 #[get("/<id>")]
 fn read_index_auth(id: i32, _user: UserAuth) -> String {
-    let path = Path::new("data/2018_fall/").join(id.to_string());
+    let path = Path::new(&*DATA_DIR).join(id.to_string());
     let mut index = "".to_string();
 
     if !path.is_dir() {
@@ -261,7 +284,7 @@ fn read_index(_id: i32) -> Redirect {
 
 #[post("/<id>/<file..>", data = "<data>")]
 fn write_file_auth(data: Data, id: i32, file: PathBuf, _user: UserAuth) -> io::Result<String> {
-    let mut path = Path::new("data/2018_fall/").join(id.to_string());
+    let path = Path::new(&*DATA_DIR).join(id.to_string());
 
     fs::create_dir_all(&path)?;
 
@@ -280,11 +303,15 @@ fn write_file(_id: i32, _file: PathBuf) -> Redirect {
 
 #[post("/import", data = "<paste>")]
 fn import_auth(paste: Data, connection: db::Connection, user: UserAuth) -> io::Result<String> {
-    println!("in import, with user {}", user.user_name);
-    let filename = "data/2018_fall/import.csv";
+    let filename = format!("{}/import.csv", &*DATA_DIR);
+    println!(
+        "in import, with user {}, save file to {}",
+        user.user_name, &filename
+    );
+
     // Write the paste out to the file and return the URL.
     paste.stream_to_file(Path::new(&filename))?;
-    db::import_csv(&connection, filename)
+    db::import_csv(&connection, &filename)
 }
 
 #[post("/import", data = "<_paste>", rank = 2)]
@@ -305,20 +332,24 @@ fn add_comment_auth(
     connection: db::Connection,
     _id: i32,
     cmt: Json<Comment>,
-    _user: UserAuth,
+    user: UserAuth,
 ) -> Json<Value> {
     let date = Local::now();
     let now = date.format("%m/%d/%Y %H:%M:").to_string();
-    let c = Comment {
+    let mut c = Comment {
         comment_id: None,
         when: now,
         ..cmt.into_inner()
     };
 
+    if user.user_name != c.commenter {
+        c.commenter = format!("{} B/O {}", user.user_name, c.commenter);
+    }
+
     if Comment::insert(&connection, c) {
         Json(json!({"status": "Success"}))
     } else {
-        Json(json!({"status": "Error", "message" : "failed to insert the comment"}))
+        Json(json!({"status": "Error", "message" : "Failed to insert the comment"}))
     }
 }
 
@@ -336,8 +367,12 @@ fn add_comment(_connection: db::Connection, _id: i32, _cmt: Json<Comment>) -> Re
 // Routers to handle urls based on /users
 //
 #[get("/")]
-fn manage_user_auth(connection: db::Connection, user: UserAuth) -> Template {
-    Template::render("user", &user)
+fn manage_user_auth(_connection: db::Connection, user: UserAuth) -> Result<Template, Failure> {
+    if !user.is_sys() {
+        Err(Failure(Status::Forbidden))
+    } else {
+        Ok(Template::render("user", &user))
+    }
 }
 
 #[get("/", rank = 2)]
@@ -346,8 +381,20 @@ fn manage_user(_connection: db::Connection) -> Redirect {
 }
 
 #[get("/")]
-fn read_users_auth(connection: db::Connection, _user: UserAuth) -> Json<Value> {
-    Json(json!(User::read(&connection)))
+fn read_users_auth(connection: db::Connection, user: UserAuth) -> Json<Value> {
+    if !user.is_sys() {
+        return Json(
+            json!({"status": "Error", "message" : "only sys admin can change user settings"}),
+        );
+    }
+
+    let mut users = User::read(&connection);
+
+    for u in &mut users {
+        u.password = "Password hash hidden".to_string();
+    }
+
+    Json(json!(users))
 }
 
 #[get("/", rank = 2)]
@@ -361,29 +408,29 @@ fn add_user_auth(new_user: Json<User>, connection: db::Connection, user: UserAut
         ..new_user.into_inner()
     };
 
-    if User::insert(&connection, new_user) {
+    if user.is_sys() && User::insert(&connection, new_user) {
         Json(json!({"status": "Success"}))
     } else {
         Json(json!({"status": "Error", "message" : "failed to add user"}))
     }
 }
 
-#[post("/", data = "<new_user>", rank = 2)]
-fn add_user(new_user: Json<User>, _connection: db::Connection) -> Redirect {
+#[post("/", data = "<_new_user>", rank = 2)]
+fn add_user(_new_user: Json<User>, _connection: db::Connection) -> Redirect {
     Redirect::to("/login")
 }
 
 #[delete("/<user_name>")]
 fn del_user_auth(user_name: String, connection: db::Connection, user: UserAuth) -> Json<Value> {
-    if User::delete(&connection, &user_name) {
+    if user.is_sys() && User::delete(&connection, &user_name) {
         Json(json!({"status": "Success"}))
     } else {
         Json(json!({"status": "Error", "message" : "failed to delete user"}))
     }
 }
 
-#[delete("/<user_name>", rank = 2)]
-fn del_user(user_name: String, _connection: db::Connection) -> Redirect {
+#[delete("/<_user_name>", rank = 2)]
+fn del_user(_user_name: String, _connection: db::Connection) -> Redirect {
     Redirect::to("/login")
 }
 

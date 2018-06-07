@@ -316,7 +316,7 @@
 							data: json,
 							contentType: "application/json; charset=utf-8",
 							dataType: "json",
-							complete: function (jq, status) { toast(status); }
+							complete: function (data) { toast(data.responseJSON["status"]); }
 						});
 					});
 				}

@@ -59,9 +59,8 @@
                 $.ajax({
                     type: "DELETE",
                     url: "/user/" + row_data["user_name"],
-                    complete: function (jq, status) { toast(status); table.ajax.reload(); }
+                    complete: function (data) { toast(data.responseJSON["status"]); table.ajax.reload();}
                 });
-
             });
 
             $("#btn_new").click(function () {
@@ -89,7 +88,7 @@
                     data: json,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    complete: function (jq, status) { toast(status); table.ajax.reload(); }
+                    complete: function (data) { toast(data.responseJSON["status"]); table.ajax.reload();}
                 });
             });
         });
@@ -133,7 +132,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="input_role">Role:</label>
-                                <input type="text" class="form-control" id="input_role">
+                                <select class="form-control" id="input_role">
+                                    <option>User</option>
+                                    <option>Sys</option>
+                                  </select>
+                                <!-- <input type="text" class="form-control" id="input_role"> -->
                             </div>
                             <div class="form-group">
                                 <label for="input_role">Password:</label>
