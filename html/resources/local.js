@@ -46,11 +46,10 @@ function upload(url, file, on_complete) {
         method: 'POST',
         body: file,
         credentials: "same-origin" //send the cookies also!
-    }).then(
-        response => response.json()
-    ).then(
-        success => toast(success)
-    ).catch(
-        error => toast(error)
-    );
+    }).then(function (response) {
+        response.text().then(function (text) {
+            toast(text);
+            on_complete(text);
+        });
+    });
 }

@@ -84,13 +84,12 @@ fn login(mut cookies: Cookies, lg: Form<Login>, connection: db::Connection) -> F
     let name = (&lg.get().user_name).to_string();
     let user_opt = User::get(&connection, &name);
 
-    println!(
+    /*  println!(
         "User password after hash: {}",
         User::hash_passwd(&lg.get().password)
-    );
+    ); */
 
     if let Some(user) = user_opt {
-        // todo: protect the password in the database
         if user.password == User::hash_passwd(&lg.get().password) {
             cookies.add_private(Cookie::new("user_name", name));
             return Flash::success(Redirect::to("/"), "Successfully logged in.");
@@ -150,7 +149,7 @@ fn read_app_auth(id: i32, connection: db::Connection, _user: UserAuth) -> Json<V
     if let Some(app) = one {
         Json(json!(app))
     } else {
-        Json(json!({"status": "error - not found"}))
+        Json(json!({"status": "Error", "message": "not found"}))
     }
 }
 
@@ -161,8 +160,11 @@ fn update_app_auth(
     _user: UserAuth,
 ) -> Json<Value> {
     let mut new_app = Application { ..app.into_inner() };
-    Application::update(&connection, new_app);
-    Json(json!({"status": "error - not found"}))
+    if Application::update(&connection, new_app) {
+        Json(json!({"status": "Success"}))
+    } else {
+        Json(json!({"status": "Error", "message" : "failed to update not found"}))
+    }
 }
 
 #[get("/", rank = 2)]
@@ -200,9 +202,11 @@ fn review_app(_id: i32, _connection: db::Connection) -> Redirect {
 #[get("/<id>/<file..>")]
 fn read_file_auth(id: i32, file: PathBuf, _user: UserAuth) -> Option<NamedFile> {
     let mut path = Path::new("data/2018_fall/").join(id.to_string());
+
     path.push(file);
     path.set_extension("pdf");
-    println!("{}", path.to_str().unwrap());
+
+    //println!("{}", path.to_str().unwrap());
     NamedFile::open(path).ok()
 }
 
@@ -263,10 +267,10 @@ fn write_file_auth(data: Data, id: i32, file: PathBuf, _user: UserAuth) -> io::R
 
     let mut path = path.join(&file);
     path.set_extension("pdf");
-    println!("Write file: {}", path.to_str().unwrap());
+    //println!("Write file: {}", path.to_str().unwrap());
 
     data.stream_to_file(path)
-        .map(|n| format!("Wrote {} bytes to /static/file", n))
+        .map(|n| format!("Saved {} bytes to {}", n, file.display()))
 }
 
 #[post("/<_id>/<_file..>", rank = 2)]
@@ -310,8 +314,12 @@ fn add_comment_auth(
         when: now,
         ..cmt.into_inner()
     };
-    Comment::insert(&connection, c);
-    Json(json!({"status": "success"}))
+
+    if Comment::insert(&connection, c) {
+        Json(json!({"status": "Success"}))
+    } else {
+        Json(json!({"status": "Error", "message" : "failed to insert the comment"}))
+    }
 }
 
 #[get("/<_id>", rank = 2)]
@@ -352,8 +360,12 @@ fn add_user_auth(new_user: Json<User>, connection: db::Connection, user: UserAut
     let new_user = User {
         ..new_user.into_inner()
     };
-    User::insert(&connection, new_user);
-    Json(json!({"status": "success"}))
+
+    if User::insert(&connection, new_user) {
+        Json(json!({"status": "Success"}))
+    } else {
+        Json(json!({"status": "Error", "message" : "failed to add user"}))
+    }
 }
 
 #[post("/", data = "<new_user>", rank = 2)]
@@ -363,8 +375,11 @@ fn add_user(new_user: Json<User>, _connection: db::Connection) -> Redirect {
 
 #[delete("/<user_name>")]
 fn del_user_auth(user_name: String, connection: db::Connection, user: UserAuth) -> Json<Value> {
-    User::delete(&connection, &user_name);
-    Json(json!({"status": "success"}))
+    if User::delete(&connection, &user_name) {
+        Json(json!({"status": "Success"}))
+    } else {
+        Json(json!({"status": "Error", "message" : "failed to delete user"}))
+    }
 }
 
 #[delete("/<user_name>", rank = 2)]

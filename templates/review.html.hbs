@@ -32,7 +32,7 @@
                     }
 
                     var listing = data.responseText;
-                    toast("The applicant has submitted: " + listing);
+                    //toast("The applicant has submitted: " + listing);
                     style_link(listing, "resume", "resume");
                     style_link(listing, "ps", "statement");
                     style_link(listing, "ug_trans", "UG Trans");
@@ -99,7 +99,7 @@
 
             $("a.lnk").click(function (evt) {
                 evt.preventDefault();
-                toast(evt.target["href"]);
+                //toast(evt.target["href"]);
                 $("#pdf_content").attr('data', evt.target["href"]);
             });
 

@@ -88,7 +88,7 @@
 					}
 
 					var listing = data.responseText;
-					toast(listing);
+					// toast(listing);
 					style_file(listing, "resume", "resume");
 					style_file(listing, "ps", "statement");
 					style_file(listing, "ug_trans", "UG Trans");
@@ -220,7 +220,7 @@
 					$(btn_id).on('change', function () {
 						var files = $(btn_id).prop('files');
 
-						alert("Load " + files[0].name + ", size: " + files[0].size + ' for ' + file_name);
+						toast("Load " + files[0].name + ", size: " + files[0].size + ' for ' + file_name);
 						upload("/file/" + id + "/" + file_name, files[0]);
 					});
 				}
