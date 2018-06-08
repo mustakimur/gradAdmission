@@ -129,7 +129,8 @@
                         } else {
                             toast(data.responseJSON["status"]); 
                         }
-
+                        
+                        $("#input_opinion").val("");
                         table.ajax.reload(); 
                     }
                 });
@@ -338,7 +339,7 @@
                         <form>
                             <div class="form-group">
                                 <label for="input_commenter">Commenter:</label>
-                                <input type="text" class="form-control" id="input_commenter" placeholder="Your name here!">
+                                <input type="text" class="form-control" id="input_commenter" placeholder="Your user name will be used if blank.">
                             </div>
                             <div class="form-group">
                                 <label for="input_comments">Opinion:</label>
