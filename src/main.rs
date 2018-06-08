@@ -343,6 +343,10 @@ fn add_comment_auth(
         ..cmt.into_inner()
     };
 
+    if c.commenter == "" {
+        c.commenter = user.user_name.clone();
+    }
+
     if user.user_name != c.commenter {
         c.commenter = format!("{} B/O {}", user.user_name, c.commenter);
     }

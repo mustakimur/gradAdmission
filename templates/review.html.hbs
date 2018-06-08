@@ -111,10 +111,7 @@
                 json_obj.opinion = $("#input_opinion").val().trim();
                 json_obj.when = "now";
 
-                if (json_obj.commenter.length <= 0) {
-                    toast("Commenter cannot be empty!");
-                    return;
-                } else if (json_obj.opinion.length <= 0) {
+                if (json_obj.opinion.length <= 0) {
                     toast("Opinion cannot be empty!");
                     return;
                 }
