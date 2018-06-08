@@ -18,6 +18,7 @@ extern crate rocket_contrib;
 extern crate argon2rs;
 extern crate r2d2;
 extern crate r2d2_diesel;
+extern crate ammonia;
 
 use chrono::Local;
 use rocket::http::{Status, Cookie, Cookies};

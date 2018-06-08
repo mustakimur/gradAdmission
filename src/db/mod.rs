@@ -8,6 +8,7 @@ use r2d2_diesel::ConnectionManager;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 
+use ammonia::clean;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
 use rocket::{Outcome, Request, State};
@@ -86,11 +87,34 @@ impl Application {
         None
     }
 
-    pub fn update(conn: &SqliteConnection, app: Application) -> bool {
+    pub fn update(conn: &SqliteConnection, mut app: Application) -> bool {
+        app.santize();
+
         diesel::update(applications_tbl::table.find(app.applicant_id))
             .set(&app)
             .execute(conn)
             .is_ok()
+    }
+
+    // Santize the inputs
+    pub fn santize(&mut self) {
+        self.name = clean(&self.name);
+        self.dob = clean(&self.dob);
+        self.gender = clean(&self.gender);
+        self.country = clean(&self.country);
+        self.program = clean(&self.program);
+        self.degree = clean(&self.degree);
+        self.interests = clean(&self.interests);
+        self.ug_university = clean(&self.ug_university);
+        self.ug_major = clean(&self.ug_major);
+        self.ug_degree = clean(&self.ug_degree);
+        self.grad_university = clean(&self.grad_university);
+        self.grad_major = clean(&self.grad_major);
+        self.grad_degree = clean(&self.grad_degree);
+        self.gre = clean(&self.gre);
+        self.decision = clean(&self.decision);
+        self.advisor = clean(&self.advisor);
+        self.assistantship = clean(&self.assistantship);
     }
 }
 
@@ -109,18 +133,30 @@ impl Comment {
             .unwrap()
     }
 
-    pub fn update(conn: &SqliteConnection, com: Comment) -> bool {
+    pub fn update(conn: &SqliteConnection, mut com: Comment) -> bool {
+        com.santize();
+
         diesel::update(comments_tbl::table.find(com.applicant_id))
             .set(&com)
             .execute(conn)
             .is_ok()
     }
 
-    pub fn insert(conn: &SqliteConnection, com: Comment) -> bool {
+    pub fn insert(conn: &SqliteConnection, mut com: Comment) -> bool {
+        com.santize();
+
         diesel::insert_into(comments_tbl::table)
             .values(&com)
             .execute(conn)
             .is_ok()
+    }
+
+    // Santize the inputs
+    pub fn santize(&mut self) {
+        self.commenter = clean(&self.commenter);
+        self.opinion = clean(&self.opinion);
+
+        // when is override by the server
     }
 }
 
@@ -179,7 +215,9 @@ impl User {
         None
     }
 
-    pub fn update(conn: &SqliteConnection, user: User) -> bool {
+    pub fn update(conn: &SqliteConnection, mut user: User) -> bool {
+        user.santize();
+
         diesel::update(users_tbl::table.find(&user.user_name))
             .set(&user)
             .execute(conn)
@@ -193,11 +231,18 @@ impl User {
     }
 
     pub fn insert(conn: &SqliteConnection, mut user: User) -> bool {
+        user.santize();
+
         user.password = User::hash_passwd(&user.password);
         diesel::insert_into(users_tbl::table)
             .values(&user)
             .execute(conn)
             .is_ok()
+    }
+
+    pub fn santize(&mut self) {
+        self.user_name = clean(&self.user_name);
+        self.role = clean(&self.role);
     }
 }
 
@@ -236,7 +281,7 @@ fn import_app(db_conn: &SqliteConnection, import: &FromImport) -> Result<String,
         gre: "0/0/0",
         decision: "Pending",
         advisor: "",
-        assistantship: "",
+        assistantship: "None",
         fte: 0.0f64,
         yearly_amount: 0,
     };
@@ -307,13 +352,13 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
         let record = result?;
 
         let import = FromImport {
-            emp_id: &record[emp_id_idx],
-            applicant_id: &record[applicant_id_idx],
-            name: &record[name_idx],
-            dob: &record[dob_idx],
-            gender: &record[gender_idx],
-            country: &record[country_idx],
-            degree: &record[degree_idx],
+            emp_id: &clean(&record[emp_id_idx]),
+            applicant_id: &clean(&record[applicant_id_idx]),
+            name: &clean(&record[name_idx]),
+            dob: &clean(&record[dob_idx]),
+            gender: &clean(&record[gender_idx]),
+            country: &clean(&record[country_idx]),
+            degree: &clean(&record[degree_idx]),
         };
 
         let result = import_app(db_conn, &import);
