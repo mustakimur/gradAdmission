@@ -15,13 +15,13 @@ extern crate diesel;
 extern crate serde_derive;
 #[macro_use]
 extern crate rocket_contrib;
+extern crate ammonia;
 extern crate argon2rs;
 extern crate r2d2;
 extern crate r2d2_diesel;
-extern crate ammonia;
 
 use chrono::Local;
-use rocket::http::{Status, Cookie, Cookies};
+use rocket::http::{Cookie, Cookies, Status};
 use rocket::outcome::IntoOutcome;
 use rocket::request::{self, FlashMessage, Form, FromRequest, Request};
 use rocket::response::{Failure, Flash, NamedFile, Redirect};

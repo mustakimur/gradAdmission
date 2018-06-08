@@ -26,16 +26,17 @@
 
 				if (f.can_change) {
 					if (f.hasOwnProperty("select")) {
+						// generate a select tag if the field has one
 						var p = '<td class="td_tag">' + f.tag + ':</td>' +
 							'<td> <select class="custom-select" id="input_' + field + '_' + id + '" value="' + val + '">';
-						
+
 						var idx = f.select.indexOf(val);
-						if ( idx == -1) {
+						if (idx == -1) {
 							p += '<option value="" selected>Choose...</option>';
 						} else {
 							p += '<option value="">Choose...</option>';
 						}
-						
+
 						var i;
 						for (i in f.select) {
 							if (idx == i) {
@@ -62,6 +63,7 @@
 				return '<input type="file" class="' + name + '"  id="' + name + '_' + id + '" accept=".pdf" >';
 			}
 
+			// generate buttons to upload the files
 			function gen_btns() {
 				var applicant_id = row_data.applicant_id;
 
@@ -102,6 +104,7 @@
 				'</table>';
 		}
 
+		// style the file upload buttons. We set the button to be gray if the corresponding file has already been uploaded
 		function style_files(row_data) {
 			$.ajax({
 				type: "GET",
@@ -151,6 +154,7 @@
 					"dataSrc": ""
 				},
 
+				// define the columns, which JSON field to obtain the data
 				"columns": [
 					{
 						"className": 'details-control',
@@ -186,8 +190,14 @@
 						"searchable": false
 					},
 					{ "data": "country" },
-					{ "data": "program" },
-					{ "data": "degree" },
+					{
+						"data": "program",
+						"className": "text-center"
+					},
+					{
+						"data": "degree",
+						"className": "text-center"
+					},
 					{ "data": "interests" },
 					{ "data": "ug_university" },
 					{
@@ -200,7 +210,11 @@
 						"visible": false,
 						"searchable": false
 					},
-					{ "data": "ug_gpa" },
+					{
+						"data": "ug_gpa",
+						"className": "text-center",
+						"searchable": false
+					},
 					{ "data": "grad_university" },
 					{
 						"data": "grad_major",
@@ -213,12 +227,33 @@
 						"visible": false,
 						"searchable": false
 					},
-					{ "data": "grad_gpa" },
-					{ "data": "toefl_ielts" },
-					{ "data": "gre" },
-					{ "data": "decision" },
-					{ "data": "advisor" },
-					{ "data": "assistantship" },
+					{
+						"data": "grad_gpa",
+						"className": "text-center",
+						"searchable": false
+					},
+					{
+						"data": "toefl_ielts",
+						"className": "text-center",
+						"searchable": false
+					},
+					{
+						"data": "gre",
+						"className": "text-center",
+						"searchable": false
+					},
+					{
+						"data": "decision",
+						"className": "text-center"
+					},
+					{
+						"data": "advisor",
+						"className": "text-center"
+					},
+					{
+						"data": "assistantship",
+						"className": "text-center"
+					},
 					{
 						"data": "fte",
 						"visible": false,
@@ -252,6 +287,7 @@
 					});
 				}
 
+				// listen to the button change events (i.e., new files selected)
 				function listen_btns() {
 					listen_btn("#btn_resume", "resume", applicant_id);
 					listen_btn("#btn_ps", "ps", applicant_id);
@@ -290,8 +326,8 @@
 				if (row.child.isShown()) {
 					// This row is already open - close it
 					row.child.hide();
-					tr.removeClass('shown');
-					// remove the event listener, other it will be fired multiple times
+					tr.removeClass('shown'); // change class to display different icons for shown/hidden child
+					// remove the event listener, otherwise it will be fired multiple times
 					$('#applicants').off('click', "#btn_update" + applicant_id);
 					off_btns(applicant_id);
 
@@ -362,9 +398,7 @@
 				var that = this;
 				$('input', this.footer()).on('keyup change', function () {
 					if (that.search() !== this.value) {
-						that
-							.search(this.value)
-							.draw();
+						that.search(this.value).draw();
 					}
 				});
 			});
@@ -468,13 +502,13 @@
 						<th>UG_University</th>
 						<th>UG_Major</th>
 						<th>UG_Degree</th>
-						<th>UG_GPA</th>
+						<th></th>
 						<th>Grad_University</th>
 						<th>Grad_Major</th>
 						<th>Grad_Degree</th>
-						<th>Grad_GPA</th>
-						<th>TOEFL</th>
-						<th>GRE</th>
+						<th></th>
+						<th></th>
+						<th></th>
 						<th>Decision</th>
 						<th>Advisor</th>
 						<th>Assistantship</th>
