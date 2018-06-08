@@ -20,12 +20,41 @@
 
 		function format(row_data) {
 			function gen_td(field) {
-				if (fields[field].can_change) {
-					return '<td class="td_tag">' + fields[field].tag + ':</td>' +
-						'<td> <input type="text" id=input_' + field + '_' + row_data.applicant_id + ' value="' + row_data[field] + '"></td>'
+				var f = fields[field];
+				var id = row_data.applicant_id;
+				var val = row_data[field];
+
+				if (f.can_change) {
+					if (f.hasOwnProperty("select")) {
+						var p = '<td class="td_tag">' + f.tag + ':</td>' +
+							'<td> <select class="custom-select" id="input_' + field + '_' + id + '" value="' + val + '">';
+						
+						var idx = f.select.indexOf(val);
+						if ( idx == -1) {
+							p += '<option value="" selected>Choose...</option>';
+						} else {
+							p += '<option value="">Choose...</option>';
+						}
+						
+						var i;
+						for (i in f.select) {
+							if (idx == i) {
+								p += '<option selected>' + f.select[i] + '</option>';
+							} else {
+								p += '<option>' + f.select[i] + '</option>';
+							}
+						}
+
+						p += '</select>';
+
+						return p;
+					} else {
+						return '<td class="td_tag">' + f.tag + ':</td>' +
+							'<td> <input type="text" id=input_' + field + '_' + id + ' value="' + val + '"></td>';
+					}
 				} else {
-					return '<td class="td_tag">' + fields[field].tag + ':</td>' +
-						'<td>' + row_data[field] + '</td>';
+					return '<td class="td_tag">' + f.tag + ':</td>' +
+						'<td>' + val + '</td>';
 				}
 			}
 
@@ -293,7 +322,7 @@
 
 						$.each(fields, function (key, value) {
 							if (value.can_change) {
-								row_data[key] = $('#input_' + key + '_' + applicant_id).val();
+								row_data[key] = $('#input_' + key + '_' + applicant_id).val().trim();
 							}
 
 							if (value.convert !== null) {

@@ -48,8 +48,9 @@ table.display tbody tr:hover td{
 	padding: 5px;
 }
 
-input{
-	height: 20px;
+input, .custom-select{
+	height: 2em;
+	padding: 1px;
 }
 
 td.details-control {
