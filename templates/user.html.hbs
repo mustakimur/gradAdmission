@@ -66,6 +66,7 @@
 
                 json_obj.user_name = $("#input_name").val().trim();
                 json_obj.role = $("#input_role").val().trim();
+                json_obj.salt = "salt";
                 json_obj.password = $("#input_password").val().trim();;
 
                 if (json_obj.user_name.length <= 0) {

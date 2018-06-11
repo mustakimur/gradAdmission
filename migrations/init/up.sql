@@ -37,6 +37,7 @@ CREATE TABLE `comments_tbl` (
 CREATE TABLE `users_tbl` (
 	`user_name`	TEXT NOT NULL,
 	`role`	TEXT NOT NULL,
+	`salt` TEXT NOT NULL,
 	`password`	TEXT NOT NULL,
 	PRIMARY KEY(`user_name`)
 );

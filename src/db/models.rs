@@ -46,6 +46,7 @@ pub struct Comment {
 pub struct User {
     pub user_name: String,
     pub role: String,
+    pub salt: String,
     pub password: String,
 }
 

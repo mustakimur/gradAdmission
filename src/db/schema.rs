@@ -41,6 +41,7 @@ table! {
     users_tbl (user_name) {
         user_name -> Text,
         role -> Text,
+        salt -> Text,
         password -> Text,
     }
 }

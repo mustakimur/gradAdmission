@@ -9,9 +9,12 @@ use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 
 use ammonia::clean;
+use rand::distributions::Alphanumeric;
+use rand::Rng;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
 use rocket::{Outcome, Request, State};
+use std::iter;
 use std::{env, io};
 
 pub mod models;
@@ -133,6 +136,7 @@ impl Comment {
             .unwrap()
     }
 
+    /*
     pub fn update(conn: &SqliteConnection, mut com: Comment) -> bool {
         com.santize();
 
@@ -140,7 +144,7 @@ impl Comment {
             .set(&com)
             .execute(conn)
             .is_ok()
-    }
+    }*/
 
     pub fn insert(conn: &SqliteConnection, mut com: Comment) -> bool {
         com.santize();
@@ -168,9 +172,18 @@ pub use self::schema::users_tbl;
 use UserAuth;
 
 impl User {
-    pub fn hash_passwd(pass: &String) -> String {
-        // should use per-user salt!
-        let salt = "Cw5s2mwia9jBe0P8";
+    fn gen_salt() -> String {
+        let mut rng = rand::thread_rng();
+
+        let salt: String = iter::repeat(())
+            .map(|()| rng.sample(Alphanumeric))
+            .take(16)
+            .collect();
+
+        salt
+    }
+
+    pub fn hash_passwd(salt: &String, pass: &String) -> String {
         let ba = argon2rs::argon2d_simple(pass, salt);
         let strs: Vec<String> = ba.iter().map(|b| format!("{:02X}", b)).collect();
         strs.join("")
@@ -215,14 +228,14 @@ impl User {
         None
     }
 
-    pub fn update(conn: &SqliteConnection, mut user: User) -> bool {
+    /*pub fn update(conn: &SqliteConnection, mut user: User) -> bool {
         user.santize();
 
         diesel::update(users_tbl::table.find(&user.user_name))
             .set(&user)
             .execute(conn)
             .is_ok()
-    }
+    }*/
 
     pub fn delete(conn: &SqliteConnection, name: &str) -> bool {
         diesel::delete(users_tbl::table.find(name))
@@ -232,8 +245,9 @@ impl User {
 
     pub fn insert(conn: &SqliteConnection, mut user: User) -> bool {
         user.santize();
+        user.salt = User::gen_salt();
 
-        user.password = User::hash_passwd(&user.password);
+        user.password = User::hash_passwd(&user.salt, &user.password);
         diesel::insert_into(users_tbl::table)
             .values(&user)
             .execute(conn)

@@ -19,6 +19,7 @@ extern crate ammonia;
 extern crate argon2rs;
 extern crate r2d2;
 extern crate r2d2_diesel;
+extern crate rand;
 
 use chrono::Local;
 use rocket::http::{Cookie, Cookies, Status};
@@ -112,7 +113,7 @@ fn login(mut cookies: Cookies, lg: Form<Login>, connection: db::Connection) -> F
     ); */
 
     if let Some(user) = user_opt {
-        if user.password == User::hash_passwd(&lg.get().password) {
+        if user.password == User::hash_passwd(&user.salt, &lg.get().password) {
             cookies.add_private(Cookie::new("user_name", name));
             return Flash::success(Redirect::to("/"), "Successfully logged in.");
         }
