@@ -12,7 +12,7 @@ fn main() -> io::Result<()> {
          It askes you for your password and creates a random salt for you.\n\
          It then calculates and shows the hash of the salted password.\n\
          You can use the DB Browser for SQLite to add the user to the database.\n\
-         Set the role to Sys to create an admin user.",
+         Set the role to Sys to create an admin user.\n",
     );
 
     println!("Type in your password:");
