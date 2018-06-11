@@ -383,11 +383,11 @@
 						});
 
 						// We need to save the index column then restore it		
-						var first_td =  $(row.node()).find("td:first");	
+						var first_td = $(row.node()).find("td:first");
 						var seq = first_td.text();
 						row.data(row_data);
 						first_td.text(seq);
-						
+
 
 						var json = JSON.stringify(json_obj);
 

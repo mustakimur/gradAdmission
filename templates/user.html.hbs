@@ -57,7 +57,7 @@
                 $.ajax({
                     type: "DELETE",
                     url: "/user/" + row_data["user_name"],
-                    complete: function (data) { toast(data.responseJSON["status"]); table.ajax.reload();}
+                    complete: function (data) { toast(data.responseJSON["status"]); table.ajax.reload(); }
                 });
             });
 
@@ -87,7 +87,7 @@
                     data: json,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    complete: function (data) { toast(data.responseJSON["status"]); table.ajax.reload();}
+                    complete: function (data) { toast(data.responseJSON["status"]); table.ajax.reload(); }
                 });
             });
         });
@@ -134,7 +134,7 @@
                                 <select class="form-control" id="input_role">
                                     <option>User</option>
                                     <option>Sys</option>
-                                  </select>
+                                </select>
                                 <!-- <input type="text" class="form-control" id="input_role"> -->
                             </div>
                             <div class="form-group">
