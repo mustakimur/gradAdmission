@@ -10,7 +10,7 @@
 	<link rel="stylesheet" href="/resources/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="resources/simple.css">
 
-	<script type="text/javascript" language="javascript" src="/resources/jquery-1.12.4.js"></script>
+	<script type="text/javascript" language="javascript" src="/resources/jquery.min.js"></script>
 	<script type="text/javascript" language="javascript" src="resources/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" language="javascript" src="/resources/local.js"></script>
 	<script type="text/javascript" language="javascript" src="/resources/js.cookie.js"></script>
@@ -97,7 +97,7 @@
 				gen_td("toefl_ielts") + gen_td("gre") + gen_td("decision") + gen_td("advisor") +
 				'</tr>' + '<tr>' +
 				gen_td("assistantship") + gen_td("fte") + gen_td("yearly_amount") +
-				'<td></td><td> <button type="button" class="btn btn-primary" id="btn_update' + row_data.applicant_id + '">Update</button>' +
+				'<td></td><td> <button type="button" class="btn btn-primary" id="btn_update' + row_data.applicant_id + '">Save</button>' +
 				'</tr>' + '<tr>' +
 				gen_btns() +
 				'</tr>' +
@@ -156,6 +156,13 @@
 
 				// define the columns, which JSON field to obtain the data
 				"columns": [
+					{
+						"searchable": false,
+						"orderable": false,
+						"targets": 0,
+						"data": null,
+						"defaultContent": ''
+					},
 					{
 						"className": 'details-control',
 						"orderable": false,
@@ -266,8 +273,15 @@
 					},
 				],
 
-				"order": [[4, 'asc']],
+				"order": [[5, 'asc']],
 			});
+
+			// show the column index
+			table.on('order.dt search.dt', function () {
+				table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+					cell.innerHTML = i + 1;
+				});
+			}).draw();
 
 			// Add event listener for opening and closing child attributes
 			$('#applicants tbody').on('click', 'td.details-control', function () {
@@ -283,7 +297,7 @@
 						var files = $(btn_id).prop('files');
 
 						toast("Load " + files[0].name + ", size: " + files[0].size + ' for ' + file_name);
-						upload("/file/" + id + "/" + file_name, files[0]);
+						upload("/file/" + id + "/" + file_name, files[0], function (text) { toast(text); });
 					});
 				}
 
@@ -368,8 +382,12 @@
 							}
 						});
 
-						// update the row
+						// We need to save the index column then restore it		
+						var first_td =  $(row.node()).find("td:first");	
+						var seq = first_td.text();
 						row.data(row_data);
+						first_td.text(seq);
+						
 
 						var json = JSON.stringify(json_obj);
 
@@ -422,6 +440,7 @@
 
 				toast("Import from " + files[0].name + ", size: " + files[0].size);
 				upload("/file/import", files[0], function () { table.ajax.reload(); });
+				location.reload();
 			});
 
 			// Show the flash message
@@ -460,6 +479,7 @@
 					<tr>
 						<th></th>
 						<th></th>
+						<th></th>
 						<th>Employee ID</th>
 						<th>Applicant ID</th>
 						<th>Name</th>
@@ -488,6 +508,7 @@
 				</thead>
 				<tfoot>
 					<tr>
+						<th></th>
 						<th></th>
 						<th></th>
 						<th>Employee ID</th>

@@ -48,7 +48,7 @@ function upload(url, file, on_complete) {
         credentials: "same-origin" //send the cookies also!
     }).then(function (response) {
         response.text().then(function (text) {
-            toast(text);
+            //toast(text);
             on_complete(text);
         });
     });
