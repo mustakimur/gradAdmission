@@ -15,40 +15,9 @@
     <script type="text/javascript" language="javascript" src="/resources/local.js"></script>
 
     <script type="text/javascript" language="javascript" class="init">
-        function style_links() {
-            $.ajax({
-                type: "GET",
-                url: "/file/" + {{ applicant_id }},
-                dataType: "text",
-                complete: function (data) {
-                    function style_link(listing, name, desc) {
-                        var td_name = "#td_" + name;
-
-                        if (!listing.includes(name)) {
-                            $(td_name).html("None");
-                        }
-                    }
-
-                    var listing = data.responseText;
-                    //toast("The applicant has submitted: " + listing);
-                    style_link(listing, "resume", "resume");
-                    style_link(listing, "ps", "statement");
-                    style_link(listing, "ug_trans", "UG Trans");
-                    style_link(listing, "grad_trans", "Grad Trans");
-                    style_link(listing, "toefl", "TOEFL");
-                    style_link(listing, "gre", "GRE");
-                    style_link(listing, "letter1", "Letter 1");
-                    style_link(listing, "letter2", "Letter 2");
-                    style_link(listing, "letter3", "Letter 3");
-                    style_link(listing, "letter4", "Letter 4");
-                    style_link(listing, "other1", "Other 1");
-                    style_link(listing, "other2", "Other 2");
-                }
-            });
-        }
-
         $(document).ready(function () {
-            fields = facts_app();
+            const fields = facts_app();
+            const app_id = {{applicant_id}};
 
             // DataTable
             var table = $('#comments').DataTable({
@@ -58,7 +27,7 @@
                 "paging": false,
                 "info": false,
                 "ajax": {
-                    "url": "/comment/{{applicant_id}}",
+                    "url": "/comment/" + app_id,
                     "dataSrc": ""
                 },
 
@@ -93,19 +62,69 @@
                 "order": [[0, 'desc']],
             });
 
-            style_links();
 
-            $("a.lnk").click(function (evt) {
-                evt.preventDefault();
-                //toast(evt.target["href"]);
-                $("#pdf_content").attr('data', evt.target["href"]);
+            function gen_lnks(cur_files) {
+                // generate links to open and delete files
+                function gen_file_op(name) {
+                    return '<td class="td_tag">' + name.substring(0, name.lastIndexOf('.')) + '</td>' +
+                        '<td class="td_info"> <a class="lnk_open" href="/file/' + app_id + '/' + name + '" target="_blank">Open</a> </td>';
+                }
+
+                // generate links to open and delete the files
+                function gen_files() {
+                    var links = '';
+                    var num = 1;
+
+                    for (idx in cur_files) {
+                        links += gen_file_op(cur_files[idx].trim());
+
+                        if (num % 2 == 0) {
+                            links += '</tr> <tr>';
+                        }
+
+                        num += 1;
+                    }
+
+                    return links;
+                }
+
+                // `row_data` is the original data object for the row
+                return '<table  class="tbl_info"> <tbody>' +
+                    '<tr> <td colspan="4"><b>Supporting Materials</b></td>' +
+                    '</tr> <tr>' +
+                    gen_files() +
+                    '</tr>' +
+                    '</tbody> </table>';
+            }
+
+            $.ajax({
+                type: "GET",
+                url: "/file/" + app_id,
+                dataType: "text",
+                complete: function (data) {
+                    var listing = data.responseText;
+                    var cur_files = listing.split(",").filter(str => str.trim().length > 0).sort();
+                    var lnks = gen_lnks(cur_files);
+                    $("#div_support").html(lnks);
+
+                    $("a.lnk_open").click(function (evt) {
+                        evt.preventDefault();
+                        $("#pdf_content").attr('data', evt.target["href"]);
+                    });
+                    
+                    // show the first file
+                    if (cur_files.length > 0) {
+                        $("#pdf_content").attr('data', "/file/" + app_id + "/" + cur_files[0]);
+                    }
+                }
             });
+
 
             $("#btn_new").click(function () {
                 var json_obj = {};
 
                 json_obj.comment_id = 0;
-                json_obj.applicant_id = {{ applicant_id }};
+                json_obj.applicant_id = app_id;
 
                 json_obj.commenter = $("#input_commenter").val().trim();
                 json_obj.opinion = $("#input_opinion").val().trim();
@@ -119,7 +138,7 @@
                 var json = JSON.stringify(json_obj);
                 $.ajax({
                     type: "POST",
-                    url: "/comment/{{applicant_id}}",
+                    url: "/comment/" + app_id,
                     data: json,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
@@ -127,11 +146,11 @@
                         if (data.responseJSON["status"] == "Error") {
                             toast(data.responseJSON["message"]);
                         } else {
-                            toast(data.responseJSON["status"]); 
+                            toast(data.responseJSON["status"]);
                         }
-                        
+
                         $("#input_opinion").val("");
-                        table.ajax.reload(); 
+                        table.ajax.reload();
                     }
                 });
             });
@@ -146,7 +165,7 @@
                 <h3>Application {{applicant_id}}:</h3>
                 <hr/>
                 <div class="info">
-                    <table id="tbl_info">
+                    <table class="tbl_info">
                         <tbody>
                             <tr>
                                 <td colspan="4">
@@ -229,76 +248,12 @@
                                 <td class="td_tag">Salary:</td>
                                 <td class="td_info">{{yearly_amount}}</td>
                             </tr>
-                            <tr>
-                                <td colspan="4">
-                                    <b>Supporting Materials:</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="td_tag">Resume:</td>
-                                <td class="td_info" id="td_resume">
-                                    <a class="lnk" href="/file/{{applicant_id}}/resume">open</a>
-                                </td>
-                                <td class="td_tag">Statement:</td>
-                                <td class="td_info" id="td_ps">
-                                    <a class="lnk" href="/file/{{applicant_id}}/ps">open</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="td_tag">UG Trans:</td>
-                                <td class="td_info" id="td_ug_trans">
-                                    <a class="lnk" href="/file/{{applicant_id}}/ug_trans">open</a>
-                                </td>
-                                <td class="td_tag">Grad Trans:</td>
-                                <td class="td_info" id="td_grad_trans">
-                                    <a class="lnk" href="/file/{{applicant_id}}/grad_trans">open</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="td_tag">TOEFL:</td>
-                                <td class="td_info" id="td_toefl">
-                                    <a class="lnk" href="/file/{{applicant_id}}/toefl">open</a>
-                                </td>
-                                <td class="td_tag">GRE:</td>
-                                <td class="td_info" id="td_gre">
-                                    <a class="lnk" href="/file/{{applicant_id}}/gre">open</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="td_tag">Letter 1:</td>
-                                <td class="td_info" id="td_letter1">
-                                    <a class="lnk" href="/file/{{applicant_id}}/letter1">open</a>
-                                </td>
-                                <td class="td_tag">Letter 2:</td>
-                                <td class="td_info" id="td_letter2">
-                                    <a class="lnk" href="/file/{{applicant_id}}/letter2">open</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="td_tag">Letter 3:</td>
-                                <td class="td_info" id="td_letter3">
-                                    <a class="lnk" href="/file/{{applicant_id}}/letter3">open</a>
-                                </td>
-                                <td class="td_tag">Letter 4:</td>
-                                <td class="td_info" id="td_letter4">
-                                    <a class="lnk" href="/file/{{applicant_id}}/letter4">open</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="td_tag">Other 1:</td>
-                                <td class="td_info" id="td_other1">
-                                    <a class="lnk" href="/file/{{applicant_id}}/other1">open</a>
-                                </td>
-                                <td class="td_tag">Other 2:</td>
-                                <td class="td_info" id="td_other2">
-                                    <a class="lnk" href="/file/{{applicant_id}}/other2">open</a>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
+
+                    <div id="div_support"> </div>
                 </div>
             </div>
-
             <div class="col-xl-3" style="border-right: 1px solid lightgray;">
                 <div id="snackbar">Error message here..</div>
                 <div>
@@ -355,7 +310,7 @@
             </div>
             <div class="col-xl-6">
                 <div id="pdf">
-                    <object width="800px" height="1000px" type="application/pdf" data="/file/{{applicant_id}}/resume" id="pdf_content">
+                    <object width="800px" height="1000px" type="application/pdf" data="" id="pdf_content">
                         <p>The file is missing!</p>
                     </object>
                 </div>
