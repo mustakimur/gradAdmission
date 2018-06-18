@@ -20,6 +20,7 @@ extern crate argon2rs;
 extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate rand;
+extern crate lopdf;
 
 use chrono::Local;
 use rocket::http::{Cookie, Cookies, Status};
@@ -32,9 +33,13 @@ use rocket_contrib::{Json, Template, Value};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::{env, fs, io};
+use std::io::{Error, ErrorKind};
 
 pub mod db;
 use db::{Application, Comment, User};
+
+pub mod pdf;
+
 
 //
 // Routers to handle login and logout
@@ -148,13 +153,13 @@ fn index_auth(user: UserAuth) -> Template {
 
 #[get("/resources/<file..>")]
 fn resources(file: PathBuf) -> Option<NamedFile> {
-    let path = Path::new("html/resources/").join(&file);
+    let path = Path::new("resources/").join(&file);
     NamedFile::open(path).ok()
 }
 
 #[get("/images/<file..>")]
 fn images_auth(file: PathBuf, _user: UserAuth) -> Option<NamedFile> {
-    let path = Path::new("html/images/").join(&file);
+    let path = Path::new("images/").join(&file);
     NamedFile::open(path).ok()
 }
 
@@ -292,10 +297,15 @@ fn write_file_auth(data: Data, id: i32, file: PathBuf, _user: UserAuth) -> io::R
 
     let mut path = path.join(&file);
     path.set_extension("pdf");
-    //println!("Write file: {}", path.to_str().unwrap());
 
-    data.stream_to_file(path)
-        .map(|_n| format!("Saved to {}!", file.display()))
+    let result = data.stream_to_file(&path)
+        .map(|_n| format!("Saved to {}!", file.display()));
+
+    if file.starts_with("all-in-one") {
+        pdf::split_pdf(&path).ok_or(Error::new(ErrorKind::Other, "oh no!"))
+    } else {
+        result
+    }
 }
 
 #[post("/<_id>/<_file..>", rank = 2)]

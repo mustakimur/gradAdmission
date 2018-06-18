@@ -1,8 +1,9 @@
-extern crate lopdf;
 use lopdf::{Document, Object};
+
 use std::collections::HashMap;
-use std::fs;
+use std::{fs, env};
 use std::process::Command;
+use std::path::PathBuf;
 
 #[derive(Debug)]
 struct Section {
@@ -53,17 +54,32 @@ fn rename(title: &str) -> String {
         "Statement".to_string()
     } else if low.contains("transcript") {
         "Transcript".to_string()
+    } else if low.contains("resume") {
+        "Resume".to_string()
     } else {
-        title.to_string()
+        "Other".to_string()
     }
 }
 
 // split pdf by outlines, 2nd level, returns a list of new pdf files
-pub fn split_pdf(fname: &str) -> Option<Vec<String>> {
+pub fn split_pdf(fname: &PathBuf) -> Option<String> {
+    // get the parent
+    let mut root = env::current_dir().ok()?;
+    root.push("resources");
+
+    let parent = fname.parent()?;
+    
+    if !parent.is_dir() {
+        println!("Cannot get path from {}", fname.display());
+        return None;
+    }
+ 
+    // The sections of the pdf file
     let mut sections: Vec<Section> = vec![];
 
     // open the file and save the object id to page number mapping
     let doc = Document::load(fname).ok()?;
+
     let pgs = doc.get_pages();
     let mut id2pg = HashMap::new();
     
@@ -146,7 +162,7 @@ pub fn split_pdf(fname: &str) -> Option<Vec<String>> {
         }
     }
 
-    //println!("{:?}", title2ranges);
+    println!("{:?}", title2ranges);
 
     // separate the original pdf file into single-page pdfs
     Command::new("pdfseparate")
@@ -155,7 +171,7 @@ pub fn split_pdf(fname: &str) -> Option<Vec<String>> {
         .arg("-l")
         .arg(max_pg.to_string())
         .arg(fname)
-        .arg("separated%d.pdf")
+        .arg(parent.join("separated%d.pdf"))
         .output()
         .ok()?;
 
@@ -168,15 +184,15 @@ pub fn split_pdf(fname: &str) -> Option<Vec<String>> {
 
         for k in 0..ranges.len() {
             if k > 0 && duplicate(tr.0) {
-                cmd.arg("alert.pdf");
+                cmd.arg(root.join("alert.pdf"));
             }
 
             for i in ranges[k].0..ranges[k].1 + 1 {
-                cmd.arg(format!("separated{}.pdf", i));
+                cmd.arg(parent.join(format!("separated{}.pdf", i)));
             }
         }
 
-        // rename the files
+        // rename the files and append the path
         let title = rename(tr.0);
 
         if !title2cnt.contains_key(&title) {
@@ -185,18 +201,14 @@ pub fn split_pdf(fname: &str) -> Option<Vec<String>> {
             *(title2cnt.get_mut(&title)?) += 1;
         }
 
-        cmd.arg(format!("{}{}.pdf", &title, *title2cnt.get(&title)?));
+        cmd.arg(parent.join(format!("{}{}.pdf", &title, *title2cnt.get(&title)?)));
         cmd.output().ok()?;
     }
 
     // now, delete the tmp files
     for i in 1..max_pg + 1 {
-        fs::remove_file(format!("separated{}.pdf", i)).ok();
+        fs::remove_file(parent.join(format!("separated{}.pdf", i))).ok();
     }
 
-    None
-}
-
-fn main() {
-    split_pdf("all.pdf");
+    Some("Success".to_string())
 }

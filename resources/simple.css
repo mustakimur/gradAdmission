@@ -54,24 +54,24 @@ input, .custom-select{
 }
 
 td.details-control {
-    background: url('/resources/details_open.png') no-repeat center center;
+    background: url('/images/details_open.png') no-repeat center center;
 	cursor: pointer;
 }
 
 td.review-control {
-    background: url('/resources/review.png') no-repeat center center;
+    background: url('/images/review.png') no-repeat center center;
 	cursor: pointer;
 	background-size: 32px 32px;
 }
 
 td.delete-control {
-    background: url('/resources/delete.png') no-repeat center center;
+    background: url('/images/delete.png') no-repeat center center;
 	cursor: pointer;
 	background-size: 32px 32px;
 }
 
 tr.shown td.details-control {
-    background: url('/resources/details_close.png') no-repeat center center;
+    background: url('/images/details_close.png') no-repeat center center;
 }
  
 td.td_extra {

@@ -26,7 +26,6 @@
 				}
 			});
 
-
 			// DataTable
 			var table = $('#applicants').DataTable({
 				select: true,
@@ -314,7 +313,7 @@
 				// listen to the button change events (i.e., new files selected)
 				function listen_btns() {
 					listen_btn("#btn_upload", "", app_id);
-					listen_btn("#btn_upload_all", "all", app_id);
+					listen_btn("#btn_upload_all", "all-in-one", app_id);
 				}
 
 				// remove the listener to avoid triggering multiple times
