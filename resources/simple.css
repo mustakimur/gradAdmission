@@ -1,101 +1,106 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans);
 
 body {
-	font: 85%/1.25em 'Open Sans', sans-serif;
-	margin: 15px;
-	margin-top:25px;
-	padding: 0;
-	color: #333;
-	background-color: #fff;
+    font: 85%/1.25em "Open Sans", sans-serif;
+    margin: 15px;
+    margin-top: 25px;
+    padding: 0;
+    color: #333;
+    background-color: #fff;
 }
 
 h1 {
-	font-family:Helvetica, 'Open Sans', sans-serif;
+    font-family: Helvetica, "Open Sans", sans-serif;
     font-weight: 600;
     letter-spacing: 1px;
-	font-size: 3em;
-	line-height: 1em;
+    font-size: 3em;
+    line-height: 1em;
 }
 
 h1 span {
-	font-size: 0.5em;
-	line-height: 1em;
+    font-size: 0.5em;
+    line-height: 1em;
 }
 
 h3 {
-	font-family:Helvetica, 'Open Sans', sans-serif;
+    font-family: Helvetica, "Open Sans", sans-serif;
     font-weight: 600;
     letter-spacing: 1px;
-	font-size: 2em;
-	line-height: 1em;
+    font-size: 2em;
+    line-height: 1em;
 }
 
-table.display tbody tr:hover td{
+table.display tbody tr:hover td {
     background-color: #f2f2f2;
 }
- 
+
 .form-control {
-	font: 100%/1.25em 'Open Sans', sans-serif;
-	border-color: gray;
-	padding: 5px;
+    font: 100%/1.25em "Open Sans", sans-serif;
+    border-color: gray;
+    padding: 5px;
 }
 
-input, .custom-select{
-	height: 2em;
-	padding: 1px;
+input,
+.custom-select {
+    height: 2em;
+    padding: 1px;
 }
 
 td.details-control {
-    background: url('/images/details_open.png') no-repeat center center;
-	cursor: pointer;
+    background: url("/images/details_open.png") no-repeat center center;
+    cursor: pointer;
 }
 
 td.review-control {
-    background: url('/images/review.png') no-repeat center center;
-	cursor: pointer;
-	background-size: 24px 24px;
+    background: url("/images/review.png") no-repeat center center;
+    cursor: pointer;
+    background-size: 24px 24px;
 }
 
 td.delete-control {
-    background: url('/images/delete.png') no-repeat center center;
-	cursor: pointer;
-	background-size: 24px 24px;
+    background: url("/images/delete.png") no-repeat center center;
+    cursor: pointer;
+    background-size: 24px 24px;
 }
 
 tr.shown td.details-control {
-    background: url('/images/details_close.png') no-repeat center center;
+    background: url("/images/details_close.png") no-repeat center center;
 }
- 
+
 td.td_extra {
-	text-align: right;
-	width: 8em;
+    text-align: right;
+    width: 8em;
 }
 
 .tbl_info {
-	border-collapse: collapse;	
-	width: 100%;
+    border-collapse: collapse;
+    width: 100%;
 }
 
-.tbl_info td, .tbl_info th {
-	border-left: 0px none;
-	border-right: 0px none;
-	border-bottom: 1px solid lightgray;
-	padding-left: 4px;
-	padding-right: 4px;
-	padding-bottom: 8px;
-	padding-top: 8px;
+.tbl_info td,
+.tbl_info th {
+    border-left: 0px none;
+    border-right: 0px none;
+    border-bottom: 1px solid lightgray;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-bottom: 8px;
+    padding-top: 8px;
 }
 
-.tbl_info tr:nth-child(even){background-color: #f2f2f2;}
-
-.tbl_info td.td_tag, td.td_tag{
-	width: 7em;
-	text-align: right;
-	border-right: 1px solid lightblue;
+.tbl_info tr:nth-child(even) {
+    background-color: #f2f2f2;
 }
 
-#input_opinion{
-	white-space: pre-wrap pre-line;
+.tbl_info td.td_tag,
+td.td_tag {
+    width: 7em;
+    text-align: right;
+    border-right: 1px solid lightblue;
+}
+
+#input_opinion {
+    white-space: pre-wrap pre-line;
 }
 
 /* The snackbar - position it at the bottom and in the middle of the screen */
@@ -115,7 +120,7 @@ td.td_extra {
 }
 
 #flash {
-	visibility: hidden; /* Hidden by default. Visible on click */
+    visibility: hidden; /* Hidden by default. Visible on click */
 }
 
 /* Show the snackbar when clicking on a button (class added with JavaScript) */
