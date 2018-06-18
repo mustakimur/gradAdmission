@@ -12,17 +12,41 @@ function facts_app() {
     fields["interests"] = { tag: "Interests", can_change: true, convert: null, long: true };
     fields["ug_university"] = { tag: "UG University", can_change: true, convert: null, long: true };
     fields["ug_major"] = { tag: "UG Major", can_change: true, convert: null, long: true };
-    fields["ug_degree"] = { tag: "UG Degree", can_change: true, convert: null, long: false, select: ["B.S", "B.E", "B.A"] };
+    fields["ug_degree"] = {
+        tag: "UG Degree",
+        can_change: true,
+        convert: null,
+        long: false,
+        select: ["B.S", "B.E", "B.A"]
+    };
     fields["ug_gpa"] = { tag: "UG GPA", can_change: true, convert: parseFloat, long: false };
     fields["grad_university"] = { tag: "Grad University", can_change: true, convert: null, long: true };
     fields["grad_major"] = { tag: "Grad Major", can_change: true, convert: null, long: true };
-    fields["grad_degree"] = { tag: "Grad Degree", can_change: true, convert: null, long: false, select: ["None", "M.S", "M.E", "M.A"] };
+    fields["grad_degree"] = {
+        tag: "Grad Degree",
+        can_change: true,
+        convert: null,
+        long: false,
+        select: ["None", "M.S", "M.E", "M.A"]
+    };
     fields["grad_gpa"] = { tag: "Grad GPA", can_change: true, convert: parseFloat, long: false };
     fields["toefl_ielts"] = { tag: "TOEFL/IELTS", can_change: true, convert: parseInt, long: false };
     fields["gre"] = { tag: "GRE", can_change: true, convert: null, long: false };
-    fields["decision"] = { tag: "Decision", can_change: true, convert: null, long: true, select: ["Pending", "Admit", "Admit w/ support", "Reject", "Accepted", "Denied", "Retracted"] };
+    fields["decision"] = {
+        tag: "Decision",
+        can_change: true,
+        convert: null,
+        long: true,
+        select: ["Pending", "Admit", "Admit w/ support", "Reject", "Accepted", "Denied", "Retracted"]
+    };
     fields["advisor"] = { tag: "Advisor", can_change: true, convert: null, long: false };
-    fields["assistantship"] = { tag: "Assistantship", can_change: true, convert: null, long: false, select: ["None", "TA", "DRTA", "RA", "TA+RA", "SFS"] };
+    fields["assistantship"] = {
+        tag: "Assistantship",
+        can_change: true,
+        convert: null,
+        long: false,
+        select: ["None", "TA", "DRTA", "RA", "TA+RA", "SFS"]
+    };
     fields["fte"] = { tag: "FTE", can_change: true, convert: parseFloat, long: false };
     fields["yearly_amount"] = { tag: "Salary", can_change: true, convert: parseInt, long: false };
 
@@ -38,17 +62,29 @@ function toast(msg) {
     t.innerHTML = msg;
 
     // After 3 seconds, remove the show class from DIV
-    setTimeout(function () { t.className = t.className.replace("show", ""); }, 2500);
+    setTimeout(function() {
+        t.className = t.className.replace("show", "");
+    }, 2500);
 }
 
 function upload(url, file, on_complete) {
     fetch(url, {
-        method: 'POST',
+        method: "POST",
         body: file,
         credentials: "same-origin" //send the cookies also!
-    }).then(function (response) {
-        response.text().then(function (text) {
-            //toast(text);
+    }).then(function(response) {
+        response.text().then(function(text) {
+            on_complete(text);
+        });
+    });
+}
+
+function delete_file(url, on_complete) {
+    fetch(url, {
+        method: "DELETE",
+        credentials: "same-origin" //send the cookies also!
+    }).then(function(response) {
+        response.text().then(function(text) {
             on_complete(text);
         });
     });

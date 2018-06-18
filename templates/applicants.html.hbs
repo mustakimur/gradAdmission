@@ -16,149 +16,7 @@
 	<script type="text/javascript" language="javascript" src="/resources/js.cookie.js"></script>
 
 	<script type="text/javascript" language="javascript" class="init">
-		var fields = facts_app();
-
-		function format(row_data) {
-			function gen_td(field) {
-				var f = fields[field];
-				var id = row_data.applicant_id;
-				var val = row_data[field];
-
-				if (f.can_change) {
-					if (f.hasOwnProperty("select")) {
-						// generate a select tag if the field has one
-						var p = '<td class="td_tag">' + f.tag + ':</td>' +
-							'<td> <select class="custom-select" id="input_' + field + '_' + id + '" value="' + val + '">';
-
-						var idx = f.select.indexOf(val);
-						if (idx == -1) {
-							p += '<option value="" selected>Choose...</option>';
-						} else {
-							p += '<option value="">Choose...</option>';
-						}
-
-						var i;
-						for (i in f.select) {
-							if (idx == i) {
-								p += '<option selected>' + f.select[i] + '</option>';
-							} else {
-								p += '<option>' + f.select[i] + '</option>';
-							}
-						}
-
-						p += '</select>';
-
-						return p;
-					} else {
-						return '<td class="td_tag">' + f.tag + ':</td>' +
-							'<td> <input type="text" id=input_' + field + '_' + id + ' value="' + val + '"></td>';
-					}
-				} else {
-					return '<td class="td_tag">' + f.tag + ':</td>' +
-						'<td>' + val + '</td>';
-				}
-			}
-
-			function gen_file_op(name, id) {
-				return '<td class="td_tag">' + name.substring(0, name.lastIndexOf('.')) + '</td>' +
-					'<td> <a class="lnk" href="/file/' + id + '/' + name + '" target="_blank">Open</a> &nbsp;/&nbsp;' +
-					'<a class="lnk" href="/file/' + id + '/' + name + '" target="_blank">Delete</a>' +
-					'</td>';
-			}
-
-			// generate buttons to upload the files
-			function gen_btns() {
-				var applicant_id = row_data.applicant_id;
-				var links = '';
-				var num = 1;
-
-				$.ajax({
-					type: "GET",
-					url: "/file/" + row_data.applicant_id,
-					dataType: "text",
-					async: false,
-					complete: function (data) {
-						var listing = data.responseText;
-						var files = listing.split(",");
-
-						for (idx in files) {
-							var fname = files[idx].trim();
-
-							if (fname.length == 0) {
-								continue;
-							}
-
-							links += gen_file_op(fname, applicant_id);
-
-							if (num % 4 == 0) {
-								links += '</tr> <tr>';
-							}
-
-							num += 1;
-						}
-					}
-				});
-
-				return links;
-			}
-
-			// `row_data` is the original data object for the row
-			return '<table class="child" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
-				'<tr>' +
-				gen_td("emp_id") + gen_td("applicant_id") + gen_td("name") + gen_td("gender") +
-				'</tr>' + '<tr>' +
-				gen_td("country") + gen_td("program") + gen_td("degree") + gen_td("interests") +
-				'</tr>' + '<tr>' +
-				gen_td("ug_university") + gen_td("ug_major") + gen_td("ug_degree") + gen_td("ug_gpa") +
-				'</tr>' + '<tr>' +
-				gen_td("grad_university") + gen_td("grad_major") + gen_td("grad_degree") + gen_td("grad_gpa") +
-				'</tr>' + '<tr>' +
-				gen_td("toefl_ielts") + gen_td("gre") + gen_td("decision") + gen_td("advisor") +
-				'</tr>' + '<tr>' +
-				gen_td("assistantship") + gen_td("fte") + gen_td("yearly_amount") +
-				'<td></td><td> <button type="button" class="btn btn-primary" id="btn_update' + row_data.applicant_id + '">Save</button></td>' +
-				'</tr>' + '<tr>' +
-				'<td></td><td> <input type="file" class="btn_upload" id="btn_upload_' + row_data.applicant_id + '" accept=".pdf" > </td>' +
-				'<td></td><td colspan="5"> <input type="file" class="btn_upload_all" id="btn_upload_all_' + row_data.applicant_id + '" accept=".pdf" > </td>' +
-				'</tr>' + '<tr>' +
-				gen_btns() +
-				'</tr>' +
-				'</table>';
-		}
-
-		// style the file upload buttons. We set the button to be gray if the corresponding file has already been uploaded
-		function style_files(row_data) {
-			$.ajax({
-				type: "GET",
-				url: "/file/" + row_data.applicant_id,
-				dataType: "text",
-				async: false,
-				complete: function (data) {
-					function style_file(listing, name, desc) {
-						var btn_class = listing.includes(name) ? "btn-outline-secondary" : "btn-outline-primary";
-						var btn_name = ".btn_" + name;
-						$(btn_name).filestyle({ input: false, siz: "sm", btnClass: btn_class, text: desc });
-					}
-
-					var listing = data.responseText;
-					//toast(listing);
-					style_file(listing, "resume", "resume");
-					style_file(listing, "ps", "statement");
-					style_file(listing, "ug_trans", "UG Trans");
-					style_file(listing, "grad_trans", "Grad Trans");
-					style_file(listing, "toefl", "TOEFL");
-					style_file(listing, "gre", "GRE");
-					style_file(listing, "letter1", "Letter 1");
-					style_file(listing, "letter2", "Letter 2");
-					style_file(listing, "letter3", "Letter 3");
-					style_file(listing, "letter4", "Letter 4");
-					style_file(listing, "other1", "Other 1");
-					style_file(listing, "other2", "Other 2");
-					style_file(listing, "upload_all", "Upload All-in-one File");
-					style_file(listing, "upload", "Upload One File");
-				}
-			});
-		}
+		const fields = facts_app();
 
 		$(document).ready(function () {
 			// Setup - add a text input to each footer cell
@@ -308,12 +166,122 @@
 				});
 			}).draw();
 
-			// Add event listener for opening and closing child attributes
-			$('#applicants tbody').on('click', 'td.details-control', function () {
-				var tr = $(this).closest('tr');
+			function gen_details(row_data, cur_files) {
+				var app_id = row_data.applicant_id;
+
+				// generate a label and input to edit fields
+				function gen_td(field) {
+					var f = fields[field];
+					var val = row_data[field];
+
+					if (f.can_change) {
+						if (f.hasOwnProperty("select")) {
+							// generate a select tag if the field has one
+							var p = '<td class="td_tag">' + f.tag + ':</td>' +
+								'<td> <select class="custom-select" id="input_' + field + '_' + app_id + '" value="' + val + '">';
+
+							var idx = f.select.indexOf(val);
+							if (idx == -1) {
+								p += '<option value="" selected>Choose...</option>';
+							} else {
+								p += '<option value="">Choose...</option>';
+							}
+
+							var i;
+							for (i in f.select) {
+								if (idx == i) {
+									p += '<option selected>' + f.select[i] + '</option>';
+								} else {
+									p += '<option>' + f.select[i] + '</option>';
+								}
+							}
+
+							p += '</select>';
+
+							return p;
+						} else {
+							return '<td class="td_tag">' + f.tag + ':</td>' +
+								'<td> <input type="text" id=input_' + field + '_' + app_id + ' value="' + val + '"></td>';
+						}
+					} else {
+						return '<td class="td_tag">' + f.tag + ':</td>' +
+							'<td>' + val + '</td>';
+					}
+				}
+
+				// generate links to open and delete files
+				function gen_file_op(name) {
+					return '<td class="td_tag">' + name.substring(0, name.lastIndexOf('.')) + '</td>' +
+						'<td> <a class="lnk_open" href="/file/' + app_id + '/' + name + '" target="_blank">Open</a> &nbsp;/&nbsp;' +
+						'<a class="lnk_delete" " href="/file/' + app_id + '/' + name + '" target="_blank">Delete</a>' +
+						'</td>';
+				}
+
+				// generate links to open and delete the files
+				function gen_files() {
+					var links = '';
+					var num = 1;
+
+					for (idx in cur_files) {
+						var fname = cur_files[idx].trim();
+
+						if (fname.length == 0) {
+							continue;
+						}
+
+						links += gen_file_op(fname);
+
+						if (num % 4 == 0) {
+							links += '</tr> <tr>';
+						}
+
+						num += 1;
+					}
+
+					return links;
+				}
+
+				// `row_data` is the original data object for the row
+				return '<table class="child" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+					'<tr>' +
+					gen_td("emp_id") + gen_td("applicant_id") + gen_td("name") + gen_td("gender") +
+					'</tr>' + '<tr>' +
+					gen_td("country") + gen_td("program") + gen_td("degree") + gen_td("interests") +
+					'</tr>' + '<tr>' +
+					gen_td("ug_university") + gen_td("ug_major") + gen_td("ug_degree") + gen_td("ug_gpa") +
+					'</tr>' + '<tr>' +
+					gen_td("grad_university") + gen_td("grad_major") + gen_td("grad_degree") + gen_td("grad_gpa") +
+					'</tr>' + '<tr>' +
+					gen_td("toefl_ielts") + gen_td("gre") + gen_td("decision") + gen_td("advisor") +
+					'</tr>' + '<tr>' +
+					gen_td("assistantship") + gen_td("fte") + gen_td("yearly_amount") +
+					'<td></td><td> <button type="button" class="btn btn-primary" id="btn_update' + app_id + '">Save</button></td>' +
+					'</tr>' + '<tr>' +
+					'<td></td><td> <input type="file" class="btn_upload" id="btn_upload_' + app_id + '" accept=".pdf" > </td>' +
+					'<td></td><td colspan="5"> <input type="file" class="btn_upload_all" id="btn_upload_all_' + app_id + '" accept=".pdf" > </td>' +
+					'</tr>' + '<tr>' +
+					gen_files() +
+					'</tr>' +
+					'</table>';
+			}
+
+			// style the file upload buttons. We set the button to be gray if the corresponding file has already been uploaded
+			function style_files(row_data) {
+				function style_file(name, desc) {
+					var btn_class = "btn-outline-primary";
+					var btn_name = ".btn_" + name;
+					$(btn_name).filestyle({ input: false, siz: "sm", btnClass: btn_class, text: desc });
+				}
+
+				style_file("upload_all", "Upload All-in-one File");
+				style_file("upload", "Upload One File");
+			}
+
+			function details_callback(tr, listing) {
 				var row = table.row(tr);
 				var row_data = row.data();
-				var applicant_id = row_data.applicant_id;
+				var app_id = row_data.applicant_id;
+				var cur_files = listing.split(",").filter(str => str.trim().length > 0).sort();
 
 				function listen_btn(btn_id_prefix, file_name, id) {
 					var btn_id = btn_id_prefix + '_' + id;
@@ -321,111 +289,128 @@
 					$(btn_id).on('change', function () {
 						var files = $(btn_id).prop('files');
 
+						if (file_name.trim().length == 0) {
+							file_name = files[0].name;
+						}
 						toast("Load " + files[0].name + ", size: " + files[0].size + ' for ' + file_name);
-						upload("/file/" + id + "/" + file_name, files[0], function (text) { toast(text); });
+						upload("/file/" + id + "/" + file_name, files[0],
+							function (text) {
+								toast(text + " Close and open the details to refresh!");
+							});
 					});
 				}
 
 				// listen to the button change events (i.e., new files selected)
 				function listen_btns() {
-					listen_btn("#btn_resume", "resume", applicant_id);
-					listen_btn("#btn_ps", "ps", applicant_id);
-					listen_btn("#btn_ug_trans", "ug_trans", applicant_id);
-					listen_btn("#btn_grad_trans", "grad_trans", applicant_id);
-					listen_btn("#btn_toefl", "toefl", applicant_id);
-					listen_btn("#btn_gre", "gre", applicant_id);
-					listen_btn("#btn_letter1", "letter1", applicant_id);
-					listen_btn("#btn_letter2", "letter2", applicant_id);
-					listen_btn("#btn_letter3", "letter3", applicant_id);
-					listen_btn("#btn_letter4", "letter4", applicant_id);
-					listen_btn("#btn_other1", "other1", applicant_id);
-					listen_btn("#btn_other2", "other2", applicant_id);
-				}
-
-				function off_btn(btn_id) {
-					$(btn_id).off('change');
+					listen_btn("#btn_upload", "", app_id);
+					listen_btn("#btn_upload_all", "all", app_id);
 				}
 
 				// remove the listener to avoid triggering multiple times
 				function off_btns(id) {
-					off_btn("#btn_resume_" + id);
-					off_btn("#btn_ps_" + id);
-					off_btn("#btn_ug_trans_" + id);
-					off_btn("#btn_grad_trans_" + id);
-					off_btn("#btn_toefl_" + id);
-					off_btn("#btn_gre_" + id);
-					off_btn("#btn_letter1_" + id);
-					off_btn("#btn_letter2_" + id);
-					off_btn("#btn_letter3_" + id);
-					off_btn("#btn_letter4_" + id);
-					off_btn("#btn_other1_" + id);
-					off_btn("#btn_other2_" + id);
+					$("#btn_upload_" + id).off('change');
+					$("#btn_upload_all_" + id).off('change');
 				}
 
+				function on_delete(evt) {
+					evt.preventDefault();
+					var url = evt.target["href"];
+					delete_file(url, function (text) { toast(text + " Close and open the details to refresh!"); });
+				}
+
+				function on_save() {
+					// retrieve data from the child form. Datatables uses strings, We need to 
+					// convert them to integer or float for some fields for json to be valid.
+					var json_obj = {};
+
+					$.each(fields, function (key, value) {
+						if (value.can_change) {
+							row_data[key] = $('#input_' + key + '_' + app_id).val().trim();
+						}
+
+						if (value.convert !== null) {
+							json_obj[key] = value.convert(row_data[key]);
+						} else {
+							json_obj[key] = row_data[key];
+						}
+					});
+
+					// We need to save the index column then restore it		
+					var first_td = $(row.node()).find("td:first");
+					var seq = first_td.text();
+					row.data(row_data);
+					first_td.text(seq);
+
+					var json = JSON.stringify(json_obj);
+
+					$.ajax({
+						type: "POST",
+						url: "/application",
+						data: json,
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						complete: function (data) { toast(data.responseJSON["status"]); }
+					});
+				}
+
+				// Now start the code the handle details control
 				if (row.child.isShown()) {
 					// This row is already open - close it
 					row.child.hide();
 					tr.removeClass('shown'); // change class to display different icons for shown/hidden child
-					// remove the event listener, otherwise it will be fired multiple times
-					$('#applicants').off('click', "#btn_update" + applicant_id);
-					off_btns(applicant_id);
 
+					// remove the event listener, otherwise it will be fired multiple times
+					$('#applicants').off('click', "#btn_update" + app_id);
+					$('#applicants').off('click', "a.lnk_delete");
+					off_btns(app_id);
 				} else {
 					// close the currently open row. We have to do this otherwise the style of the button is wrong
 					table.rows().every(function (rowIdx, tableLoop, rowLoop) {
 						var open_row = table.row(rowIdx);
+						var other_app_id = open_row.data().applicant_id;
 
 						if (open_row.child.isShown()) {
 							open_row.child.hide();
 							$(open_row.node()).removeClass('shown');
-							$('#applicants').off('click', "#btn_update" + open_row.data().applicant_id);
-							off_btns(open_row.data().applicant_id);
+
+							// remove the event listener, otherwise it will be fired multiple times
+							$('#applicants').off('click', "#btn_update" + other_app_id);
+							$('#applicants').off('click', "a.lnk_delete");
+							off_btns(other_app_id);
 						}
 					});
 
 					// Open this row
-					row.child(format(row_data)).show();
+					row.child(gen_details(row_data, cur_files)).show();
 					tr.addClass('shown');
 
+					// We need to add the child then style it. A static button can only
+					// be styled if it exists statically. (Bootstrap4 filestyle)
 					style_files(row_data);
+
+					// Enable editing of the details
+					$('#applicants').on('click', "#btn_update" + app_id, on_save);
+					$('#applicants').on('click', "a.lnk_delete", on_delete);
 					listen_btns();
-
-					$('#applicants').on('click', "#btn_update" + applicant_id, function () {
-						// retrieve data from the child form. Datatables uses strings, We need to 
-						// convert them to integer or float for some fields for json to be valid.
-						var json_obj = {};
-
-						$.each(fields, function (key, value) {
-							if (value.can_change) {
-								row_data[key] = $('#input_' + key + '_' + applicant_id).val().trim();
-							}
-
-							if (value.convert !== null) {
-								json_obj[key] = value.convert(row_data[key]);
-							} else {
-								json_obj[key] = row_data[key];
-							}
-						});
-
-						// We need to save the index column then restore it		
-						var first_td = $(row.node()).find("td:first");
-						var seq = first_td.text();
-						row.data(row_data);
-						first_td.text(seq);
-
-
-						var json = JSON.stringify(json_obj);
-
-						$.ajax({
-							type: "POST",
-							url: "/application",
-							data: json,
-							contentType: "application/json; charset=utf-8",
-							dataType: "json",
-							complete: function (data) { toast(data.responseJSON["status"]); }
-						});
-					});
 				}
+			}
+
+
+			// Add event listener for opening and closing child attributes
+			$('#applicants tbody').on('click', 'td.details-control', function () {
+				var tr = $(this).closest('tr');
+				var row_data = table.row(tr).data();
+				var applicant_id = row_data.applicant_id;
+
+				$.ajax({
+					type: "GET",
+					url: "/file/" + applicant_id,
+					dataType: "text",
+					complete: function (data) {
+						var listing = data.responseText;
+						details_callback(tr, listing);
+					}
+				});
 			});
 
 			// open a review window

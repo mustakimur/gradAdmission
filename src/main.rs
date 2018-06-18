@@ -295,11 +295,30 @@ fn write_file_auth(data: Data, id: i32, file: PathBuf, _user: UserAuth) -> io::R
     //println!("Write file: {}", path.to_str().unwrap());
 
     data.stream_to_file(path)
-        .map(|n| format!("Saved {} bytes to {}", n, file.display()))
+        .map(|_n| format!("Saved to {}!", file.display()))
 }
 
 #[post("/<_id>/<_file..>", rank = 2)]
 fn write_file(_id: i32, _file: PathBuf) -> Redirect {
+    Redirect::to("/login")
+}
+
+#[delete("/<id>/<file..>")]
+fn delete_file_auth(id: i32, file: PathBuf, _user: UserAuth) -> io::Result<String> {
+    let path = Path::new(&*DATA_DIR).join(id.to_string());
+
+    fs::create_dir_all(&path)?;
+
+    let mut path = path.join(&file);
+    path.set_extension("pdf");
+    println!("Delete file: {}", path.to_str().unwrap());
+
+    fs::remove_file(path)?;
+    Ok(format!("Deleted {}!", file.display()))
+}
+
+#[delete("/<_id>/<_file..>", rank = 2)]
+fn delete_file(_id: i32, _file: PathBuf) -> Redirect {
     Redirect::to("/login")
 }
 
@@ -477,6 +496,8 @@ fn main() {
                 import,
                 write_file,
                 write_file_auth,
+                delete_file,
+                delete_file_auth,
                 read_index,
                 read_index_auth
             ],
