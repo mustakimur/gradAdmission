@@ -17,9 +17,11 @@
     <script type="text/javascript" language="javascript" class="init">
         $(document).ready(function () {
             const fields = facts_app();
+            
+            //{{applicant_id}} is a template variable, hbs
             const app_id = {{applicant_id}};
 
-            // DataTable
+            // DataTable for the comments
             var table = $('#comments').DataTable({
                 "searching": false,
                 "scrollY": "28em",
@@ -63,10 +65,18 @@
             });
 
 
+            // generate links to open support files
             function gen_lnks(cur_files) {
-                // generate links to open and delete files
+                // generate links to open a file
                 function gen_file_op(name) {
-                    return '<td class="td_tag">' + name.substring(0, name.lastIndexOf('.')) + '</td>' +
+                    // When we split the files, we add a number as suffix. Remove it for display. 
+                    var prefix = name.substring(0, name.lastIndexOf('.'));
+
+                    if ($.isNumeric(prefix.slice(-1))) {
+                        prefix = prefix.slice(0, prefix.length - 1);
+                    }
+
+                    return '<td class="td_tag">' + prefix + '</td>' +
                         '<td class="td_info"> <a class="lnk_open" href="/file/' + app_id + '/' + name + '" target="_blank">Open</a> </td>';
                 }
 
@@ -97,6 +107,7 @@
                     '</tbody> </table>';
             }
 
+            // Get the list of supporting files and create the links
             $.ajax({
                 type: "GET",
                 url: "/file/" + app_id,
@@ -107,11 +118,12 @@
                     var lnks = gen_lnks(cur_files);
                     $("#div_support").html(lnks);
 
+                    // listen to the click of links to open it on the side
                     $("a.lnk_open").click(function (evt) {
                         evt.preventDefault();
                         $("#pdf_content").attr('data', evt.target["href"]);
                     });
-                    
+
                     // show the first file
                     if (cur_files.length > 0) {
                         $("#pdf_content").attr('data', "/file/" + app_id + "/" + cur_files[0]);
@@ -120,6 +132,7 @@
             });
 
 
+            // Create a new comment
             $("#btn_new").click(function () {
                 var json_obj = {};
 
@@ -149,6 +162,7 @@
                             toast(data.responseJSON["status"]);
                         }
 
+                        // reload the comments table
                         $("#input_opinion").val("");
                         table.ajax.reload();
                     }

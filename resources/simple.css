@@ -61,13 +61,13 @@ td.details-control {
 td.review-control {
     background: url('/images/review.png') no-repeat center center;
 	cursor: pointer;
-	background-size: 32px 32px;
+	background-size: 24px 24px;
 }
 
 td.delete-control {
     background: url('/images/delete.png') no-repeat center center;
 	cursor: pointer;
-	background-size: 32px 32px;
+	background-size: 24px 24px;
 }
 
 tr.shown td.details-control {

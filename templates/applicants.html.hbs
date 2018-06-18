@@ -208,16 +208,16 @@
 					}
 				}
 
-				// generate links to open and delete files
-				function gen_file_op(name) {
-					return '<td class="td_tag">' + name.substring(0, name.lastIndexOf('.')) + '</td>' +
-						'<td> <a class="lnk_open" href="/file/' + app_id + '/' + name + '" target="_blank">Open</a> &nbsp;/&nbsp;' +
-						'<a class="lnk_delete" " href="/file/' + app_id + '/' + name + '" target="_blank">Delete</a>' +
-						'</td>';
-				}
-
 				// generate links to open and delete the files
 				function gen_files() {
+					// generate links to open and delete files
+					function gen_file_op(name) {
+						return '<td class="td_tag">' + name.substring(0, name.lastIndexOf('.')) + '</td>' +
+							'<td> <a class="lnk_open" href="/file/' + app_id + '/' + name + '" target="_blank">Open</a> &nbsp;/&nbsp;' +
+							'<a class="lnk_delete" " href="/file/' + app_id + '/' + name + '" target="_blank">Delete</a>' +
+							'</td>';
+					}
+
 					var links = '';
 					var num = 1;
 
@@ -259,7 +259,7 @@
 					'</table>';
 			}
 
-			// style the file upload buttons. We set the button to be gray if the corresponding file has already been uploaded
+			// style the file upload buttons. Had to do this after the buttons have been added to the DOM.
 			function style_files(row_data) {
 				function style_file(name, desc) {
 					var btn_class = "btn-outline-primary";
@@ -278,7 +278,7 @@
 				var cur_files = listing.split(",").filter(str => str.trim().length > 0).sort();
 
 				function refresh() {
-					// The file has been deleted. We need to refresh the child control
+					// The files have been changed. We need to refresh the child control
 					$.ajax({
 						type: "GET",
 						url: "/file/" + app_id,
@@ -291,27 +291,28 @@
 					});
 				}
 
-				function listen_btn(btn_id_prefix, file_name, id) {
-					var btn_id = btn_id_prefix + '_' + id;
-
-					$(btn_id).on('change', function () {
-						var files = $(btn_id).prop('files');
-
-						if (file_name.trim().length == 0) {
-							file_name = files[0].name;
-						}
-
-						toast("Load " + files[0].name + ", size: " + files[0].size + ' for ' + file_name);
-						upload("/file/" + id + "/" + file_name, files[0],
-							function (text) {
-								toast(text);
-								refresh();
-							});
-					});
-				}
-
 				// listen to the button change events (i.e., new files selected)
 				function listen_btns() {
+					function listen_btn(btn_id_prefix, file_name, id) {
+						var btn_id = btn_id_prefix + '_' + id;
+
+						$(btn_id).on('change', function () {
+							var files = $(btn_id).prop('files');
+
+							if (file_name.trim().length == 0) {
+								file_name = files[0].name;
+							}
+
+							toast("Load " + files[0].name + ", size: " + files[0].size + ' for ' + file_name);
+							upload("/file/" + id + "/" + file_name, files[0],
+								function (text) {
+									toast(text);
+									refresh();
+								});
+						});
+					}
+
+
 					listen_btn("#btn_upload", "", app_id);
 					listen_btn("#btn_upload_all", "all-in-one", app_id);
 				}
@@ -351,9 +352,14 @@
 					// We need to save the index column then restore it		
 					var first_td = $(row.node()).find("td:first");
 					var seq = first_td.text();
+
+					// Set the row data so we do not need to do the ajax
 					row.data(row_data);
+
+					// restore the index. This is needed because row does not automaticaly save it
 					first_td.text(seq);
 
+					// submit the changes
 					var json = JSON.stringify(json_obj);
 
 					$.ajax({
@@ -376,6 +382,7 @@
 					$('#applicants').off('click', "#btn_update" + app_id);
 					$('#applicants').off('click', "a.lnk_delete");
 					off_btns(app_id);
+
 				} else {
 					// close the currently open row. We have to do this otherwise the style of the button is wrong
 					table.rows().every(function (rowIdx, tableLoop, rowLoop) {
@@ -415,6 +422,8 @@
 				var row_data = table.row(tr).data();
 				var applicant_id = row_data.applicant_id;
 
+				// We need to read the list of the supporting files for the applicant, asynchronously. 
+				// Synchronous ajax has been deprecated in jQuery. 
 				$.ajax({
 					type: "GET",
 					url: "/file/" + applicant_id,
@@ -444,6 +453,7 @@
 				});
 			});
 
+			// logout 
 			$('#btn_logout').on('click', function () {
 				$.ajax({
 					type: "POST",
@@ -454,10 +464,13 @@
 				});
 			});
 
+			// Manage accounts
 			$('#btn_account').on('click', function () {
 				window.open('/account', '_blank');
 			});
 
+			// Import the details for all the complete applications.
+			// If an applicant already exists, it will not be overwritten. 
 			$('#btn_import').on('change', function () {
 				var files = $('#btn_import').prop('files');
 
@@ -466,7 +479,7 @@
 				location.reload();
 			});
 
-			// Show the flash message
+			// Show the flash message. Flash message is used by Rocket for info cross pages. 
 			if (Cookies.get("_flash") !== undefined) {
 				//toast(Cookies.get("_flash"));
 				Cookies.remove("_flash");
