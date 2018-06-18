@@ -3,7 +3,7 @@ name = "admission"
 version = "0.1.0"
 
 [dependencies]
-rocket = "0.3" 
+rocket = {version = "0.3", features=["tls"]} 
 rocket_codegen = "0.3"
 serde = "1.0"
 serde_json = "1.0"
