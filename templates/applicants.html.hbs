@@ -59,28 +59,47 @@
 				}
 			}
 
-			function gen_btn(name, id) {
-				return '<input type="file" class="' + name + '"  id="' + name + '_' + id + '" accept=".pdf" >';
+			function gen_file_op(name, id) {
+				return '<td class="td_tag">' + name.substring(0, name.lastIndexOf('.')) + '</td>' +
+					'<td> <a class="lnk" href="/file/' + id + '/' + name + '" target="_blank">Open</a> &nbsp;/&nbsp;' +
+					'<a class="lnk" href="/file/' + id + '/' + name + '" target="_blank">Delete</a>' +
+					'</td>';
 			}
 
 			// generate buttons to upload the files
 			function gen_btns() {
 				var applicant_id = row_data.applicant_id;
+				var links = '';
+				var num = 1;
 
-				return '<td colspan="8"> <div class="btn-group btn-group-sm">' +
-					gen_btn("btn_resume", applicant_id) +
-					gen_btn("btn_ps", applicant_id) +
-					gen_btn("btn_ug_trans", applicant_id) +
-					gen_btn("btn_grad_trans", applicant_id) +
-					gen_btn("btn_toefl", applicant_id) +
-					gen_btn("btn_gre", applicant_id) +
-					gen_btn("btn_letter1", applicant_id) +
-					gen_btn("btn_letter2", applicant_id) +
-					gen_btn("btn_letter3", applicant_id) +
-					gen_btn("btn_letter4", applicant_id) +
-					gen_btn("btn_other1", applicant_id) +
-					gen_btn("btn_other2", applicant_id) +
-					'</div> </td>'
+				$.ajax({
+					type: "GET",
+					url: "/file/" + row_data.applicant_id,
+					dataType: "text",
+					async: false,
+					complete: function (data) {
+						var listing = data.responseText;
+						var files = listing.split(",");
+
+						for (idx in files) {
+							var fname = files[idx].trim();
+
+							if (fname.length == 0) {
+								continue;
+							}
+
+							links += gen_file_op(fname, applicant_id);
+
+							if (num % 4 == 0) {
+								links += '</tr> <tr>';
+							}
+
+							num += 1;
+						}
+					}
+				});
+
+				return links;
 			}
 
 			// `row_data` is the original data object for the row
@@ -97,7 +116,10 @@
 				gen_td("toefl_ielts") + gen_td("gre") + gen_td("decision") + gen_td("advisor") +
 				'</tr>' + '<tr>' +
 				gen_td("assistantship") + gen_td("fte") + gen_td("yearly_amount") +
-				'<td></td><td> <button type="button" class="btn btn-primary" id="btn_update' + row_data.applicant_id + '">Save</button>' +
+				'<td></td><td> <button type="button" class="btn btn-primary" id="btn_update' + row_data.applicant_id + '">Save</button></td>' +
+				'</tr>' + '<tr>' +
+				'<td></td><td> <input type="file" class="btn_upload" id="btn_upload_' + row_data.applicant_id + '" accept=".pdf" > </td>' +
+				'<td></td><td colspan="5"> <input type="file" class="btn_upload_all" id="btn_upload_all_' + row_data.applicant_id + '" accept=".pdf" > </td>' +
 				'</tr>' + '<tr>' +
 				gen_btns() +
 				'</tr>' +
@@ -110,6 +132,7 @@
 				type: "GET",
 				url: "/file/" + row_data.applicant_id,
 				dataType: "text",
+				async: false,
 				complete: function (data) {
 					function style_file(listing, name, desc) {
 						var btn_class = listing.includes(name) ? "btn-outline-secondary" : "btn-outline-primary";
@@ -118,7 +141,7 @@
 					}
 
 					var listing = data.responseText;
-					// toast(listing);
+					//toast(listing);
 					style_file(listing, "resume", "resume");
 					style_file(listing, "ps", "statement");
 					style_file(listing, "ug_trans", "UG Trans");
@@ -131,6 +154,8 @@
 					style_file(listing, "letter4", "Letter 4");
 					style_file(listing, "other1", "Other 1");
 					style_file(listing, "other2", "Other 2");
+					style_file(listing, "upload_all", "Upload All-in-one File");
+					style_file(listing, "upload", "Upload One File");
 				}
 			});
 		}
