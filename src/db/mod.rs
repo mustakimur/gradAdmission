@@ -378,7 +378,7 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
         let result = import_app(db_conn, &import);
 
         if result.is_err() {
-            //println!("{}", result.unwrap_err());
+            println!("{}", result.unwrap_err());
         }
     }
 

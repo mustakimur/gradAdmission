@@ -1,9 +1,9 @@
 use lopdf::{Document, Object};
 
 use std::collections::HashMap;
-use std::{fs, env};
-use std::process::Command;
 use std::path::PathBuf;
+use std::process::Command;
+use std::{env, fs};
 
 #[derive(Debug)]
 struct Section {
@@ -68,12 +68,12 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
     root.push("resources");
 
     let parent = fname.parent()?;
-    
+
     if !parent.is_dir() {
         println!("Cannot get path from {}", fname.display());
         return None;
     }
- 
+
     // The sections of the pdf file
     let mut sections: Vec<Section> = vec![];
 
@@ -82,7 +82,7 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
 
     let pgs = doc.get_pages();
     let mut id2pg = HashMap::new();
-    
+
     let mut max_pg = 0;
 
     // key is &u32, value is &object_id
@@ -202,7 +202,10 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
         }
 
         cmd.arg(parent.join(format!("{}{}.pdf", &title, *title2cnt.get(&title)?)));
-        cmd.output().ok()?;
+        let output = cmd.output().ok()?;
+        println!("status: {}", output.status);
+        println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+        println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
     }
 
     // now, delete the tmp files
