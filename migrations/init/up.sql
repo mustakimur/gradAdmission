@@ -41,3 +41,5 @@ CREATE TABLE `users_tbl` (
 	`password`	TEXT NOT NULL,
 	PRIMARY KEY(`user_name`)
 );
+
+INSERT INTO `users_tbl`(`user_name`,`role`,`salt`,`password`) VALUES ('Admin','Sys','wp5vgXrE9smF3JCl','F4040E708D624EA0400D7E05C5973BD29C95B035C85DDCBEA399DAC358923827');
