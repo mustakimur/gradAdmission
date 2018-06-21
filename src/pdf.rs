@@ -39,26 +39,40 @@ fn duplicate(title: &str) -> bool {
     }
 }
 
-fn rename(title: &str) -> String {
-    let low = title.to_lowercase();
+fn rename(title: &str, title2cnt: &mut HashMap<String, u32>) -> String {
+    let title = title.to_lowercase();
 
-    if low.contains("self-reported") {
-        "Self-reported".to_string()
-    } else if low.contains("unofficial") {
-        "Unofficial".to_string()
-    } else if low.contains("dashboard") {
-        "Summary".to_string()
-    } else if low.contains("reference") {
-        "Letter".to_string()
-    } else if low.contains("statement") {
-        "Statement".to_string()
-    } else if low.contains("transcript") {
-        "Transcript".to_string()
-    } else if low.contains("resume") {
-        "Resume".to_string()
+    let name;
+
+    if title.contains("self-reported") {
+        name = "Self-reported";
+    } else if title.contains("unofficial") {
+        name = "Unofficial";
+    } else if title.contains("dashboard") {
+        name = "Summary";
+    } else if title.contains("reference") {
+        name = "Letter";
+    } else if title.contains("statement") {
+        name = "Statement";
+    } else if title.contains("transcript") {
+        name = "Transcript";
+    } else if title.contains("resume") {
+        name = "Resume";
+    } else if title.contains("auto") && !title2cnt.contains_key("auto") {
+        name = "Biography";
+        title2cnt.insert("auto".to_string(), 1); // insert auto so that we will not cover again
     } else {
-        "Other".to_string()
+        name = "Other";
     }
+
+    if !title2cnt.contains_key(name) {
+        title2cnt.insert(name.to_string(), 1);
+    } else {
+        *(title2cnt.get_mut(name).unwrap()) += 1;
+    }
+
+    // it is safe to use unwrap here since we guarantee that key exists
+    format!("{}{}.pdf", name, *title2cnt.get(name).unwrap())
 }
 
 // split pdf by outlines, 2nd level, returns a list of new pdf files
@@ -193,15 +207,9 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
         }
 
         // rename the files and append the path
-        let title = rename(tr.0);
+        let title = rename(tr.0, &mut title2cnt);
 
-        if !title2cnt.contains_key(&title) {
-            title2cnt.insert(title.to_string(), 1);
-        } else {
-            *(title2cnt.get_mut(&title)?) += 1;
-        }
-
-        cmd.arg(parent.join(format!("{}{}.pdf", &title, *title2cnt.get(&title)?)));
+        cmd.arg(parent.join(title));
         let output = cmd.output().ok()?;
         println!("status: {}", output.status);
         println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
