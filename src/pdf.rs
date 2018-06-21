@@ -58,9 +58,6 @@ fn rename(title: &str, title2cnt: &mut HashMap<String, u32>) -> String {
         name = "Transcript";
     } else if title.contains("resume") {
         name = "Resume";
-    } else if title.contains("auto") && !title2cnt.contains_key("auto") {
-        name = "Biography";
-        title2cnt.insert("auto".to_string(), 1); // insert auto so that we will not cover again
     } else {
         name = "Other";
     }
@@ -71,7 +68,7 @@ fn rename(title: &str, title2cnt: &mut HashMap<String, u32>) -> String {
         *(title2cnt.get_mut(name).unwrap()) += 1;
     }
 
-    // it is safe to use unwrap here since we guarantee that key exists
+    // println!("title: {}, name: {}", title, name);
     format!("{}{}.pdf", name, *title2cnt.get(name).unwrap())
 }
 
