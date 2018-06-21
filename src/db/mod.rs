@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::collections::HashMap;
 use std::fs::File;
 use std::ops::Deref;
 
@@ -62,15 +62,21 @@ impl<'a, 'r> FromRequest<'a, 'r> for Connection {
 //
 // Access the applications table
 //
-pub use self::models::{Application, FromImport, NewApplication};
+pub use self::models::Application;
 pub use self::schema::applications_tbl;
 
 impl Application {
-    pub fn read(connection: &SqliteConnection) -> Vec<Application> {
-        applications_tbl::table
+    pub fn read(connection: &SqliteConnection) -> Option<Vec<Application>> {
+        let result = applications_tbl::table
             .order(applications_tbl::applicant_id.asc())
-            .load::<Application>(connection)
-            .unwrap()
+            .load::<Application>(connection);
+
+        if result.is_err() {
+            println!("Applicatioin.read: {}", result.unwrap_err());
+            None
+        } else {
+            result.ok()
+        }
     }
 
     pub fn get(connection: &SqliteConnection, id: i32) -> Option<Application> {
@@ -216,7 +222,7 @@ impl User {
 
         if pool_orig.is_success() {
             if let Ok(conn) = pool_orig.unwrap().get() {
-                println!("user_name in cookie:{}", name);
+                println!("get_auth: user_name in cookie:{}", name);
 
                 return User::get(&conn, name).map(|user| UserAuth {
                     user_name: user.user_name,
@@ -269,75 +275,6 @@ fn get_index(header: &csv::StringRecord, title: &str) -> Option<usize> {
 
     None
 }
-/*
-fn import_app(db_conn: &SqliteConnection, import: &FromImport) -> Result<String, Box<Error>> {
-    use self::schema::applications_tbl;
-
-    let mut new_app = NewApplication {
-        emp_id: 0,
-        applicant_id: 0,
-        name: "None",
-        dob: "Invalid",
-        gender: "M",
-        country: "US",
-        program: "CS",
-        degree: "PhD",
-        interests: "",
-        ug_university: "",
-        ug_major: "",
-        ug_degree: "",
-        ug_gpa: 0.0f64,
-        grad_university: "",
-        grad_major: "",
-        grad_degree: "",
-        grad_gpa: 0.0f64,
-        toefl_ielts: 0,
-        gre: "0/0/0",
-        decision: "Pending",
-        advisor: "",
-        assistantship: "None",
-        fte: 0.0f64,
-        yearly_amount: 0,
-    };
-
-    new_app.emp_id = import.emp_id.parse::<i32>()?;
-
-    new_app.applicant_id = import.applicant_id.parse::<i32>()?;
-
-    new_app.name = import.name;
-    new_app.dob = import.dob;
-    new_app.gender = import.gender;
-    new_app.country = import.country;
-
-    if import.degree.starts_with("COPSCIEN") {
-        new_app.program = "CS";
-    } else if import.degree.starts_with("COPSINET") {
-        new_app.program = "CNSA";
-    } else if import.degree.starts_with("COPSISEC") {
-        new_app.program = "SEC";
-    } else if import.degree.starts_with("COPSICRM") {
-        new_app.program = "CRIM";
-    } else {
-        new_app.program = "UNK";
-    }
-
-    if import.degree.ends_with("PD") {
-        new_app.degree = "Ph.D";
-    } else if import.degree.ends_with("MS") {
-        new_app.degree = "M.S";
-    } else if import.degree.ends_with("MT") {
-        new_app.degree = "M.T";
-    } else {
-        new_app.degree = "UNK";
-    }
-
-    diesel::insert_into(applications_tbl::table)
-        .values(&new_app)
-        .execute(db_conn)?;
-
-    Ok("Success".to_string())
-}
-*/
 
 pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> {
     use self::schema::applications_tbl;
@@ -372,19 +309,23 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
         "GRE Analytical Writing (0-6)",
     ];
 
-    let f2idx = HashMap::new();
-    let header = rdr.headers()?;
+    let mut f2idx = HashMap::new();
 
-    for f in fields {
-        f2idx.insert(f, get_index(header, f));
+    {
+        let header = rdr.headers()?;
+
+        for f in fields {
+            f2idx.insert(f, get_index(header, f));
+        }
     }
 
-    let read_field = |record, idx| match idx {
-        Some(i) => clean(&record[i]),
-        None => "".to_string(),
+    let read_field = |record: &csv::StringRecord, idx: Option<&Option<usize>>| {
+        idx.map_or("".to_string(), |osize| {
+            osize.map_or("".to_string(), |i| clean(&record[i]))
+        })
     };
 
-    let toefl = vec![
+    let toefls = vec![
         "TOEFL Total",
         "TOEFL Listening (0-30)",
         "TOEFL Reading (0-30)",
@@ -392,7 +333,7 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
         "TOEFL Speaking (0-30)",
     ];
 
-    let gre = vec![
+    let gres = vec![
         "GRE Verbal (130-170)",
         "GRE Quantitative (130-170)",
         "GRE Analytical Writing (0-6)",
@@ -402,8 +343,12 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
         let record = r?;
 
         let mut new_app = Application {
-            emp_id: read_field(&record, f2idx.get("External_Id")).parse::<i32>()?,
-            applicant_id: read_field(&record, f2idx.get("Ref")).parse::<i32>()?,
+            emp_id: read_field(&record, f2idx.get("External_Id"))
+                .parse::<i32>()
+                .unwrap_or(-1),
+            applicant_id: read_field(&record, f2idx.get("Ref"))
+                .parse::<i32>()
+                .unwrap_or(-1),
             name: read_field(&record, f2idx.get("Name")),
             dob: read_field(&record, f2idx.get("Birthdate")),
             gender: read_field(&record, f2idx.get("Sex")),
@@ -419,16 +364,18 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
             grad_major: read_field(&record, f2idx.get("School 1 Major")),
             grad_degree: read_field(&record, f2idx.get("School 1 Degree")),
             grad_gpa: 0.0f64,
-            toefl_ielts: toefl
+            toefl_ielts: toefls
+                .iter()
+                .map(|key| -> String { read_field(&record, f2idx.get(key)) })
+                .collect::<Vec<String>>()
+                .join("/"),
+
+            gre: gres
                 .iter()
                 .map(|f| read_field(&record, f2idx.get(f)))
-                .collect()
+                .collect::<Vec<String>>()
                 .join("/"),
-            gre: gre
-                .iter()
-                .map(|f| read_field(&record, f2idx.get(f)))
-                .collect()
-                .join("/"),
+
             decision: "Pending".to_string(),
             advisor: "".to_string(),
             assistantship: "None".to_string(),
@@ -437,37 +384,40 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
         };
 
         // parse the degree applied to
-        let degree = &new_app.degree;
-        let program = "";
+        let mut degree;
+        let mut program;
 
-        if degree.starts_with("COPSCIEN") {
-            program = "CS";
-        } else if degree.starts_with("COPSINET") {
-            program = "CNSA";
-        } else if degree.starts_with("COPSISEC") {
-            program = "SEC";
-        } else if degree.starts_with("COPSICRM") {
-            program = "CRIM";
-        } else {
-            program = "UNK";
+        {
+            let ndegree = &new_app.program;
+
+            if ndegree.starts_with("COPSCIEN") {
+                program = "CS";
+            } else if ndegree.starts_with("COPSINET") {
+                program = "CNSA";
+            } else if ndegree.starts_with("COPSISEC") {
+                program = "SEC";
+            } else if ndegree.starts_with("COPSICRM") {
+                program = "CRIM";
+            } else {
+                program = "UNK";
+            }
+
+            if ndegree.ends_with("PD") {
+                degree = "Ph.D";
+            } else if ndegree.ends_with("MS") {
+                degree = "M.S";
+            } else if ndegree.ends_with("MT") {
+                degree = "M.T";
+            } else {
+                degree = "UNK";
+            }
         }
 
         new_app.program = program.to_string();
-
-        if degree.ends_with("PD") {
-            degree = "Ph.D";
-        } else if degree.ends_with("MS") {
-            degree = "M.S";
-        } else if import.degree.ends_with("MT") {
-            degree = "M.T";
-        } else {
-            degree = "UNK";
-        }
-
         new_app.degree = degree.to_string();
 
         // update the degree
-        if new_app.grad_degree.starts_with("B") {
+        if new_app.grad_degree.starts_with("B") || (new_app.ug_degree.trim().len() == 0) {
             new_app.ug_university = new_app.grad_university;
             new_app.ug_major = new_app.grad_major;
             new_app.ug_degree = new_app.grad_degree;
@@ -476,17 +426,25 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
             new_app.grad_university = "".to_string();
             new_app.grad_major = "".to_string();
             new_app.grad_degree = "".to_string();
-            new_app.grad_gpa = "".to_string();
+            new_app.grad_gpa = 0.0f64;
         }
 
-        println!("{:?}", new_app);
+        if new_app.grad_degree == "M" {
+            new_app.grad_degree = "Master".to_string();
+        }
+
+        if new_app.ug_degree == "B" {
+            new_app.ug_degree = "Bachelor".to_string();
+        }
+
+        //println!("{:?}", new_app);
 
         let result = diesel::insert_into(applications_tbl::table)
             .values(&new_app)
             .execute(db_conn);
 
         if result.is_err() {
-            println!("{}", result.unwrap_err());
+            println!("import_csv: {}", result.unwrap_err());
         }
     }
 

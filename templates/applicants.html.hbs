@@ -477,8 +477,7 @@
 				var files = $('#btn_import').prop('files');
 
 				toast("Import from " + files[0].name + ", size: " + files[0].size);
-				upload("/file/import", files[0], function () { table.ajax.reload(); });
-				location.reload();
+				upload("/file/import", files[0], function () { table.ajax.reload(); location.reload();});
 			});
 
 			// Show the flash message. Flash message is used by Rocket for info cross pages. 

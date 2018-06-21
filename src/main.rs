@@ -167,7 +167,9 @@ fn images_auth(file: PathBuf, _user: UserAuth) -> Option<NamedFile> {
 //
 #[get("/")]
 fn read_apps_auth(connection: db::Connection, _user: UserAuth) -> Json<Value> {
-    Json(json!(Application::read(&connection)))
+    let apps = Application::read(&connection);
+    //println!("read_apps_auth: {:?}", apps);
+    Json(json!(apps))
 }
 
 #[get("/<id>")]
