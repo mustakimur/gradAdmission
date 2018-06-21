@@ -58,6 +58,8 @@ fn rename(title: &str, title2cnt: &mut HashMap<String, u32>) -> String {
         name = "Transcript";
     } else if title.contains("resume") {
         name = "Resume";
+    } else if title.contains("auto") {
+        name = "General";
     } else {
         name = "Other";
     }
