@@ -17,7 +17,7 @@ table! {
         grad_major -> Text,
         grad_degree -> Text,
         grad_gpa -> Double,
-        toefl_ielts -> Integer,
+        toefl_ielts -> Text,
         gre -> Text,
         decision -> Text,
         advisor -> Text,
@@ -46,8 +46,4 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(
-    applications_tbl,
-    comments_tbl,
-    users_tbl,
-);
+allow_tables_to_appear_in_same_query!(applications_tbl, comments_tbl, users_tbl,);

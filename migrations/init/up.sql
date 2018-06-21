@@ -16,7 +16,7 @@ CREATE TABLE `applications_tbl` (
 	`grad_major`	TEXT NOT NULL,
 	`grad_degree`	TEXT NOT NULL,
 	`grad_gpa`	REAL NOT NULL,
-	`toefl_ielts`	INTEGER NOT NULL,
+	`toefl_ielts`	TEXT NOT NULL,
 	`gre`	TEXT NOT NULL,
 	`decision`	TEXT NOT NULL,
 	`advisor`	TEXT NOT NULL,

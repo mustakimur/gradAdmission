@@ -269,7 +269,7 @@ fn get_index(header: &csv::StringRecord, title: &str) -> Option<usize> {
 
     None
 }
-
+/*
 fn import_app(db_conn: &SqliteConnection, import: &FromImport) -> Result<String, Box<Error>> {
     use self::schema::applications_tbl;
 
@@ -337,45 +337,153 @@ fn import_app(db_conn: &SqliteConnection, import: &FromImport) -> Result<String,
 
     Ok("Success".to_string())
 }
+*/
 
 pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> {
+    use self::schema::applications_tbl;
+
     // Build the CSV reader and iterate over each record.
     let file = File::open(path)?;
     let mut rdr = csv::Reader::from_reader(file);
 
-    let emp_id_idx;
-    let applicant_id_idx;
-    let name_idx;
-    let dob_idx;
-    let gender_idx;
-    let country_idx;
-    let degree_idx;
+    let fields = vec![
+        "Ref",
+        "Name",
+        "Birthdate",
+        "Academic Department",
+        "Plan",
+        "External_Id",
+        "Primary Citizenship",
+        "Sex",
+        "Email",
+        "School 1 Institution",
+        "School 1 Major",
+        "School 1 Degree",
+        "School 2 Institution",
+        "School 2 Major",
+        "School 2 Degree",
+        "TOEFL Total",
+        "TOEFL Listening (0-30)",
+        "TOEFL Reading (0-30)",
+        "TOEFL Structure/Written Expression",
+        "TOEFL Speaking (0-30)",
+        "GRE Verbal (130-170)",
+        "GRE Quantitative (130-170)",
+        "GRE Analytical Writing (0-6)",
+    ];
 
-    {
-        let header = rdr.headers()?;
-        emp_id_idx = get_index(header, "External_Id").expect("No External_Id");
-        applicant_id_idx = get_index(header, "Ref").expect("No Ref");
-        name_idx = get_index(header, "Name").expect("No Name");
-        dob_idx = get_index(header, "Birthdate").expect("No Birthdate");
-        gender_idx = get_index(header, "Sex").expect("No Sex");
-        country_idx = get_index(header, "Primary Citizenship").expect("No Primary Citizenship");
-        degree_idx = get_index(header, "Plan Desc").expect("No Plan Desc");
+    let f2idx = HashMap::new();
+    let header = rdr.headers()?;
+
+    for f in fields {
+        f2idx.insert(f, get_index(header, f));
     }
 
-    for result in rdr.records() {
-        let record = result?;
+    let read_field = |record, idx| match idx {
+        Some(i) => clean(&record[i]),
+        None => "".to_string(),
+    };
 
-        let import = FromImport {
-            emp_id: &clean(&record[emp_id_idx]),
-            applicant_id: &clean(&record[applicant_id_idx]),
-            name: &clean(&record[name_idx]),
-            dob: &clean(&record[dob_idx]),
-            gender: &clean(&record[gender_idx]),
-            country: &clean(&record[country_idx]),
-            degree: &clean(&record[degree_idx]),
+    let toefl = vec![
+        "TOEFL Total",
+        "TOEFL Listening (0-30)",
+        "TOEFL Reading (0-30)",
+        "TOEFL Structure/Written Expression",
+        "TOEFL Speaking (0-30)",
+    ];
+
+    let gre = vec![
+        "GRE Verbal (130-170)",
+        "GRE Quantitative (130-170)",
+        "GRE Analytical Writing (0-6)",
+    ];
+
+    for r in rdr.records() {
+        let record = r?;
+
+        let mut new_app = Application {
+            emp_id: read_field(&record, f2idx.get("External_Id")).parse::<i32>()?,
+            applicant_id: read_field(&record, f2idx.get("Ref")).parse::<i32>()?,
+            name: read_field(&record, f2idx.get("Name")),
+            dob: read_field(&record, f2idx.get("Birthdate")),
+            gender: read_field(&record, f2idx.get("Sex")),
+            country: read_field(&record, f2idx.get("Primary Citizenship")),
+            program: read_field(&record, f2idx.get("Plan")),
+            degree: "".to_string(),
+            interests: "".to_string(),
+            ug_university: read_field(&record, f2idx.get("School 2 Institution")),
+            ug_major: read_field(&record, f2idx.get("School 2 Major")),
+            ug_degree: read_field(&record, f2idx.get("School 2 Degree")),
+            ug_gpa: 0.0f64,
+            grad_university: read_field(&record, f2idx.get("School 1 Institution")),
+            grad_major: read_field(&record, f2idx.get("School 1 Major")),
+            grad_degree: read_field(&record, f2idx.get("School 1 Degree")),
+            grad_gpa: 0.0f64,
+            toefl_ielts: toefl
+                .iter()
+                .map(|f| read_field(&record, f2idx.get(f)))
+                .collect()
+                .join("/"),
+            gre: gre
+                .iter()
+                .map(|f| read_field(&record, f2idx.get(f)))
+                .collect()
+                .join("/"),
+            decision: "Pending".to_string(),
+            advisor: "".to_string(),
+            assistantship: "None".to_string(),
+            fte: 0.0f64,
+            yearly_amount: 0,
         };
 
-        let result = import_app(db_conn, &import);
+        // parse the degree applied to
+        let degree = &new_app.degree;
+        let program = "";
+
+        if degree.starts_with("COPSCIEN") {
+            program = "CS";
+        } else if degree.starts_with("COPSINET") {
+            program = "CNSA";
+        } else if degree.starts_with("COPSISEC") {
+            program = "SEC";
+        } else if degree.starts_with("COPSICRM") {
+            program = "CRIM";
+        } else {
+            program = "UNK";
+        }
+
+        new_app.program = program.to_string();
+
+        if degree.ends_with("PD") {
+            degree = "Ph.D";
+        } else if degree.ends_with("MS") {
+            degree = "M.S";
+        } else if import.degree.ends_with("MT") {
+            degree = "M.T";
+        } else {
+            degree = "UNK";
+        }
+
+        new_app.degree = degree.to_string();
+
+        // update the degree
+        if new_app.grad_degree.starts_with("B") {
+            new_app.ug_university = new_app.grad_university;
+            new_app.ug_major = new_app.grad_major;
+            new_app.ug_degree = new_app.grad_degree;
+            new_app.ug_gpa = new_app.grad_gpa;
+
+            new_app.grad_university = "".to_string();
+            new_app.grad_major = "".to_string();
+            new_app.grad_degree = "".to_string();
+            new_app.grad_gpa = "".to_string();
+        }
+
+        println!("{:?}", new_app);
+
+        let result = diesel::insert_into(applications_tbl::table)
+            .values(&new_app)
+            .execute(db_conn);
 
         if result.is_err() {
             println!("{}", result.unwrap_err());

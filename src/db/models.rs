@@ -22,7 +22,7 @@ pub struct Application {
     pub grad_major: String,
     pub grad_degree: String,
     pub grad_gpa: f64,
-    pub toefl_ielts: i32,
+    pub toefl_ielts: String,
     pub gre: String,
     pub decision: String,
     pub advisor: String,
@@ -50,6 +50,7 @@ pub struct User {
     pub password: String,
 }
 
+/*
 #[derive(Insertable)]
 #[table_name = "applications_tbl"]
 pub struct NewApplication<'a> {
@@ -88,4 +89,4 @@ pub struct FromImport<'a> {
     pub gender: &'a str,
     pub country: &'a str,
     pub degree: &'a str,
-}
+}*/

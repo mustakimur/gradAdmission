@@ -17,10 +17,10 @@ extern crate serde_derive;
 extern crate rocket_contrib;
 extern crate ammonia;
 extern crate argon2rs;
+extern crate lopdf;
 extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate rand;
-extern crate lopdf;
 
 use chrono::Local;
 use rocket::http::{Cookie, Cookies, Status};
@@ -31,15 +31,14 @@ use rocket::Data;
 use rocket_contrib::{Json, Template, Value};
 
 use std::collections::HashMap;
+use std::io::{Error, ErrorKind};
 use std::path::{Path, PathBuf};
 use std::{env, fs, io};
-use std::io::{Error, ErrorKind};
 
 pub mod db;
 use db::{Application, Comment, User};
 
 pub mod pdf;
-
 
 //
 // Routers to handle login and logout
@@ -298,7 +297,8 @@ fn write_file_auth(data: Data, id: i32, file: PathBuf, _user: UserAuth) -> io::R
     let mut path = path.join(&file);
     path.set_extension("pdf");
 
-    let result = data.stream_to_file(&path)
+    let result = data
+        .stream_to_file(&path)
         .map(|_n| format!("Saved to {}!", file.display()));
 
     if file.starts_with("all-in-one") {
