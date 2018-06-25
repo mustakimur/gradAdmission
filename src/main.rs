@@ -188,7 +188,10 @@ fn update_app_auth(
     connection: db::Connection,
     _user: UserAuth,
 ) -> Json<Value> {
+    //println!("update_app_auth: {:?}", &app);
+
     let new_app = Application { ..app.into_inner() };
+
     if Application::update(&connection, new_app) {
         Json(json!({"status": "Success"}))
     } else {
@@ -217,6 +220,7 @@ fn update_app(_app: Json<Application>, _connection: db::Connection) -> Redirect 
 #[get("/<id>")]
 fn review_app_auth(id: i32, connection: db::Connection, _user: UserAuth) -> Template {
     let one = Application::get(&connection, id).unwrap();
+    //println!("review: {:?}", &one);
     Template::render("review", &one)
 }
 

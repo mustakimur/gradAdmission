@@ -37,7 +37,7 @@
 					"url": "/application",
 					"dataSrc": ""
 				},
-				
+
 				// define the columns, which JSON field to obtain the data
 				"columns": [
 					{
@@ -246,7 +246,7 @@
 					'<tr>' +
 					gen_td("emp_id") + gen_td("applicant_id") + gen_td("name") + gen_td("gender") +
 					'</tr>' + '<tr>' +
-					gen_td("country") + gen_td("program") + gen_td("degree") + gen_td("degree") + 
+					gen_td("country") + gen_td("program") + gen_td("degree") + gen_td("term") +
 					'</tr>' + '<tr>' +
 					gen_td("ug_university") + gen_td("ug_major") + gen_td("ug_degree") + gen_td("ug_gpa") +
 					'</tr>' + '<tr>' +
@@ -254,7 +254,7 @@
 					'</tr>' + '<tr>' +
 					gen_td("toefl_ielts") + gen_td("gre") + gen_td("advisor") + gen_td("interests") +
 					'</tr>' + '<tr>' +
-					gen_td("decision")  + gen_td("assistantship") + gen_td("fte") + gen_td("yearly_amount") +
+					gen_td("decision") + gen_td("assistantship") + gen_td("fte") + gen_td("yearly_amount") +
 					'</tr>' + '<tr>' +
 					'<td></td><td> <button type="button" class="btn btn-primary btn-sm" id="btn_update' + app_id + '">Save</button></td>' +
 					'<td></td><td> <input type="file" class="btn_upload" id="btn_upload_' + app_id + '" accept=".pdf" > </td>' +
@@ -481,7 +481,7 @@
 				var files = $('#btn_import').prop('files');
 
 				toast("Import from " + files[0].name + ", size: " + files[0].size);
-				upload("/file/import", files[0], function () { table.ajax.reload(); location.reload();});
+				upload("/file/import", files[0], function () { table.ajax.reload(); location.reload(); });
 			});
 
 			// Show the flash message. Flash message is used by Rocket for info cross pages. 

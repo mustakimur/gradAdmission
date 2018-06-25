@@ -31,8 +31,8 @@ function facts_app() {
         select: ["None", "M.S", "M.E", "M.A", "Master"]
     };
     fields["grad_gpa"] = { tag: "Grad GPA", can_change: true, convert: parseFloat, long: false };
-    fields["toefl_ielts"] = { tag: "TOEFL/IELTS", can_change: true, convert: parseInt, long: false };
-    fields["gre"] = { tag: "GRE", can_change: true, convert: null, long: false };
+    fields["toefl_ielts"] = { tag: "TOEFL/IELTS (Total/L/R/W/S)", can_change: true, convert: null, long: false };
+    fields["gre"] = { tag: "GRE (V/Q/A)", can_change: true, convert: null, long: false };
     fields["decision"] = {
         tag: "Decision",
         can_change: true,
