@@ -37,7 +37,7 @@ function facts_app() {
         can_change: true,
         convert: null,
         long: true,
-        select: ["Pending", "Admit", "Admit w/ support", "Reject", "Accepted", "Denied", "Retracted"]
+        select: ["New", "Incomplete", "To review", "Admit", "Admit w/ support", "Reject", "Accepted", "Denied", "Retracted"]
     };
     fields["advisor"] = { tag: "Advisor", can_change: true, convert: null, long: false };
     fields["assistantship"] = {

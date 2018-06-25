@@ -376,7 +376,7 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
                 .collect::<Vec<String>>()
                 .join("/"),
 
-            decision: "Pending".to_string(),
+            decision: "New".to_string(),
             advisor: "".to_string(),
             assistantship: "None".to_string(),
             fte: 0.0f64,
