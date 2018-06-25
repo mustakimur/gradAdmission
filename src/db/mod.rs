@@ -113,6 +113,7 @@ impl Application {
         self.country = clean(&self.country);
         self.program = clean(&self.program);
         self.degree = clean(&self.degree);
+        self.term = clean(&self.term);
         self.interests = clean(&self.interests);
         self.ug_university = clean(&self.ug_university);
         self.ug_major = clean(&self.ug_major);
@@ -291,6 +292,7 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
         "Plan",
         "External_Id",
         "Primary Citizenship",
+        "Admit Term",
         "Sex",
         "Email",
         "School 1 Institution",
@@ -355,6 +357,7 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
             country: read_field(&record, f2idx.get("Primary Citizenship")),
             program: read_field(&record, f2idx.get("Plan")),
             degree: "".to_string(),
+            term: read_field(&record, f2idx.get("Admit Term")),
             interests: "".to_string(),
             ug_university: read_field(&record, f2idx.get("School 2 Institution")),
             ug_major: read_field(&record, f2idx.get("School 2 Major")),

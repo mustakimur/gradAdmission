@@ -13,6 +13,7 @@ pub struct Application {
     pub country: String,
     pub program: String,
     pub degree: String,
+    pub term: String,
     pub interests: String,
     pub ug_university: String,
     pub ug_major: String,

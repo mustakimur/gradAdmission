@@ -7,6 +7,7 @@ CREATE TABLE `applications_tbl` (
 	`country`	TEXT NOT NULL,
 	`program`	TEXT NOT NULL,
 	`degree`	TEXT NOT NULL,
+	`term`	TEXT NOT NULL,
 	`interests`	TEXT NOT NULL,
 	`ug_university`	TEXT NOT NULL,
 	`ug_major`	TEXT NOT NULL,

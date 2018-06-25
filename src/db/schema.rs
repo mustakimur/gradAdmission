@@ -8,6 +8,7 @@ table! {
         country -> Text,
         program -> Text,
         degree -> Text,
+        term -> Text,
         interests -> Text,
         ug_university -> Text,
         ug_major -> Text,

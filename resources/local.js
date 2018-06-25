@@ -9,6 +9,7 @@ function facts_app() {
     fields["country"] = { tag: "Country", can_change: false, convert: null, long: true };
     fields["program"] = { tag: "Program", can_change: false, convert: null, long: false };
     fields["degree"] = { tag: "Degree", can_change: false, convert: null, long: false };
+    fields["term"] = { tag: "Admit Term", can_change: false, convert: null, long: false };
     fields["interests"] = { tag: "Interests", can_change: true, convert: null, long: true };
     fields["ug_university"] = { tag: "UG University", can_change: true, convert: null, long: true };
     fields["ug_major"] = { tag: "UG Major", can_change: true, convert: null, long: true };
@@ -37,7 +38,17 @@ function facts_app() {
         can_change: true,
         convert: null,
         long: true,
-        select: ["New", "Incomplete", "To review", "Admit", "Admit w/ support", "Reject", "Accepted", "Denied", "Retracted"]
+        select: [
+            "New",
+            "Incomplete",
+            "To review",
+            "Admit",
+            "Admit w/ support",
+            "Reject",
+            "Accepted",
+            "Denied",
+            "Retracted"
+        ]
     };
     fields["advisor"] = { tag: "Advisor", can_change: true, convert: null, long: false };
     fields["assistantship"] = {
