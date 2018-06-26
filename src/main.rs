@@ -34,6 +34,7 @@ use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
 use std::path::{Path, PathBuf};
 use std::{env, fs, io};
+use std::{thread, time};
 
 pub mod db;
 use db::{Application, Comment, User};
@@ -122,6 +123,10 @@ fn login(mut cookies: Cookies, lg: Form<Login>, connection: db::Connection) -> F
             return Flash::success(Redirect::to("/"), "Successfully logged in.");
         }
     }
+
+    println!("Invalid username/password {}, sleep 2 seconds", name);
+    let delay = time::Duration::from_secs(2);
+    thread::sleep(delay);
 
     Flash::error(Redirect::to("/login"), "Invalid username/password.")
 }
