@@ -14,6 +14,8 @@
 	<script type="text/javascript" language="javascript" src="resources/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" language="javascript" src="/resources/local.js"></script>
 	<script type="text/javascript" language="javascript" src="/resources/js.cookie.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.colVis.min.js"></script>
 
 	<script type="text/javascript" language="javascript" class="init">
 		const fields = facts_app();
@@ -37,6 +39,23 @@
 					"url": "/application",
 					"dataSrc": ""
 				},
+
+				dom: 'lrBtip',
+				buttons: [
+					{
+						text: 'Hide commented',
+						action: function (e, dt, node, config) {
+							hide_commented();
+						}
+					},
+
+					{
+						text: 'Reset',
+						action: function (e, dt, node, config) {
+							unhide_commented();
+						}
+					}
+				],
 
 				// define the columns, which JSON field to obtain the data
 				"columns": [
@@ -163,6 +182,35 @@
 
 				"order": [[5, 'asc']],
 			});
+
+
+			// show only the rows that the user has not commented
+			function hide_commented() {
+				// show all first
+				unhide_commented();
+				$.ajax({
+					type: "GET",
+					url: "/comment/user",
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+					complete: function (data) {
+						var commented = data.responseJSON;
+						$.fn.dataTable.ext.search.push(
+							function (settings, data, dataIndex, rowData) {
+								var app_id = rowData["applicant_id"];
+								var idx = commented.indexOf(app_id);
+								return idx == -1;
+							}
+						);
+						table.draw();
+					}
+				});
+			}
+
+			function unhide_commented() {
+				$.fn.dataTable.ext.search.pop();
+				table.draw();
+			}
 
 			// show the column index
 			table.on('order.dt search.dt', function () {

@@ -127,3 +127,8 @@ td.td_tag {
 #snackbar.show {
     visibility: visible; /* Show the snackbar */
 }
+
+/* move the buttons to the right side*/
+div.dt-buttons {
+    float: right;
+}

@@ -143,6 +143,15 @@ impl Comment {
             .unwrap()
     }
 
+    pub fn get_commented(connection: &SqliteConnection, user_name: &str) -> Vec<i32> {
+        comments_tbl::table
+            .filter(comments_tbl::commenter.eq(user_name))
+            .select(comments_tbl::applicant_id)
+            .order(comments_tbl::comment_id.asc())
+            .load::<i32>(connection)
+            .unwrap()
+    }
+
     /*
     pub fn update(conn: &SqliteConnection, mut com: Comment) -> bool {
         com.santize();

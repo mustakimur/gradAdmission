@@ -356,12 +356,18 @@ fn import(_paste: Data) -> Redirect {
     println!("in import, without user");
     Redirect::to("/login")
 }
+
 //
 // Routers to handle urls based on /comment
 //
 #[get("/<id>")]
 fn read_comments_auth(id: i32, connection: db::Connection, _user: UserAuth) -> Json<Value> {
     Json(json!(Comment::read(&connection, id)))
+}
+
+#[get("/user")]
+fn get_commented_user_auth(connection: db::Connection, user: UserAuth) -> Json<Value> {
+    Json(json!(Comment::get_commented(&connection, &user.user_name)))
 }
 
 #[post("/<_id>", data = "<cmt>")]
@@ -394,7 +400,12 @@ fn add_comment_auth(
     }
 }
 
-#[get("/<_id>", rank = 2)]
+#[get("/user", rank = 2)]
+fn get_commented_user(_connection: db::Connection) -> Redirect {
+    Redirect::to("/login")
+}
+
+#[get("/<_id>", rank = 3)]
 fn read_comments(_connection: db::Connection, _id: i32) -> Redirect {
     Redirect::to("/login")
 }
@@ -536,7 +547,9 @@ fn main() {
                 read_comments,
                 read_comments_auth,
                 add_comment,
-                add_comment_auth
+                add_comment_auth,
+                get_commented_user,
+                get_commented_user_auth
             ],
         )
         .manage(db::connect())
