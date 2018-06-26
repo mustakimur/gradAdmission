@@ -124,11 +124,14 @@ fn login(mut cookies: Cookies, lg: Form<Login>, connection: db::Connection) -> F
         }
     }
 
-    println!("Invalid username/password {}, sleep 2 seconds", name);
+    println!("Invalid username/password for {}, sleep 2 seconds", name);
     let delay = time::Duration::from_secs(2);
     thread::sleep(delay);
 
-    Flash::error(Redirect::to("/login"), "Invalid username/password.")
+    Flash::error(
+        Redirect::to("/login"),
+        "Invalid username/password. Sleep a while!",
+    )
 }
 
 #[post("/logout")]
