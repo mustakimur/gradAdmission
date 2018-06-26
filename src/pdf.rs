@@ -177,7 +177,7 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
         }
     }
 
-    println!("{:?}", title2ranges);
+    //println!("{:?}", title2ranges);
 
     // separate the original pdf file into single-page pdfs
     Command::new("pdfseparate")
@@ -212,8 +212,8 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
 
         cmd.arg(parent.join(title));
         let output = cmd.output().ok()?;
-        println!("status: {}", output.status);
-        println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+        //println!("status: {}", output.status);
+        //println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
         println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
     }
 
