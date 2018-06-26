@@ -43,14 +43,21 @@
 				dom: 'lrBtip',
 				buttons: [
 					{
-						text: 'Hide commented',
+						text: 'Uncommented',
 						action: function (e, dt, node, config) {
 							hide_commented();
 						}
 					},
 
 					{
-						text: 'Reset',
+						text: 'Commented',
+						action: function (e, dt, node, config) {
+							only_commented();
+						}
+					},
+
+					{
+						text: 'All',
 						action: function (e, dt, node, config) {
 							unhide_commented();
 						}
@@ -187,7 +194,8 @@
 			// show only the rows that the user has not commented
 			function hide_commented() {
 				// show all first
-				unhide_commented();
+				$.fn.dataTable.ext.search.pop();
+
 				$.ajax({
 					type: "GET",
 					url: "/comment/user",
@@ -202,6 +210,31 @@
 								return idx == -1;
 							}
 						);
+						table.draw();
+					}
+				});
+			}
+
+			// show only the rows that the user has not commented
+			function only_commented() {
+				// show all first
+				$.fn.dataTable.ext.search.pop();
+
+				$.ajax({
+					type: "GET",
+					url: "/comment/user",
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+					complete: function (data) {
+						var commented = data.responseJSON;
+						$.fn.dataTable.ext.search.push(
+							function (settings, data, dataIndex, rowData) {
+								var app_id = rowData["applicant_id"];
+								var idx = commented.indexOf(app_id);
+								return idx != -1;
+							}
+						);
+						
 						table.draw();
 					}
 				});
