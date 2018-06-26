@@ -19,7 +19,7 @@ trait AsString {
 impl AsString for lopdf::Object {
     fn as_string(&self) -> Option<String> {
         if let Object::String(ref text, _) = self {
-            Some(String::from_utf8(text.to_vec()).ok()?)
+            Some(String::from_utf8_lossy(&text.to_vec()).to_string())
         } else {
             None
         }
@@ -139,7 +139,7 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
             end_pg: 0,
         };
 
-        //println!("{:?}", sec);
+        println!("{:?}", sec);
         sections.push(sec);
 
         let next = l2.get("Next");
@@ -149,6 +149,8 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
 
         let next = doc.get_object(next?.as_reference()?)?.as_dict()?;
         l2 = next;
+
+        //println!("next: {:?}", l2);
     }
 
     let len = sections.len();

@@ -8,5 +8,5 @@ port = 443
 log = "normal"
 
 [global.tls]
-certs = "tls/server.cert"
-key = "tls/server.key"
+certs = "tls/cert.pem"
+key = "tls/key.pem"
