@@ -22,6 +22,15 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate rand;
 
+#[macro_use]
+extern crate log;
+extern crate log4rs;
+
+use log::LevelFilter;
+use log4rs::append::file::FileAppender;
+use log4rs::config::{Appender, Config, Root};
+use log4rs::encode::pattern::PatternEncoder;
+
 use chrono::Local;
 use rocket::http::{Cookie, Cookies, Status};
 use rocket::outcome::IntoOutcome;
@@ -112,19 +121,16 @@ fn login(mut cookies: Cookies, lg: Form<Login>, connection: db::Connection) -> F
     let name = (&lg.get().user_name).to_string();
     let user_opt = User::get(&connection, &name);
 
-    /*  println!(
-        "User password after hash: {}",
-        User::hash_passwd(&lg.get().password)
-    ); */
-
     if let Some(user) = user_opt {
         if user.password == User::hash_passwd(&user.salt, &lg.get().password) {
+            info!("{} just logged in", name);
             cookies.add_private(Cookie::new("user_name", name));
             return Flash::success(Redirect::to("/"), "Successfully logged in.");
         }
     }
 
-    println!("Invalid username/password for {}, sleep 2 seconds", name);
+    warn!("Invalid username/password for {}, sleep 2 seconds", name);
+
     let delay = time::Duration::from_secs(2);
     thread::sleep(delay);
 
@@ -176,7 +182,6 @@ fn images_auth(file: PathBuf, _user: UserAuth) -> Option<NamedFile> {
 #[get("/")]
 fn read_apps_auth(connection: db::Connection, _user: UserAuth) -> Json<Value> {
     let apps = Application::read(&connection);
-    //println!("read_apps_auth: {:?}", apps);
     Json(json!(apps))
 }
 
@@ -194,9 +199,9 @@ fn read_app_auth(id: i32, connection: db::Connection, _user: UserAuth) -> Json<V
 fn update_app_auth(
     app: Json<Application>,
     connection: db::Connection,
-    _user: UserAuth,
+    user: UserAuth,
 ) -> Json<Value> {
-    //println!("update_app_auth: {:?}", &app);
+    info!("{} updated application to -> {:?}", user.user_name, &app);
 
     let new_app = Application { ..app.into_inner() };
 
@@ -228,7 +233,6 @@ fn update_app(_app: Json<Application>, _connection: db::Connection) -> Redirect 
 #[get("/<id>")]
 fn review_app_auth(id: i32, connection: db::Connection, _user: UserAuth) -> Template {
     let one = Application::get(&connection, id).unwrap();
-    //println!("review: {:?}", &one);
     Template::render("review", &one)
 }
 
@@ -242,14 +246,11 @@ fn review_app(_id: i32, _connection: db::Connection) -> Redirect {
 //
 #[get("/<id>/<file..>")]
 fn read_file_auth(id: i32, file: PathBuf, _user: UserAuth) -> Option<NamedFile> {
-    //println!("Data_dir {:?}", *DATA_DIR);
-
     let mut path = Path::new(&*DATA_DIR).join(id.to_string());
 
     path.push(file);
     path.set_extension("pdf");
 
-    //println!("{}", path.to_str().unwrap());
     NamedFile::open(path).ok()
 }
 
@@ -293,7 +294,6 @@ fn read_index_auth(id: i32, _user: UserAuth) -> String {
         }
     }
 
-    println!("read_index: {}", index);
     index
 }
 
@@ -303,7 +303,14 @@ fn read_index(_id: i32) -> Redirect {
 }
 
 #[post("/<id>/<file..>", data = "<data>")]
-fn write_file_auth(data: Data, id: i32, file: PathBuf, _user: UserAuth) -> io::Result<String> {
+fn write_file_auth(data: Data, id: i32, file: PathBuf, user: UserAuth) -> io::Result<String> {
+    info!(
+        "{} wrote file {} for application {}",
+        user.user_name,
+        file.display(),
+        id
+    );
+
     let path = Path::new(&*DATA_DIR).join(id.to_string());
 
     fs::create_dir_all(&path)?;
@@ -328,14 +335,20 @@ fn write_file(_id: i32, _file: PathBuf) -> Redirect {
 }
 
 #[delete("/<id>/<file..>")]
-fn delete_file_auth(id: i32, file: PathBuf, _user: UserAuth) -> io::Result<String> {
+fn delete_file_auth(id: i32, file: PathBuf, user: UserAuth) -> io::Result<String> {
+    info!(
+        "{} deleted file {} for application {}",
+        user.user_name,
+        file.display(),
+        id
+    );
+
     let path = Path::new(&*DATA_DIR).join(id.to_string());
 
     fs::create_dir_all(&path)?;
 
     let mut path = path.join(&file);
     path.set_extension("pdf");
-    println!("Delete file: {}", path.to_str().unwrap());
 
     fs::remove_file(path)?;
     Ok(format!("Deleted {}!", file.display()))
@@ -348,11 +361,9 @@ fn delete_file(_id: i32, _file: PathBuf) -> Redirect {
 
 #[post("/import", data = "<paste>")]
 fn import_auth(paste: Data, connection: db::Connection, user: UserAuth) -> io::Result<String> {
+    info!("{} imported the applications", user.user_name);
+
     let filename = format!("{}/import.csv", &*DATA_DIR);
-    println!(
-        "in import, with user {}, save file to {}",
-        user.user_name, &filename
-    );
 
     // Write the paste out to the file and return the URL.
     paste.stream_to_file(Path::new(&filename))?;
@@ -361,7 +372,6 @@ fn import_auth(paste: Data, connection: db::Connection, user: UserAuth) -> io::R
 
 #[post("/import", data = "<_paste>", rank = 2)]
 fn import(_paste: Data) -> Redirect {
-    println!("in import, without user");
     Redirect::to("/login")
 }
 
@@ -378,10 +388,10 @@ fn get_commented_user_auth(connection: db::Connection, user: UserAuth) -> Json<V
     Json(json!(Comment::get_commented(&connection, &user.user_name)))
 }
 
-#[post("/<_id>", data = "<cmt>")]
+#[post("/<id>", data = "<cmt>")]
 fn add_comment_auth(
     connection: db::Connection,
-    _id: i32,
+    id: i32,
     cmt: Json<Comment>,
     user: UserAuth,
 ) -> Json<Value> {
@@ -400,6 +410,8 @@ fn add_comment_auth(
     if user.user_name != c.commenter {
         c.commenter = format!("{} B/O {}", user.user_name, c.commenter);
     }
+
+    info!("{} commented on {}", user.user_name, id);
 
     if Comment::insert(&connection, c) {
         Json(json!({"status": "Success"}))
@@ -429,6 +441,7 @@ fn add_comment(_connection: db::Connection, _id: i32, _cmt: Json<Comment>) -> Re
 #[get("/")]
 fn manage_user_auth(_connection: db::Connection, user: UserAuth) -> Result<Template, Failure> {
     if !user.is_sys() {
+        warn!("{} tried to access user management page", user.user_name);
         Err(Failure(Status::Forbidden))
     } else {
         Ok(Template::render("user", &user))
@@ -468,6 +481,11 @@ fn add_user_auth(new_user: Json<User>, connection: db::Connection, user: UserAut
         ..new_user.into_inner()
     };
 
+    warn!(
+        "{} tried to add new user {}",
+        user.user_name, new_user.user_name
+    );
+
     if user.is_sys() && User::insert(&connection, new_user) {
         Json(json!({"status": "Success"}))
     } else {
@@ -483,8 +501,10 @@ fn add_user(_new_user: Json<User>, _connection: db::Connection) -> Redirect {
 #[delete("/<user_name>")]
 fn del_user_auth(user_name: String, connection: db::Connection, user: UserAuth) -> Json<Value> {
     if user.is_sys() && User::delete(&connection, &user_name) {
+        warn!("{} deleted user {}", user.user_name, user_name);
         Json(json!({"status": "Success"}))
     } else {
+        warn!("{} failed to delete user {}", user.user_name, user_name);
         Json(json!({"status": "Error", "message" : "failed to delete user"}))
     }
 }
@@ -494,7 +514,24 @@ fn del_user(_user_name: String, _connection: db::Connection) -> Redirect {
     Redirect::to("/login")
 }
 
+fn init_logger() {
+    let logfile = FileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new(
+            "{l}|{d(%Y-%m-%d %H:%M:%S)} - {m}{n}\n",
+        )))
+        .build("log/server.log")
+        .expect("Failed to create log files");
+
+    let config = Config::builder()
+        .appender(Appender::builder().build("logfile", Box::new(logfile)))
+        .build(Root::builder().appender("logfile").build(LevelFilter::Info))
+        .expect("Failed to configure log files");
+
+    log4rs::init_config(config).expect("Failed to init log4rs");
+}
+
 fn main() {
+    init_logger();
     rocket::ignite()
         .mount(
             "/",

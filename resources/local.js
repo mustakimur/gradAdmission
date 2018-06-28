@@ -28,7 +28,7 @@ function facts_app() {
         can_change: true,
         convert: null,
         long: false,
-        select: ["None", "M.Science", "M.E", "M.Arts", "Master"]
+        select: ["None", "M.Science", "M.Engineering", "M.Arts", "Master"]
     };
     fields["grad_gpa"] = { tag: "Grad GPA", can_change: true, convert: parseFloat, long: false };
     fields["toefl_ielts"] = { tag: "TOEFL/IELTS (Total/L/R/W/S)", can_change: true, convert: null, long: false };

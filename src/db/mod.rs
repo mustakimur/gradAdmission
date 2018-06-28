@@ -25,7 +25,7 @@ pub type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 pub fn connect() -> DbPool {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
-    println!("Database is located at {}", &database_url);
+    info!("Database is located at {}", &database_url);
 
     let manager = ConnectionManager::<SqliteConnection>::new(database_url);
     r2d2::Pool::builder()
@@ -72,7 +72,7 @@ impl Application {
             .load::<Application>(connection);
 
         if result.is_err() {
-            println!("Applicatioin.read: {}", result.unwrap_err());
+            info!("Applicatioin.read: {}", result.unwrap_err());
             None
         } else {
             result.ok()
@@ -232,8 +232,6 @@ impl User {
 
         if pool_orig.is_success() {
             if let Ok(conn) = pool_orig.unwrap().get() {
-                println!("get_auth: user_name in cookie:{}", name);
-
                 return User::get(&conn, name).map(|user| UserAuth {
                     user_name: user.user_name,
                     role: user.role,
@@ -419,7 +417,7 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
             } else if ndegree.ends_with("MS") {
                 degree = "M.S";
             } else if ndegree.ends_with("MT") {
-                degree = "M.T";
+                degree = "M.S/Th";
             } else {
                 degree = "UNK";
             }
@@ -456,7 +454,7 @@ pub fn import_csv(db_conn: &SqliteConnection, path: &str) -> io::Result<String> 
             .execute(db_conn);
 
         if result.is_err() {
-            println!("import_csv: {}", result.unwrap_err());
+            warn!("import_csv: {}", result.unwrap_err());
         }
     }
 

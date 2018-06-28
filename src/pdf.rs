@@ -83,7 +83,7 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
     let parent = fname.parent()?;
 
     if !parent.is_dir() {
-        println!("Cannot get path from {}", fname.display());
+        warn!("Cannot get path from {}", fname.display());
         return None;
     }
 
@@ -107,7 +107,7 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
         }
     }
 
-    println!("Total # of pages: {}", max_pg);
+    info!("Total # of pages: {}", max_pg);
 
     // get the table of content
     let toc_id = doc.catalog()?.get("Outlines")?.as_reference()?;
@@ -139,7 +139,7 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
             end_pg: 0,
         };
 
-        println!("{:?}", sec);
+        info!("Section in pdf: {:?}", sec);
         sections.push(sec);
 
         let next = l2.get("Next");
