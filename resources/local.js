@@ -18,7 +18,7 @@ function facts_app() {
         can_change: true,
         convert: null,
         long: false,
-        select: ["B.S", "B.E", "B.A", "Bachelor", "None"]
+        select: ["B.Science", "B.Tech", "B.Arts", "Bachelor", "None"]
     };
     fields["ug_gpa"] = { tag: "UG GPA", can_change: true, convert: parseFloat, long: false };
     fields["grad_university"] = { tag: "Grad University", can_change: true, convert: null, long: true };
@@ -28,7 +28,7 @@ function facts_app() {
         can_change: true,
         convert: null,
         long: false,
-        select: ["None", "M.S", "M.E", "M.A", "Master"]
+        select: ["None", "M.Science", "M.E", "M.Arts", "Master"]
     };
     fields["grad_gpa"] = { tag: "Grad GPA", can_change: true, convert: parseFloat, long: false };
     fields["toefl_ielts"] = { tag: "TOEFL/IELTS (Total/L/R/W/S)", can_change: true, convert: null, long: false };
