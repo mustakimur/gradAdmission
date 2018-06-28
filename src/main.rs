@@ -123,7 +123,7 @@ fn login(mut cookies: Cookies, lg: Form<Login>, connection: db::Connection) -> F
 
     if let Some(user) = user_opt {
         if user.password == User::hash_passwd(&user.salt, &lg.get().password) {
-            info!("{} just logged in", name);
+            warn!("{} just logged in", name);
             cookies.add_private(Cookie::new("user_name", name));
             return Flash::success(Redirect::to("/"), "Successfully logged in.");
         }
@@ -201,7 +201,7 @@ fn update_app_auth(
     connection: db::Connection,
     user: UserAuth,
 ) -> Json<Value> {
-    info!("{} updated application to -> {:?}", user.user_name, &app);
+    warn!("{} updated application to -> {:?}", user.user_name, &app);
 
     let new_app = Application { ..app.into_inner() };
 
@@ -304,7 +304,7 @@ fn read_index(_id: i32) -> Redirect {
 
 #[post("/<id>/<file..>", data = "<data>")]
 fn write_file_auth(data: Data, id: i32, file: PathBuf, user: UserAuth) -> io::Result<String> {
-    info!(
+    warn!(
         "{} wrote file {} for application {}",
         user.user_name,
         file.display(),
@@ -336,7 +336,7 @@ fn write_file(_id: i32, _file: PathBuf) -> Redirect {
 
 #[delete("/<id>/<file..>")]
 fn delete_file_auth(id: i32, file: PathBuf, user: UserAuth) -> io::Result<String> {
-    info!(
+    warn!(
         "{} deleted file {} for application {}",
         user.user_name,
         file.display(),
@@ -361,7 +361,7 @@ fn delete_file(_id: i32, _file: PathBuf) -> Redirect {
 
 #[post("/import", data = "<paste>")]
 fn import_auth(paste: Data, connection: db::Connection, user: UserAuth) -> io::Result<String> {
-    info!("{} imported the applications", user.user_name);
+    warn!("{} imported the applications", user.user_name);
 
     let filename = format!("{}/import.csv", &*DATA_DIR);
 
@@ -411,7 +411,7 @@ fn add_comment_auth(
         c.commenter = format!("{} B/O {}", user.user_name, c.commenter);
     }
 
-    info!("{} commented on {}", user.user_name, id);
+    warn!("{} commented on {}", user.user_name, id);
 
     if Comment::insert(&connection, c) {
         Json(json!({"status": "Success"}))
@@ -524,7 +524,7 @@ fn init_logger() {
 
     let config = Config::builder()
         .appender(Appender::builder().build("logfile", Box::new(logfile)))
-        .build(Root::builder().appender("logfile").build(LevelFilter::Info))
+        .build(Root::builder().appender("logfile").build(LevelFilter::Warn))
         .expect("Failed to configure log files");
 
     log4rs::init_config(config).expect("Failed to init log4rs");
