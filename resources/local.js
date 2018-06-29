@@ -41,13 +41,19 @@ function facts_app() {
         select: [
             "New",
             "Incomplete",
-            "To review",
-            "Admit",
-            "Admit w/ support",
-            "Reject",
-            "Accepted",
-            "Denied",
-            "Retracted"
+            "Ready to review",
+            "Decision-admit",
+            "Decision-admit/HP",
+            "Decision-admit/support",
+            "Decision-reject",
+            "Notified-admit",
+            "Notified-admit/HP",
+            "Notified-admit/support",
+            "Notified-reject",
+            "Student-accepted",
+            "Student-cancelled",
+            "Student-denied",
+            "Student-retracted"
         ]
     };
     fields["advisor"] = { tag: "Advisor", can_change: true, convert: null, long: false };
