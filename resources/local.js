@@ -39,21 +39,21 @@ function facts_app() {
         convert: null,
         long: true,
         select: [
-            " New",
-            " Incomplete",
-            " Ready to review",
-            "DECN: admit",
-            "DECN: admit/HP",
-            "DECN: admit/support",
-            "DECN: reject",
-            "NTFY: admit",
-            "NTFY: admit/HP",
-            "NTFY: admit/support",
-            "NTFY: reject",
-            "STUD: accepted",
-            "STUD: cancelled",
-            "STUD: denied",
-            "STUD: retracted"
+            "New",
+            "Incomplete",
+            "Ready to review",
+            "Decn: Admit",
+            "Decn: Admit/HP",
+            "Decn: Admit/support",
+            "Decn: Reject",
+            "Ntfy: Admit",
+            "Ntfy: Admit/HP",
+            "Ntfy: Admit/support",
+            "Ntfy: Reject",
+            "Stud: Accepted",
+            "Stud: Cancelled",
+            "Stud: Denied",
+            "Stud: Retracted"
         ]
     };
     fields["advisor"] = { tag: "Advisor", can_change: true, convert: null, long: false };
