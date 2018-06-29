@@ -18,7 +18,7 @@ function facts_app() {
         can_change: true,
         convert: null,
         long: false,
-        select: ["B.Science", "B.Tech", "B.Arts", "Bachelor", "None"]
+        select: ["B.Science", "B.Tech", "B.Arts","B.Engineering", "Bachelor", "None"]
     };
     fields["ug_gpa"] = { tag: "UG GPA", can_change: true, convert: parseFloat, long: false };
     fields["grad_university"] = { tag: "Grad University", can_change: true, convert: null, long: true };

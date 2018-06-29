@@ -388,15 +388,18 @@ fn get_commented_user_auth(connection: db::Connection, user: UserAuth) -> Json<V
     Json(json!(Comment::get_commented(&connection, &user.user_name)))
 }
 
-#[post("/<id>", data = "<cmt>")]
+#[post("/<_id>", data = "<cmt>")]
 fn add_comment_auth(
     connection: db::Connection,
-    id: i32,
+    _id: i32,
     cmt: Json<Comment>,
     user: UserAuth,
 ) -> Json<Value> {
     let date = Local::now();
     let now = date.format("%m/%d/%Y %H:%M:").to_string();
+    
+    warn!("{} commented on {:?}", user.user_name, cmt);
+
     let mut c = Comment {
         comment_id: None,
         when: now,
@@ -410,8 +413,6 @@ fn add_comment_auth(
     if user.user_name != c.commenter {
         c.commenter = format!("{} B/O {}", user.user_name, c.commenter);
     }
-
-    warn!("{} commented on {}", user.user_name, id);
 
     if Comment::insert(&connection, c) {
         Json(json!({"status": "Success"}))
