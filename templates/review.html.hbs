@@ -222,15 +222,15 @@
                 json_obj["ug_university"] = "{{ug_university}}";
                 json_obj["ug_major"] = "{{ug_major}}";
                 json_obj["ug_degree"] = "{{ug_degree}}";
-                json_obj["ug_gpa"] = {{ug_gpa}};
                 json_obj["grad_university"] = "{{grad_university}}";
                 json_obj["grad_major"] = "{{grad_major}}";
                 json_obj["grad_degree"] = "{{grad_degree}}";
-                json_obj["grad_gpa"] = {{grad_gpa}};
                 json_obj["fte"] = {{fte}};
                 json_obj["yearly_amount"] = {{yearly_amount}};
 
                 json_obj["interests"] = $('#input_interests').val().trim();
+                json_obj["ug_gpa"] = parseFloat($('#input_ug_gpa').val().trim());
+                json_obj["grad_gpa"] = parseFloat($('#input_grad_gpa').val().trim());
                 json_obj["toefl_ielts"] = $('#input_toefl').val().trim();
                 json_obj["gre"] = $('#input_gre').val().trim();
                 json_obj["decision"] = $('#input_decision').val().trim();
@@ -254,6 +254,8 @@
             gen_select("assistantship", "{{assistantship}}", "input_assistantship", "#div_assistantship");
 
             $('#input_interests').change(update_app);
+            $('#input_ug_gpa').change(update_app);
+            $('#input_grad_gpa').change(update_app);
             $('#input_toefl').change(update_app);
             $('#input_gre').change(update_app);
             $('#input_decision').change(update_app);
@@ -322,7 +324,7 @@
                                 <td class="td_info">{{ug_degree}}</td>
                                 <td class="td_tag">UG GPA:</td>
                                 <td class="td_info">
-                                    <b>{{ug_gpa}}</b>
+                                    <input type="number" id="input_ug_gpa" value="{{ug_gpa}}" min=0 max=4 step=0.01 style="width:100%"> 
                                 </td>
                             </tr>
                             <tr>
@@ -340,7 +342,7 @@
                                 <td class="td_info">{{grad_degree}}</td>
                                 <td class="td_tag">Grad GPA:</td>
                                 <td class="td_info">
-                                    <b>{{grad_gpa}}</b>
+                                    <input type="number" id="input_grad_gpa" value="{{grad_gpa}}" min=0 max=4 step=0.01 style="width:100%"> 
                                 </td>
                             </tr>
                             <tr>
