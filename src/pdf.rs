@@ -214,7 +214,7 @@ pub fn split_pdf(fname: &PathBuf) -> Option<String> {
         let output = cmd.output().ok()?;
         //println!("status: {}", output.status);
         //println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-        println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+        info!("stderr: {}", String::from_utf8_lossy(&output.stderr));
     }
 
     // now, delete the tmp files

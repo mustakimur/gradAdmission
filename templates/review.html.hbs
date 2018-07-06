@@ -177,6 +177,88 @@
                     }
                 });
             });
+
+            // generate a multiple choice for decision
+            function gen_select(name, val, input_id, div_id) {
+                var f = fields[name];
+                var p = '<select class="custom-select" id="' + input_id + '" value="' + val + '">';
+
+                var idx = f.select.indexOf(val);
+
+                if (idx == -1) {
+                    p += '<option value="" selected>Choose...</option>';
+                } else {
+                    p += '<option value="">Choose...</option>';
+                }
+
+                var i;
+
+                for (i in f.select) {
+                    if (idx == i) {
+                        p += '<option selected>' + f.select[i] + '</option>';
+                    } else {
+                        p += '<option>' + f.select[i] + '</option>';
+                    }
+                }
+
+                p += '</select>';
+
+                $(div_id).html(p);
+            }
+            
+            function update_app() {
+                // retrieve data from the child form. Datatables uses strings, We need to 
+                // convert them to integer or float for some fields for json to be valid.
+                var json_obj = {};
+                json_obj["emp_id"] = {{emp_id}};
+                json_obj["applicant_id"] = {{applicant_id}};
+                json_obj["name"] = "{{name}}";
+                json_obj["dob"] = "{{dob}}";
+                json_obj["gender"] = "{{gender}}";
+                json_obj["country"] = "{{country}}";
+                json_obj["program"] = "{{program}}";
+                json_obj["degree"] = "{{degree}}";
+                json_obj["term"] = "{{term}}";
+                json_obj["ug_university"] = "{{ug_university}}";
+                json_obj["ug_major"] = "{{ug_major}}";
+                json_obj["ug_degree"] = "{{ug_degree}}";
+                json_obj["ug_gpa"] = {{ug_gpa}};
+                json_obj["grad_university"] = "{{grad_university}}";
+                json_obj["grad_major"] = "{{grad_major}}";
+                json_obj["grad_degree"] = "{{grad_degree}}";
+                json_obj["grad_gpa"] = {{grad_gpa}};
+                json_obj["fte"] = {{fte}};
+                json_obj["yearly_amount"] = {{yearly_amount}};
+
+                json_obj["interests"] = $('#input_interests').val().trim();
+                json_obj["toefl_ielts"] = $('#input_toefl').val().trim();
+                json_obj["gre"] = $('#input_gre').val().trim();
+                json_obj["decision"] = $('#input_decision').val().trim();
+                json_obj["advisor"] = $('#input_advisor').val().trim();
+                json_obj["assistantship"] = $('#input_assistantship').val().trim();
+
+                // submit the changes
+                var json = JSON.stringify(json_obj);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/application",
+                    data: json,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    complete: function (data) { toast(data.responseJSON["status"]); }
+                });
+            }
+
+            gen_select("decision", "{{decision}}", "input_decision", "#div_decision");
+            gen_select("assistantship", "{{assistantship}}", "input_assistantship", "#div_assistantship");
+
+            $('#input_interests').change(update_app);
+            $('#input_toefl').change(update_app);
+            $('#input_gre').change(update_app);
+            $('#input_decision').change(update_app);
+            $('#input_advisor').change(update_app);
+            $('#input_assistantship').change(update_app);
         });
     </script>
 </head>
@@ -215,15 +297,21 @@
                                 <td class="td_tag">Program:</td>
                                 <td class="td_info">{{program}}/{{term}}</td>
                                 <td class="td_tag">Degree:</td>
-                                <td class="td_info"><b>{{degree}}</b></td>
+                                <td class="td_info">
+                                    <b>{{degree}}</b>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">Interests:</td>
-                                <td class="td_info" colspan="3">{{interests}}</td>
+                                <td class="td_info" colspan="3">
+                                    <input type="text" id="input_interests" value="{{interests}}" style="width:100%"> 
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">UG University:</td>
-                                <td class="td_info" colspan="3"><b>{{ug_university}}</b></td>
+                                <td class="td_info" colspan="3">
+                                    <b>{{ug_university}}</b>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">UG Major:</td>
@@ -233,11 +321,15 @@
                                 <td class="td_tag">UG Degree:</td>
                                 <td class="td_info">{{ug_degree}}</td>
                                 <td class="td_tag">UG GPA:</td>
-                                <td class="td_info"><b>{{ug_gpa}}</b></td>
+                                <td class="td_info">
+                                    <b>{{ug_gpa}}</b>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">Grad University:</td>
-                                <td class="td_info" colspan="3"><b>{{grad_university}}</b></td>
+                                <td class="td_info" colspan="3">
+                                    <b>{{grad_university}}</b>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">Grad Major:</td>
@@ -247,23 +339,36 @@
                                 <td class="td_tag">Grad Degree:</td>
                                 <td class="td_info">{{grad_degree}}</td>
                                 <td class="td_tag">Grad GPA:</td>
-                                <td class="td_info"><b>{{grad_gpa}}</b></td>
+                                <td class="td_info">
+                                    <b>{{grad_gpa}}</b>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">TOEFL(Total/L/R/W/S):</td>
-                                <td class="td_info">{{toefl_ielts}}</td>
+                                <td class="td_info">
+                                    <input type="text" id="input_toefl" value="{{toefl_ielts}}" style="width:100%">
+                                </td>
                                 <td class="td_tag">GRE(V/Q/A):</td>
-                                <td class="td_info">{{gre}}</td>
+                                <td class="td_info">
+                                    <input type="text" id="input_gre" value="{{gre}}" style="width:100%">
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">Decision:</td>
-                                <td class="td_info" colspan="3"><b>{{decision}}</b></td>
+                                <td class="td_info" colspan="2">
+                                    <div id="div_decision"></div>
+                                </td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="td_tag">Advisor:</td>
-                                <td class="td_info">{{advisor}}</td>
+                                <td class="td_info">
+                                    <input type="text" id="input_advisor" value="{{advisor}}" style="width:100%">
+                                </td>
                                 <td class="td_tag">Assistantship:</td>
-                                <td class="td_info">{{assistantship}}</td>
+                                <td class="td_info">
+                                    <div id="div_assistantship"></div>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="td_tag">FTE:</td>
