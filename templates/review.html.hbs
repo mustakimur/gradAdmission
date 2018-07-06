@@ -205,11 +205,12 @@
 
                 $(div_id).html(p);
             }
-            
+
             function update_app() {
                 // retrieve data from the child form. Datatables uses strings, We need to 
                 // convert them to integer or float for some fields for json to be valid.
                 var json_obj = {};
+                
                 json_obj["emp_id"] = {{emp_id}};
                 json_obj["applicant_id"] = {{applicant_id}};
                 json_obj["name"] = "{{name}}";
@@ -225,8 +226,6 @@
                 json_obj["grad_university"] = "{{grad_university}}";
                 json_obj["grad_major"] = "{{grad_major}}";
                 json_obj["grad_degree"] = "{{grad_degree}}";
-                json_obj["fte"] = {{fte}};
-                json_obj["yearly_amount"] = {{yearly_amount}};
 
                 json_obj["interests"] = $('#input_interests').val().trim();
                 json_obj["ug_gpa"] = parseFloat($('#input_ug_gpa').val().trim());
@@ -236,6 +235,8 @@
                 json_obj["decision"] = $('#input_decision').val().trim();
                 json_obj["advisor"] = $('#input_advisor').val().trim();
                 json_obj["assistantship"] = $('#input_assistantship').val().trim();
+                json_obj["fte"] = parseFloat($('#input_fte').val().trim());
+                json_obj["yearly_amount"] = parseInt($('#input_yearly').val().trim());
 
                 // submit the changes
                 var json = JSON.stringify(json_obj);
@@ -261,6 +262,8 @@
             $('#input_decision').change(update_app);
             $('#input_advisor').change(update_app);
             $('#input_assistantship').change(update_app);
+            $('#input_fte').change(update_app);
+            $('#input_yearly').change(update_app);
         });
     </script>
 </head>
@@ -306,7 +309,7 @@
                             <tr>
                                 <td class="td_tag">Interests:</td>
                                 <td class="td_info" colspan="3">
-                                    <input type="text" id="input_interests" value="{{interests}}" style="width:100%"> 
+                                    <input type="text" id="input_interests" value="{{interests}}" style="width:100%">
                                 </td>
                             </tr>
                             <tr>
@@ -324,7 +327,7 @@
                                 <td class="td_info">{{ug_degree}}</td>
                                 <td class="td_tag">UG GPA:</td>
                                 <td class="td_info">
-                                    <input type="number" id="input_ug_gpa" value="{{ug_gpa}}" min=0 max=4 step=0.01 style="width:100%"> 
+                                    <input type="number" id="input_ug_gpa" value="{{ug_gpa}}" min=0 max=4 step=0.01 style="width:100%">
                                 </td>
                             </tr>
                             <tr>
@@ -342,11 +345,12 @@
                                 <td class="td_info">{{grad_degree}}</td>
                                 <td class="td_tag">Grad GPA:</td>
                                 <td class="td_info">
-                                    <input type="number" id="input_grad_gpa" value="{{grad_gpa}}" min=0 max=4 step=0.01 style="width:100%"> 
+                                    <input type="number" id="input_grad_gpa" value="{{grad_gpa}}" min=0 max=4 step=0.01 style="width:100%">
                                 </td>
                             </tr>
                             <tr>
-                                <td class="td_tag">TOEFL(Total/L/R/W/S):</td>
+                                <td class="td_tag">TOEFL
+                                    <br>(Total/L/R/W/S):</td>
                                 <td class="td_info">
                                     <input type="text" id="input_toefl" value="{{toefl_ielts}}" style="width:100%">
                                 </td>
@@ -374,9 +378,13 @@
                             </tr>
                             <tr>
                                 <td class="td_tag">FTE:</td>
-                                <td class="td_info">{{fte}}</td>
+                                <td class="td_info">
+                                    <input type="number" id="input_fte" value="{{fte}}" min=0 max=4 step=0.1 style="width:100%">
+                                </td>
                                 <td class="td_tag">Salary:</td>
-                                <td class="td_info">{{yearly_amount}}</td>
+                                <td class="td_info">
+                                    <input type="number" id="input_yearly" value="{{yearly_amount}}" min=0 step=1 style="width:100%">
+                                </td>
                             </tr>
                         </tbody>
                     </table>
